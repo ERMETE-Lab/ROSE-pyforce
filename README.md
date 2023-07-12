@@ -1,2 +1,2 @@
 # pyrom
-Reduced Order multi-phySics data-drivEn framework (ROSE) for Python
+This repository collects for the Python package **pyrom**, to implement data-driven Reduced Order Modelling (Hybrid Data Assimilation) exploiting the [FEniCSx](https://fenicsproject.org/)
