@@ -1,5 +1,5 @@
 # pyforce
-Python Framework for data-driven model Order Reduction of multi-physiCs problEms**
+Python Framework for data-driven model Order Reduction of multi-physiCs problEms
 
 **May pyforce be with you!**
 
