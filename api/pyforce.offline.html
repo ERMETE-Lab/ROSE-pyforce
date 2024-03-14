@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.offline package &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyforce.online package" href="pyforce.online.html" />
+    <link rel="prev" title="pyforce package" href="pyforce.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyforce.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyforce.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pyforce.offline package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.offline.geim">pyforce.offline.geim module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.offline.pbdw">pyforce.offline.pbdw module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.offline.pod">pyforce.offline.pod module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.offline.sensors">pyforce.offline.sensors module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.offline.weak_greedy">pyforce.offline.weak_greedy module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.offline">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html">pyforce.online package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html">pyforce.tools package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.html#module-pyforce">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="pyforce.html">pyforce package</a></li>
+      <li class="breadcrumb-item active">pyforce.offline package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pyforce.offline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyforce-offline-package">
+<h1>pyforce.offline package<a class="headerlink" href="#pyforce-offline-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pyforce.offline.geim">
+<span id="pyforce-offline-geim-module"></span><h2>pyforce.offline.geim module<a class="headerlink" href="#module-pyforce.offline.geim" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.geim.GEIM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.geim.</span></span><span class="sig-name descname"><span class="pre">GEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/geim.html#GEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.geim.GEIM" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is used to perform the offline phase of the Generalised Empirical Interpolation Method (GEIM) to a scalar field.
+Given a list of training snapshots, this class generates the magic functions and sensors through a greedy algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domain</strong> (<em>dolfinx.mesh</em>) – Mesh of the problem onto which the sensors are generated.</p></li>
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional space of the snapshots.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Standard deviation of the gaussian kernel for the sensors</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.geim.GEIM.assemble_penalisation_matrix">
+<span class="sig-name descname"><span class="pre">assemble_penalisation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/geim.html#GEIM.assemble_penalisation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.geim.GEIM.assemble_penalisation_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Construct penalisation matrix for the TR-GEIM</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.geim.GEIM.offline">
+<span class="sig-name descname"><span class="pre">offline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampleEvery</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/geim.html#GEIM.offline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.geim.GEIM.offline" title="Permalink to this definition"></a></dt>
+<dd><p>The greedy algorithm chooses the magic functions and magic sensors by minimising the reconstruction error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots serving as training set.</p></li>
+<li><p><strong>Mmax</strong> (<em>int</em>) – Integer input indicating the maximum number of functions and sensors to define</p></li>
+<li><p><strong>xm</strong> (<em>list</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – User-defined available positions for the sensors, if <cite>None</cite> the positions are taken from the mesh elements.</p></li>
+<li><p><strong>sampleEvery</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 5</em><em>)</em>) – If <cite>xm</cite> is not <cite>None</cite>, sampling rate for the selection of points from the mesh</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>maxAbsErr</strong> (<em>np.ndarray</em>) – Maximum absolute error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>maxRelErr</strong> (<em>np.ndarray</em>) – Maximum relative error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>beta_coeff</strong> (<em>np.ndarray</em>) – Matrix of the reduced coefficients <span class="math notranslate nohighlight">\(\{ \beta_m \}_{m=1}^M\)</span>, obtained by greedy procedure</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.geim.GEIM.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/geim.html#GEIM.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.geim.GEIM.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the reduced coefficients <span class="math notranslate nohighlight">\(\{\beta_m\}_{m=1}^{M_{max}}\)</span> with ‘Mmax’ magic functions/sensors (synthetic) and returns the vector measurement from the snapshots <span class="math notranslate nohighlight">\(u\)</span></p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u) \qquad m = 1, \dots, M_{max}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function</em>) – Function from which the measuremets are computed.</p></li>
+<li><p><strong>Mmax</strong> (<em>int</em>) – Maximum number of sensors to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>beta_coeff</strong> (<em>np.ndarray</em>) – Array of coefficients for the interpolant <span class="math notranslate nohighlight">\(\{\beta_m\}_{m=1}^{M_{max}}\)</span></p></li>
+<li><p><strong>Measure</strong> (<em>np.ndarray</em>) – Array with the evaluation of the <cite>snap</cite> <span class="math notranslate nohighlight">\(u\)</span> at the sensors locations</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.geim.GEIM.test_error">
+<span class="sig-name descname"><span class="pre">test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/geim.html#GEIM.test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.geim.GEIM.test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The absolute and relative error on the test set is computed, by solving the GEIM system</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{B}\boldsymbol{\beta} = \mathbf{y}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the test set to reconstruct with GEIM</p></li>
+<li><p><strong>Mmax</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of magic functions to use (if None is set to the number of magic functions/sensors)</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>meanAbsErr</strong> (<em>np.ndarray</em>) – Average absolute error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>meanRelErr</strong> (<em>np.ndarray</em>) – Average relative error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><em>coeff_matrix</em> – Matrix of the reduced coefficients, obtained by the solving the GEIM linear system</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.offline.geim.computeLebesgue">
+<span class="sig-prename descclassname"><span class="pre">pyforce.offline.geim.</span></span><span class="sig-name descname"><span class="pre">computeLebesgue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magic_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">magic_sens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/geim.html#computeLebesgue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.geim.computeLebesgue" title="Permalink to this definition"></a></dt>
+<dd><p>The Lebesgue constant <span class="math notranslate nohighlight">\(\Lambda_M\)</span> is computed from the magic functions and sensors, to measure the good properties of the interpolation procedure.
+This function follows the implementation reported in <cite>https://www.sciencedirect.com/science/article/pii/S0045782515000389?via%3Dihub</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magic_fun</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of the magic functions</p></li>
+<li><p><strong>magic_sens</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of the magic sensors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Lebesgue</strong> – Array containing the Lebesgue constant at different number of sensors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyforce.offline.pbdw">
+<span id="pyforce-offline-pbdw-module"></span><h2>pyforce.offline.pbdw module<a class="headerlink" href="#module-pyforce.offline.pbdw" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.pbdw.PBDW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.pbdw.</span></span><span class="sig-name descname"><span class="pre">PBDW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_sensors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pbdw.html#PBDW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pbdw.PBDW" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class implementing the <em>a priori</em> error analysis of the Parameterised-Background Data-Weak (PBDW) formulation, given a list of sensors’ Riesz representation <span class="math notranslate nohighlight">\(\{g_m\}_{m=1}^M\)</span> for the update space and basis functions <span class="math notranslate nohighlight">\(\{\zeta_n\}_{n=1}^N\)</span> for the reduced one.
+In particular, the following matrices are defined <span class="math notranslate nohighlight">\((n,n' = 1,\dots,N)\)</span> and <span class="math notranslate nohighlight">\((m,m' = 1,\dots,M)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\mathbb{A}_{mm'}=\left(g_m,\,g_{m'}\right)_{\mathcal{U}}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbb{K}_{mn}=\left(g_m,\,\zeta_{n}\right)_{\mathcal{U}}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbb{Z}_{nn'}=\left(\zeta_{n},\,\zeta_{n'}\right)_{\mathcal{U}}\]</div>
+<p>given <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> as the functional space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>basis_functions</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions spanning the reduced space</p></li>
+<li><p><strong>basis_sensors</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of sensors representation spanning the update space</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pbdw.PBDW.compute_infsup">
+<span class="sig-name descname"><span class="pre">compute_infsup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pbdw.html#PBDW.compute_infsup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pbdw.PBDW.compute_infsup" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the inf-sup constant <span class="math notranslate nohighlight">\(\beta_{N,M}\)</span> for the couple basis functions (dimension <span class="math notranslate nohighlight">\(N\)</span>) - basis sensors (dimension <span class="math notranslate nohighlight">\(M\)</span>). It’s the square root of the minimum eigenvalue of the following eigenvalue problem</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{K}^T\mathbb{A}^{-1}\mathbb{K}\mathbf{z}_k = \lambda_k \mathbb{Z}\mathbf{z}_k \qquad\Longrightarrow\qquad
+\beta_{N,M} = \min\limits_{k=1,\dots,N} \sqrt{\lambda_k}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Dimension of the reduced space to use</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Dimension of the update space to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inf_sup</strong> – Inf-sup constant <span class="math notranslate nohighlight">\(\{\beta_{N,m}\}_{m=1}^M\)</span> (fixed <span class="math notranslate nohighlight">\(N\)</span>), measuring how good the update space spanned by basis sensors is.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.offline.pod">
+<span id="pyforce-offline-pod-module"></span><h2>pyforce.offline.pod module<a class="headerlink" href="#module-pyforce.offline.pod" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.pod.DiscretePOD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.pod.</span></span><span class="sig-name descname"><span class="pre">DiscretePOD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><span class="pre">FunctionsMatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#DiscretePOD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.DiscretePOD" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to perform the POD on a list of snapshots <span class="math notranslate nohighlight">\(u(\mathbf{x};\,\boldsymbol{\mu})\)</span> dependent on some parameter <span class="math notranslate nohighlight">\(\boldsymbol{\mu}\)</span>.
+This class is used for several kind of inputs (<cite>FunctionsList</cite>, vectors, images, matrices…).</p>
+<p>The snapshots are represented by a matrix <span class="math notranslate nohighlight">\(\mathbb{S}\in\mathbb{R}^{\mathcal{N}_h\times N_s}\)</span>, such that</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{S}_{ij} = u(\mathbf{x}_i;\,\boldsymbol{\mu}_j)\]</div>
+<p>in which the dependence on <span class="math notranslate nohighlight">\(\mathbf{x}_i\)</span> can be a true spatial dependence or the dofs of a matrix/image.</p>
+<p>The basis functions are computed using the <cite>svd</cite>, i.e.</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{U}, \Sigma, \mathbb{V}^\dagger = \text{svd}(\mathbb{S})\]</div>
+<p>The basis functions are orthogonal in <span class="math notranslate nohighlight">\(l_2\)</span> sense, hence the matrix containing the modes is orthogonal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><em>FunctionsMatrix</em></a><em> or </em><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the POD is performed.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the field.</p></li>
+<li><p><strong>Nmax</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – If <cite>None</cite> the full matrices are stored, else only the first <cite>Nmax</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.DiscretePOD.projection">
+<span class="sig-name descname"><span class="pre">projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#DiscretePOD.projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.DiscretePOD.projection" title="Permalink to this definition"></a></dt>
+<dd><p>The reduced coefficients <span class="math notranslate nohighlight">\(\mathbf{V}^\dagger_\star\in\mathbb{R}^{N\times N_\star}\)</span> of <cite>snap</cite><span class="math notranslate nohighlight">\(=\mathbb{S}_\star\in\mathbb{R}^{\mathcal{N}_h\times N_\star}\)</span> using <cite>N</cite> modes <span class="math notranslate nohighlight">\(\mathbb{U}\in\mathbb{R}^{\mathcal{N}_h\times N}\)</span> are computed using projection in <span class="math notranslate nohighlight">\(l_2\)</span>, i.e.</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{V}^\dagger_\star = \Sigma^{-1}\mathbb{U}^T\mathbb{S}_\star\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>np.ndarray</em>) – Matrix object to project onto the reduced space of dimension <cite>N</cite>. Must be <span class="math notranslate nohighlight">\((\mathcal{N}_h, N_\star)\)</span>.</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Dimension of the reduced space, modes to be used. If <cite>None</cite> all the modes are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>coeff</strong> – Modal POD coefficients of <cite>snap</cite>, <span class="math notranslate nohighlight">\(\mathbf{V}^\dagger_\star\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.DiscretePOD.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Vh_star</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#DiscretePOD.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.DiscretePOD.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>The reduced coefficients <span class="math notranslate nohighlight">\(\mathbf{V}^\dagger_\star\in\mathbb{R}^{N\times N_\star}\)</span> are used to decode into the Full Order space <span class="math notranslate nohighlight">\(\mathbb{R}^{\mathcal{N}_h}\)</span> using <cite>N</cite> modes <span class="math notranslate nohighlight">\(\mathbb{U}\in\mathbb{R}^{\mathcal{N}_h\times N}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{S}_\star = \mathbb{U}\Sigma\mathbf{V}^\dagger_\star\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Vh_star</strong> (<em>np.ndarray</em>) – Matrix object containing the POD coefficients. Must be <span class="math notranslate nohighlight">\((N, N_\star)\)</span>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>snaps</strong> – Reconstructed field returned as an element of <span class="math notranslate nohighlight">\(\mathbf{R}^{\mathcal{N_h}\times N_\star}\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.DiscretePOD.train_error">
+<span class="sig-name descname"><span class="pre">train_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><span class="pre">FunctionsMatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#DiscretePOD.train_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.DiscretePOD.train_error" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum absolute <span class="math notranslate nohighlight">\(E_N\)</span> and relative <span class="math notranslate nohighlight">\(\varepsilon_N\)</span> error on the train set is computed, by projecting it onto the reduced space in <span class="math notranslate nohighlight">\(l^2\)</span>-sense</p>
+<div class="math notranslate nohighlight">
+\[E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}\]</div>
+<div class="math notranslate nohighlight">
+\[\varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{2}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><em>FunctionsMatrix</em></a><em> or </em><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots to project and compute errors</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>maxAbsErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>maxRelErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.pod.</span></span><span class="sig-name descname"><span class="pre">POD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_scipy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to perform the POD on a list of snapshots <span class="math notranslate nohighlight">\(u(\mathbf{x};\,\boldsymbol{\mu})\)</span> dependent on some parameter <span class="math notranslate nohighlight">\(\boldsymbol{\mu}\in\mathcal{P}\subset\mathbb{R}^p\)</span>.
+This class is used for <cite>FunctionsList</cite>, the POD modes are obtained from the eigendecomposition of the correlation matrix <span class="math notranslate nohighlight">\(C\in\mathbb{R}^{N_s\times N_s}\)</span></p>
+<div class="math notranslate nohighlight">
+\[C_{ij} = \left(u(\cdot;\,\boldsymbol{\mu}_i),\,u(\cdot;\,\boldsymbol{\mu}_j)\right)_{L^2}\qquad i,j = 1, \dots, N_s\]</div>
+<div class="math notranslate nohighlight">
+\[C \boldsymbol{\eta_n} = \lambda_n \boldsymbol{\eta_n}\qquad\qquad\qquad n = 1, \dots, N_s\]</div>
+<p>The eigenvalues <span class="math notranslate nohighlight">\(\lambda_n\)</span> and eigenvectors <span class="math notranslate nohighlight">\(\boldsymbol{\eta_n}\)</span> are immediately computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the POD is performed.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the field.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD.GrahmSchmidt">
+<span class="sig-name descname"><span class="pre">GrahmSchmidt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD.GrahmSchmidt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD.GrahmSchmidt" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a step of the Gram-Schmidt process on POD modes <span class="math notranslate nohighlight">\(\{\psi_k\}_{k=1}^r\)</span> adding <cite>fun</cite> <span class="math notranslate nohighlight">\(=f\)</span> to enforce the orthonormality in <span class="math notranslate nohighlight">\(L^2\)</span></p>
+<div class="math notranslate nohighlight">
+\[\psi_{r+1} = f - \sum_{k=1}^r \frac{(f, \psi_k)_{L^2}}{(\psi_k, \psi_k)_{L^2}}\psi_k\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fun</strong> (<em>Function</em>) – Function to add to the POD basis.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>normalised_fun</strong> – Orthonormalised function <span class="math notranslate nohighlight">\(\psi_{r+1}\)</span> with respect to the POD basis <span class="math notranslate nohighlight">\(\{\psi_k\}_{k=1}^r\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD.compute_basis">
+<span class="sig-name descname"><span class="pre">compute_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD.compute_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD.compute_basis" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the POD modes.</p>
+<p>To enforce the orthonormality in <span class="math notranslate nohighlight">\(L^2\)</span>, the Grahm-Schmidt procedure can be used, if the number of modes to be used is high the numerical error in the eigendecomposition may be too large and the orthonormality is lost.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the POD is performed.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the number of modes to define.</p></li>
+<li><p><strong>normalise</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If True, the Grahm-Schmidt procedure is used to normalise the POD modes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD.mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD.mode" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the <cite>r</cite>-th POD mode, according to the following formula</p>
+<div class="math notranslate nohighlight">
+\[\psi_{r} (\mathbf{x})= \frac{1}{\lambda_r}\sum_{i=1}^{N_s} \eta_{r, i}\,u(\mathbf{x};\,\boldsymbol{\mu}_i)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the POD is performed.</p></li>
+<li><p><strong>r</strong> (<em>int</em>) – Integer input indicating the mode to define.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD.projection">
+<span class="sig-name descname"><span class="pre">projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD.projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD.projection" title="Permalink to this definition"></a></dt>
+<dd><p>The reduced coefficients <span class="math notranslate nohighlight">\(\{\alpha_k\}_{k=1}^N\)</span> of <cite>u</cite> using <cite>N</cite> modes <span class="math notranslate nohighlight">\(\{\psi_k\}_{k=1}^N\)</span> are computed using projection in <span class="math notranslate nohighlight">\(L_2\)</span>, i.e.</p>
+<div class="math notranslate nohighlight">
+\[\alpha_k(\boldsymbol{\mu}) = (u(\cdot;\,\boldsymbol{\mu}), \,\psi_k)_{L^2}\qquad k = 1, \dots, N\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>Function</em>) – Function object to project onto the reduced space of dimension <cite>N</cite>.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Dimension of the reduced space, modes to be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>coeff</strong> – Modal POD coefficients of <cite>u</cite>, <span class="math notranslate nohighlight">\(\{\alpha_k\}_{k=1}^N\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD.test_error">
+<span class="sig-name descname"><span class="pre">test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD.test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD.test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The average absolute <span class="math notranslate nohighlight">\(E_N\)</span> and relative <span class="math notranslate nohighlight">\(\varepsilon_N\)</span> error on the test set is computed, by projecting it onto the reduced space in <span class="math notranslate nohighlight">\(L^2\)</span>-sense</p>
+<div class="math notranslate nohighlight">
+\[E_N = \left\langle \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2} \right\rangle_{\boldsymbol{\mu}\in\Xi_{\text{test}}}\]</div>
+<div class="math notranslate nohighlight">
+\[\varepsilon_N =\left\langle \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}} \right\rangle_{\boldsymbol{\mu}\in\Xi_{\text{test}}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the test error of the POD basis is performed.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>meanAbsErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>maxRelErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>coeff_matrix</strong> (<em>np.ndarray</em>) – Matrix of the modal coefficients, obtained by projection in <span class="math notranslate nohighlight">\(L^2\)</span>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.pod.POD.train_error">
+<span class="sig-name descname"><span class="pre">train_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/pyforce/offline/pod.html#POD.train_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.pod.POD.train_error" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum absolute <span class="math notranslate nohighlight">\(E_N\)</span> and relative <span class="math notranslate nohighlight">\(\varepsilon_N\)</span> error on the train set is computed, by projecting it onto the reduced space in <span class="math notranslate nohighlight">\(L^2\)</span>-sense</p>
+<div class="math notranslate nohighlight">
+\[E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}\]</div>
+<div class="math notranslate nohighlight">
+\[\varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the train error of the POD basis is performed.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>maxAbsErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>maxRelErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>coeff_matrix</strong> (<em>np.ndarray</em>) – Matrix of the modal coefficients, obtained by projection in <span class="math notranslate nohighlight">\(L^2\)</span>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.offline.sensors">
+<span id="pyforce-offline-sensors-module"></span><h2>pyforce.offline.sensors module<a class="headerlink" href="#module-pyforce.offline.sensors" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.SGREEDY">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.sensors.</span></span><span class="sig-name descname"><span class="pre">SGREEDY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#SGREEDY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.SGREEDY" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to perform the SGREEDY algorithm, given a list of basis functions <span class="math notranslate nohighlight">\(\{\phi_n\}_{n=1}^N\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domain</strong> (<em>dolfinx.mesh</em>) – Mesh for the sensor placement.</p></li>
+<li><p><strong>basis</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of basis functions <span class="math notranslate nohighlight">\(\{\phi_n\}_{n=1}^N\)</span>, previously generated.</p></li>
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional space of the functions.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Standard deviation of the gaussian kernel for the sensors</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.SGREEDY.approx_loop">
+<span class="sig-name descname"><span class="pre">approx_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_H1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#SGREEDY.approx_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.SGREEDY.approx_loop" title="Permalink to this definition"></a></dt>
+<dd><p>Approximation loop for the selection of sensors position with a Riesz representation <span class="math notranslate nohighlight">\(\{g_m\}_{m=1}^M\)</span> either in <span class="math notranslate nohighlight">\(L^2\)</span> or <span class="math notranslate nohighlight">\(H^1\)</span>.
+At each step <cite>m</cite>, the next position is selected by the following</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{m+1} = \text{arg }\max\limits_{\mathbf{x}\in \Omega^\star}\left(\min\limits_{i=1, \dots, m} \| \mathbf{x}-\mathbf{x}_i\|_2\right)\]</div>
+<p>given $Omega^starsubsetOmega$ a subset of the whole domain, in which sensors are allowed to be placed. Once the position is known, the functional and its Riesz representation are straightforwardly defined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Mmax</strong> (<em>int</em>) – Maximum number of sensors allows.</p></li>
+<li><p><strong>is_H1</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default: False</em><em>)</em>) – If <cite>True</cite>, the Riesz representation in <span class="math notranslate nohighlight">\(H^1\)</span> is used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.SGREEDY.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampleEvery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_H1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#SGREEDY.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.SGREEDY.generate" title="Permalink to this definition"></a></dt>
+<dd><p>Selection of sensors position with a Riesz representation <span class="math notranslate nohighlight">\(\{g_m\}_{m=1}^M\)</span> either in <span class="math notranslate nohighlight">\(L^2\)</span> or <span class="math notranslate nohighlight">\(H^1\)</span>.
+The positions of the sensors are either freely selected on the mesh or given as input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Dimension of the reduced space.</p></li>
+<li><p><strong>Mmax</strong> (<em>int</em>) – Maximum number of sensors to select.</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default=0.2</em><em>)</em>) – Tolerance to exit the stability loop</p></li>
+<li><p><strong>xm</strong> (<em>list</em><em>, </em><em>optional</em><em> (</em><em>Default=None</em><em>)</em>) – If not <cite>None</cite>, list of available positions for the sensors.</p></li>
+<li><p><strong>sampleEvery</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 10</em><em>)</em>) – Sampling points on the mesh.</p></li>
+<li><p><strong>is_H1</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default: False</em><em>)</em>) – If <cite>True</cite>, the Riesz representation in <span class="math notranslate nohighlight">\(H^1\)</span> is used.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, printing is enabled.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.gaussian_sensors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.sensors.</span></span><span class="sig-name descname"><span class="pre">gaussian_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assemble_riesz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#gaussian_sensors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.gaussian_sensors" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to define normalised gaussian sensors in terms of functional to mimic measurements of scalar fields.
+The measurement procedure is described through a linear functional with gaussian kernel, i.e.</p>
+<div class="math notranslate nohighlight">
+\[v_k = v(u;\,\mathbf{x}_k,s) = \int_\Omega u(\mathbf{x})\cdot g(\mathbf{x};\,\mathbf{x}_k,s)\,d\Omega
+\qquad
+\text{ given } g(\mathbf{x};\,\mathbf{x}_k,s) =
+\frac{e^{-\frac{\|{\mathbf{x}-\mathbf{x}_k}\|_2^2}{2s^2}}}{\displaystyle\int_\Omega e^{-\frac{\|{\mathbf{x}-\mathbf{x}_k}\|_2^2}{2s^2}}\,d\Omega}\]</div>
+<p>such that <span class="math notranslate nohighlight">\(v(1;\,\mathbf{x}_k,s) = 1\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domain</strong> (<em>dolfinx.mesh</em>) – Mesh onto which the sensors are defined.</p></li>
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional space onto which the kernel of the sensors are interpolated.</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Standard deviation of the gaussian kernel.</p></li>
+<li><p><strong>assemble_riesz</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default: False</em><em>)</em>) – Logic variable indicating whether or not to assemble the variational forms for the Riesz representations.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.gaussian_sensors.action">
+<span class="sig-name descname"><span class="pre">action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#gaussian_sensors.action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.gaussian_sensors.action" title="Permalink to this definition"></a></dt>
+<dd><p>Given an input function <cite>fun</cite> <span class="math notranslate nohighlight">\(=f\)</span> and a list of sensors <span class="math notranslate nohighlight">\(\{v_m\}_{m=1}^M\)</span>, the action of the sensor is applied to the function, as an inner product in <span class="math notranslate nohighlight">\(L^2\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m\left(f\right)\qquad m = 1, \dots, M\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>Function</em>) – Function onto which the action is applied.</p></li>
+<li><p><strong>sens</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of available sensors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>measure</strong> – Vector <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span>, whose dimension is equal to the number of input sensors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.gaussian_sensors.action_single">
+<span class="sig-name descname"><span class="pre">action_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#gaussian_sensors.action_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.gaussian_sensors.action_single" title="Permalink to this definition"></a></dt>
+<dd><p>Given an input function <cite>fun</cite> <span class="math notranslate nohighlight">\(=f\)</span> and a sensors <span class="math notranslate nohighlight">\(v_m\)</span>, the action of the sensor is applied to the function, as an inner product in <span class="math notranslate nohighlight">\(L^2\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m\left(f\right)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>Function</em>) – Function onto which the action is applied.</p></li>
+<li><p><strong>sensor</strong> (<em>Function</em>) – Riesz representation of the sensor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>measure</strong> – Scalar <span class="math notranslate nohighlight">\(y_m\)</span> with the measure of the function with respect to the sensor <span class="math notranslate nohighlight">\(v_m\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.gaussian_sensors.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampleEvery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_H1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#gaussian_sensors.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.gaussian_sensors.create" title="Permalink to this definition"></a></dt>
+<dd><p>This function creates the list of sensors (using Riesz representation either in <span class="math notranslate nohighlight">\(L^2\)</span> or in <span class="math notranslate nohighlight">\(H^1\)</span>), either by sampling from the mesh or from a prescribed list of positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xm</strong> (<em>list</em><em>, </em><em>optional</em><em> (</em><em>Default: None</em><em>)</em>) – Possible List of positions for the sensors inside the domain.</p></li>
+<li><p><strong>sampleEvery</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default: 10</em><em>)</em>) – Integers indicating sampling rate to be used on the mesh, if <cite>x_m</cite> is <cite>None</cite>.</p></li>
+<li><p><strong>is_H1</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default: False</em><em>)</em>) – If <cite>True</cite>, the Riesz representation in <span class="math notranslate nohighlight">\(H^1\)</span> is used.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, printing is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sens_list</strong> – List of kernel functions using a Riesz representation in <span class="math notranslate nohighlight">\(L^2\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList">FunctionsList</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.gaussian_sensors.define">
+<span class="sig-name descname"><span class="pre">define</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#gaussian_sensors.define"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.gaussian_sensors.define" title="Permalink to this definition"></a></dt>
+<dd><p>Given a position <span class="math notranslate nohighlight">\(x_m\)</span> defines the kernel function of the sensor as a Gaussian with given point spread <cite>s</cite></p>
+<div class="math notranslate nohighlight">
+\[g(\mathbf{x};\,\mathbf{x}_m,s) =
+\frac{e^{-\frac{\|{\mathbf{x}-\mathbf{x}_m}\|_2^2}{2s^2}}}{\displaystyle\int_\Omega e^{-\frac{\|{\mathbf{x}-\mathbf{x}_m}\|_2^2}{2s^2}}\,d\Omega}\]</div>
+<p>This kernel function is the Riesz representation <span class="math notranslate nohighlight">\(q_m\)</span> in <span class="math notranslate nohighlight">\(L^2\)</span> of the functional, i.e.</p>
+<div class="math notranslate nohighlight">
+\[(q_m, \varphi)_{L^2} =
+\int_\Omega q_m\cdot \varphi \,d\Omega = v_m(\varphi)\qquad \forall \varphi\in L^2\]</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.sensors.gaussian_sensors.define_riesz">
+<span class="sig-name descname"><span class="pre">define_riesz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/offline/sensors.html#gaussian_sensors.define_riesz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.sensors.gaussian_sensors.define_riesz" title="Permalink to this definition"></a></dt>
+<dd><p>Given a position <span class="math notranslate nohighlight">\(x_m\)</span> defines the kernel function <span class="math notranslate nohighlight">\(q_m\)</span> of the sensor as the Riesz representation in <span class="math notranslate nohighlight">\(H^1\)</span> of the functional, i.e.</p>
+<div class="math notranslate nohighlight">
+\[(q_m, \varphi)_{H^1} =
+\int_\Omega q_m\cdot \varphi \,d\Omega + \int_\Omega \nabla q_m\cdot \nabla \varphi \,d\Omega
+= v_m(\varphi)\qquad \forall \varphi\in H^1\]</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.offline.weak_greedy">
+<span id="pyforce-offline-weak-greedy-module"></span><h2>pyforce.offline.weak_greedy module<a class="headerlink" href="#module-pyforce.offline.weak_greedy" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.offline.weak_greedy.WeakGreedy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.offline.weak_greedy.</span></span><span class="sig-name descname"><span class="pre">WeakGreedy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/weak_greedy.html#WeakGreedy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.weak_greedy.WeakGreedy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.weak_greedy.WeakGreedy.GrahmSchmidt">
+<span class="sig-name descname"><span class="pre">GrahmSchmidt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/weak_greedy.html#WeakGreedy.GrahmSchmidt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.weak_greedy.WeakGreedy.GrahmSchmidt" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a step of the Gram-Schmidt process on basis functions <span class="math notranslate nohighlight">\(\{\psi_k\}_{k=1}^r\)</span> adding <cite>fun</cite> <span class="math notranslate nohighlight">\(=f\)</span> to enforce the orthonormality in <span class="math notranslate nohighlight">\(L^2\)</span></p>
+<div class="math notranslate nohighlight">
+\[\psi_{r+1} = f - \sum_{k=1}^r \frac{(f, \psi_k)_{L^2}}{(\psi_k, \psi_k)_{L^2}}\psi_k\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fun</strong> (<em>Function</em>) – Function to add to the WeakGreedy basis.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>normalised_fun</strong> – Orthonormalised function <span class="math notranslate nohighlight">\(\psi_{r+1}\)</span> with respect to the WeakGreedy basis <span class="math notranslate nohighlight">\(\{\psi_k\}_{k=1}^r\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.weak_greedy.WeakGreedy.compute_basis">
+<span class="sig-name descname"><span class="pre">compute_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/weak_greedy.html#WeakGreedy.compute_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.weak_greedy.WeakGreedy.compute_basis" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the WeakGreedy (WG) basis functions (orthonormalised using Grahm-Schmidt), as the set of snapshots that minimises the reconstruction error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the WG algorithm is performed.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to define</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>maxAbsErr</em> – Maximum absolute error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><em>maxRelErr</em> – Maximum relative error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><em>alpha_coeff</em> – Matrix of the reduced coefficients, obtained by the <span class="math notranslate nohighlight">\(L^2\)</span> projection</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.weak_greedy.WeakGreedy.projection">
+<span class="sig-name descname"><span class="pre">projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/weak_greedy.html#WeakGreedy.projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.weak_greedy.WeakGreedy.projection" title="Permalink to this definition"></a></dt>
+<dd><p>The reduced coefficients <span class="math notranslate nohighlight">\(\{\alpha_k\}_{k=1}^N\)</span> of <cite>u</cite> using <cite>N</cite> basis functions <span class="math notranslate nohighlight">\(\{\psi_k\}_{k=1}^N\)</span> are computed using projection in <span class="math notranslate nohighlight">\(L_2\)</span>, i.e.</p>
+<div class="math notranslate nohighlight">
+\[\alpha_k(\boldsymbol{\mu}) = (u(\cdot;\,\boldsymbol{\mu}), \,\psi_k)_{L^2}\qquad k = 1, \dots, N\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>Function</em>) – Function object to project onto the reduced space of dimension <cite>N</cite>.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Dimension of the reduced space, modes to be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>coeff</strong> – Reduced coefficients of <cite>u</cite>, <span class="math notranslate nohighlight">\(\{\alpha_k\}_{k=1}^N\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.offline.weak_greedy.WeakGreedy.test_error">
+<span class="sig-name descname"><span class="pre">test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/offline/weak_greedy.html#WeakGreedy.test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.offline.weak_greedy.WeakGreedy.test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum absolute <span class="math notranslate nohighlight">\(E_N\)</span> and relative <span class="math notranslate nohighlight">\(\varepsilon_N\)</span> error on the test set is computed, by projecting it onto the reduced space in <span class="math notranslate nohighlight">\(L^2\)</span>-sense</p>
+<div class="math notranslate nohighlight">
+\[E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}\]</div>
+<div class="math notranslate nohighlight">
+\[\varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the test error of the POD basis is performed.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>meanAbsErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>maxRelErr</strong> (<em>np.ndarray</em>) – Maximum absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>coeff_matrix</strong> (<em>np.ndarray</em>) – Matrix of the modal coefficients, obtained by projection in <span class="math notranslate nohighlight">\(L^2\)</span>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.offline">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyforce.offline" title="Permalink to this heading"></a></h2>
+<p>pyforce/offline.</p>
+<p>Offline phase of the pyforce library.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyforce.html" class="btn btn-neutral float-left" title="pyforce package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pyforce.online.html" class="btn btn-neutral float-right" title="pyforce.online package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

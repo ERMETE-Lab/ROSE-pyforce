@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.online.pod_projection &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.online.pod_projection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.online.pod_projection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Synthetic Online Phase: Generalised Empirical Interpolation Method</span>
+<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 25 June 2023</span>
+<span class="c1"># Latest Doc  Update: 18 July 2023</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">Function</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+<div class="viewcode-block" id="POD_project"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project">[docs]</a><span class="k">class</span> <span class="nc">POD_project</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to perform the online phase of the POD with projection from true field, in which the modal coefficients are found from the projection of the snapshot onto the reduced space.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modes : FunctionsList</span>
+<span class="sd">        List of POD modes computed during the offline phase.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the snapshots (e.g., temperature T)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modes</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">modes</span><span class="o">.</span><span class="n">fun_space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="n">modes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># Store the variable name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c1"># Defining the norm class to make scalar products and norms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="POD_project.synt_test_error"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project.synt_test_error">[docs]</a>    <span class="k">def</span> <span class="nf">synt_test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                              <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2`</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}</span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}}</span>
+<span class="sd">    </span>
+<span class="sd">        The coefficients of the POD basis are obtained by interpolating using the maps.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_snap : FunctionsList</span>
+<span class="sd">            List of snapshots onto which the test error of the POD basis is performed.</span>
+<span class="sd">        maxBasis : int</span>
+<span class="sd">            Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">        verbose : boolean, optional (Default = False) </span>
+<span class="sd">            If `True`, print of the progress is enabled.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ave_absErr : np.ndarray</span>
+<span class="sd">            Average absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">        ave_relErr : np.ndarray</span>
+<span class="sd">            Average absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">        computational_time : dict</span>
+<span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">Ns_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_snap</span><span class="p">)</span>
+        
+        <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+        <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing POD test error (projection) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns_test</span><span class="p">)</span>
+
+        <span class="c1"># Variables to store the computational times</span>
+        <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;CoeffEstimation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;LinearSystem&#39;</span><span class="p">]</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span>          <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+        
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span> 
+        
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns_test</span><span class="p">):</span>
+            
+            <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">norma_snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            
+            <span class="c1"># Coefficient Estimation</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">maxBasis</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+                <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">coeff</span><span class="p">[</span><span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">nn</span><span class="p">),</span> <span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;CoeffEstimation&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                
+                <span class="c1"># building residual field</span>
+                <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">resid</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">nn</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
+                <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">/</span> <span class="n">norma_snap</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">+=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">computational_time</span></div>
+        
+<div class="viewcode-block" id="POD_project.project"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project.project">[docs]</a>    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Project `snap` onto the reduced space of dimension `maxBasis`, by computing the modal coefficients :math:`\{\alpha_i\}`</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \alpha_i = (u, \psi_i)_{L^2} = \int_\Omega u\cdot \psi_i\,d\Omega</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snap : Function</span>
+<span class="sd">            Snap to project.</span>
+<span class="sd">        maxBasis : int</span>
+<span class="sd">            Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        coeff : np.ndarray</span>
+<span class="sd">            Modal coefficient obtain by projection with POD modes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">maxBasis</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+          <span class="n">coeff</span><span class="p">[</span><span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">nn</span><span class="p">))</span> 
+            
+        <span class="k">return</span> <span class="n">coeff</span></div>
+        
+<div class="viewcode-block" id="POD_project.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project.reconstruct">[docs]</a>    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The coefficients of the POD basis are obtained by projection, the `snap` is approximated using linear combination of the POD modes.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snap : Function as np.ndarray</span>
+<span class="sd">            Snap to reconstruct, if a function is provided, the variable is reshaped.</span>
+<span class="sd">        maxBasis : int</span>
+<span class="sd">            Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reconstruction : np.ndarray</span>
+<span class="sd">            Reconstructed field using `maxBasis` POD modes.</span>
+<span class="sd">        resid : np.ndarray</span>
+<span class="sd">            Residual field using `maxBasis` POD modes.</span>
+<span class="sd">        computational_time : dict</span>
+<span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Variables to store the computational times</span>
+        <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span> 
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="n">snap</span> <span class="o">=</span> <span class="n">snap</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+            
+        <span class="c1"># Estimate the coefficients</span>
+        <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">)</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;CoeffEstimation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            
+        
+        <span class="c1"># Compute the interpolant and residual</span>
+        <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">recon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Reconstruction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snap</span> <span class="o">-</span> <span class="n">recon</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">recon</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">computational_time</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

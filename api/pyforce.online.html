@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.online package &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyforce.tools package" href="pyforce.tools.html" />
+    <link rel="prev" title="pyforce.offline package" href="pyforce.offline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyforce.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyforce.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html">pyforce.offline package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pyforce.online package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.geim_synthetic">pyforce.online.geim_synthetic module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.indirect_recon">pyforce.online.indirect_recon module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.pbdw_synthetic">pyforce.online.pbdw_synthetic module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.pod_interpolation">pyforce.online.pod_interpolation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.pod_projection">pyforce.online.pod_projection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.tr_geim_synthetic">pyforce.online.tr_geim_synthetic module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html">pyforce.tools package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.html#module-pyforce">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="pyforce.html">pyforce package</a></li>
+      <li class="breadcrumb-item active">pyforce.online package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pyforce.online.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyforce-online-package">
+<h1>pyforce.online package<a class="headerlink" href="#pyforce-online-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pyforce.online.geim_synthetic">
+<span id="pyforce-online-geim-synthetic-module"></span><h2>pyforce.online.geim_synthetic module<a class="headerlink" href="#module-pyforce.online.geim_synthetic" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.geim_synthetic.GEIM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.geim_synthetic.</span></span><span class="sig-name descname"><span class="pre">GEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magic_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">magic_sen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/geim_synthetic.html#GEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.geim_synthetic.GEIM" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class can be used to perform the online phase of the GEIM algorihtm for synthetic measures <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span> obtained as evaluations of the magic sensors on the snapshot <span class="math notranslate nohighlight">\(u(\mathbf{x};\,\boldsymbol{\mu})\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u)+\varepsilon_m \qquad \qquad m = 1, \dots, M\]</div>
+<p>given <span class="math notranslate nohighlight">\(\varepsilon_m\)</span> random noise (either present or not).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magic_fun</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of magic functions computed during the offline phase.</p></li>
+<li><p><strong>magic_sen</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of magic sensors computed during the offline phase.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.geim_synthetic.GEIM.compute_measure">
+<span class="sig-name descname"><span class="pre">compute_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/online/geim_synthetic.html#GEIM.compute_measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.geim_synthetic.GEIM.compute_measure" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the measurement vector <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span> from the <cite>snap</cite> <span class="math notranslate nohighlight">\(u\)</span> input, using the magic sensors stored.</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u) \qquad \qquad m = 1, \dots, M\]</div>
+<p>If the dimension <span class="math notranslate nohighlight">\(M\)</span> is not given, the whole set of magic sensors is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function</em>) – Function from which measurements are to be extracted</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of sensor to use (if None is set to the number of magic functions/sensors)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>measure</strong> – Measurement vector :math:mathbf{y}inmathbb{R}^M`</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.geim_synthetic.GEIM.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/geim_synthetic.html#GEIM.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.geim_synthetic.GEIM.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>The interpolant for <cite>snap</cite> <span class="math notranslate nohighlight">\(u\)</span> input is computed, by solving the GEIM linear system</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{B}\boldsymbol{\beta} = \mathbf{y}\]</div>
+<p>then the inteprolant and residual are computed and returned</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{I}_M[u] = \sum_{m=1}^M \beta_m[u] \cdot q_m\qquad\qquad
+r_M = \left| u - \mathcal{I}_M[u]\right|\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function as np.ndarray</em>) – Snap to reconstruct, if a function is provided, the variable is reshaped.</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>interp</strong> (<em>np.ndarray</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of GEIM</p></li>
+<li><p><strong>resid</strong> (<em>np.ndarray</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span></p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.geim_synthetic.GEIM.synt_test_error">
+<span class="sig-name descname"><span class="pre">synt_test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/geim_synthetic.html#GEIM.synt_test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.geim_synthetic.GEIM.synt_test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The absolute and relative error on the test set is computed, by solving the GEIM linear system</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{B}\boldsymbol{\beta} = \mathbf{y}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the test set to reconstruct</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of magic functions to use (if None is set to the number of magic functions/sensors)</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>return_int</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – Logic variable for the return of the interpolant and the residual fields</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>meanAbsErr</strong> (<em>np.ndarray</em>) – Average absolute error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>meanRelErr</strong> (<em>np.ndarray</em>) – Average relative error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList, optional</em>) – FunctionsList containing the interpolants using <span class="math notranslate nohighlight">\(M_{max}\)</span> sensors</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList, optional</em>) – FunctionsList containing the residual field (absolute difference between interpolant and true field) using <span class="math notranslate nohighlight">\(M_{max}\)</span> sensors</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.online.indirect_recon">
+<span id="pyforce-online-indirect-recon-module"></span><h2>pyforce.online.indirect_recon module<a class="headerlink" href="#module-pyforce.online.indirect_recon" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.indirect_recon.PE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.indirect_recon.</span></span><span class="sig-name descname"><span class="pre">PE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bnds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/indirect_recon.html#PE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.indirect_recon.PE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to perform Parameter Estimation (PE) exploiting GEIM and numerical optimisation starting from a set of measurements <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span></p>
+<div class="math notranslate nohighlight">
+\[\hat{\boldsymbol{\mu}} = \text{arg}\,\min\limits_{\boldsymbol{\mu}\in\mathcal{D}} \mathcal{L}_{PE}(\boldsymbol{\mu})\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>B</strong> (<em>np.ndarray</em>) – Lower-triangular matrix <span class="math notranslate nohighlight">\(\mathbb{B}\)</span> of dimension <span class="math notranslate nohighlight">\(M\times M\)</span>, arising from GEIM magic function and sensors.</p></li>
+<li><p><strong>coeff_maps</strong> (<em>list</em>) – List containing the map <span class="math notranslate nohighlight">\(\mathcal{F}_m:\boldsymbol{\mu} \rightarrow \beta_m\)</span>.</p></li>
+<li><p><strong>bnds</strong> (<em>list</em>) – List of tuples, each element contains the mininum and maximum of the components of the parameter.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.indirect_recon.PE.optimise">
+<span class="sig-name descname"><span class="pre">optimise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_brute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_elem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/indirect_recon.html#PE.optimise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.indirect_recon.PE.optimise" title="Permalink to this definition"></a></dt>
+<dd><p>This auxiliary function performs the optimisation process given an input collection of measurements.</p>
+<p>Two options are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>brute force method</strong> for finding the first guess of the parameter estimation + Least squares</p></li>
+<li><p><strong>differential evolution method</strong> for finding the first guess of the parameter estimation + Least squares</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measure</strong> (<em>np.ndarray</em>) – Measurement vector of <cite>M</cite> elements, array-like.</p></li>
+<li><p><strong>use_brute</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default = True</em><em>)</em>) – brute force method for finding the first guess of the parameter estimation</p></li>
+<li><p><strong>grid_elem</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 10</em><em>)</em>) – Number of elements in the grid for the brute force method</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>solution</strong> (<em>np.ndarray</em>) – Solution of the optimisation (after least squares)</p></li>
+<li><p><strong>guess</strong> (<em>np.ndarray</em>) – Solution of the optimisation (before least squares)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.indirect_recon.PE.synt_test_error">
+<span class="sig-name descname"><span class="pre">synt_test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">GEIM_msen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_brute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_elem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/indirect_recon.html#PE.synt_test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.indirect_recon.PE.synt_test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The absolute and relative error of the PE phase, using different measurements coming from the test set, are computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_param</strong> (<em>list</em>) – List containing the parameters of the test set (truth)</p></li>
+<li><p><strong>test_snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the test set, used to generate the measurements</p></li>
+<li><p><strong>GEIM_msen</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of sensors to mimic the measurement process</p></li>
+<li><p><strong>Mmax</strong> (<em>int</em>) – Maximum number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span>.</p></li>
+<li><p><strong>use_brute</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default = True</em><em>)</em>) – brute force method for finding the first guess of the parameter estimation</p></li>
+<li><p><strong>grid_elem</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 10</em><em>)</em>) – Number of elements in the grid for the brute force method</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If true, printing is produced</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ave_absErr</strong> (<em>np.ndarray</em>) – Average absolute error of the parameter estimation</p></li>
+<li><p><strong>ave_relErr</strong> (<em>np.ndarray</em>) – Average relative error of the parameter estimation</p></li>
+<li><p><strong>mu_PE</strong> (<em>list</em>) – List containing the estimated parameters after least squares at varying number of measurements</p></li>
+<li><p><strong>mu_PE_guess</strong> (<em>list</em>) – List containing the estimated parameters before least squares at varying number of measurements</p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.online.indirect_recon.objective">
+<span class="sig-prename descclassname"><span class="pre">pyforce.online.indirect_recon.</span></span><span class="sig-name descname"><span class="pre">objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/indirect_recon.html#objective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.indirect_recon.objective" title="Permalink to this definition"></a></dt>
+<dd><p>This function evaluates the standard loss function <span class="math notranslate nohighlight">\(\mathcal{L}_{PE}\)</span> to be minimized during the Parameter Estimation phase</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{L}_{PE}(\boldsymbol{\mu}) = \|B\boldsymbol{\beta}(\boldsymbol{\mu}) - \mathbf{y}\|_2^2 \qquad\qquad
+\text{ given }\mathcal{F}_m(\boldsymbol{\mu}) = \beta_m(\boldsymbol{\mu})\]</div>
+<p>given the maps <span class="math notranslate nohighlight">\(\mathcal{F}_m:\boldsymbol{\mu} \rightarrow \beta_m\)</span> (<span class="math notranslate nohighlight">\(m = 1, \dots, M\)</span>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<em>np.ndarray</em>) – Input parameter, array-like.</p></li>
+<li><p><strong>measure</strong> (<em>np.ndarray</em>) – Input measurements of <cite>M</cite> elements, array-like.</p></li>
+<li><p><strong>B</strong> (<em>np.ndarray</em>) – Lower-triangular matrix <span class="math notranslate nohighlight">\(\mathbb{B}\)</span> of dimension <span class="math notranslate nohighlight">\(M\times M\)</span>.</p></li>
+<li><p><strong>maps</strong> (<em>list</em>) – List containing the map <span class="math notranslate nohighlight">\(\mathcal{F}_m:\boldsymbol{\mu} \rightarrow \beta_m\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyforce.online.pbdw_synthetic">
+<span id="pyforce-online-pbdw-synthetic-module"></span><h2>pyforce.online.pbdw_synthetic module<a class="headerlink" href="#module-pyforce.online.pbdw_synthetic" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.pbdw_synthetic.PBDW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.pbdw_synthetic.</span></span><span class="sig-name descname"><span class="pre">PBDW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_sensors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_H1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pbdw_synthetic.html#PBDW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pbdw_synthetic.PBDW" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class implementing the online phase of the Parameterised-Background Data-Weak (PBDW) formulation, given a list of sensors’ Riesz representation <span class="math notranslate nohighlight">\(\{g_m\}_{m=1}^M\)</span> for the update space and basis functions <span class="math notranslate nohighlight">\(\{\zeta_n\}_{n=1}^N\)</span> for the reduced one.
+In particular, the following matrices are defined <span class="math notranslate nohighlight">\((n,n' = 1,\dots,N)\)</span> and <span class="math notranslate nohighlight">\((m,m' = 1,\dots,M)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\mathbb{A}_{mm'}=\left(g_m,\,g_{m'}\right)_{\mathcal{U}}  \qquad \qquad
+\mathbb{K}_{mn}=\left(g_m,\,\zeta_{n}\right)_{\mathcal{U}}\]</div>
+<p>given <span class="math notranslate nohighlight">\(\mathcal{U}\)</span> as the functional space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>basis_functions</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions spanning the reduced space</p></li>
+<li><p><strong>basis_sensors</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of sensors representation spanning the update space</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+<li><p><strong>is_H1</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default= False</em><em>)</em>) – Boolean indicating whether to use scalar product in <span class="math notranslate nohighlight">\(\mathcal{H}^1\)</span> or <span class="math notranslate nohighlight">\(L^2\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pbdw_synthetic.PBDW.hyperparameter_tuning">
+<span class="sig-name descname"><span class="pre">hyperparameter_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xi_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-</span> <span class="pre">4,</span> <span class="pre">5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rep_exp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pbdw_synthetic.html#PBDW.hyperparameter_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pbdw_synthetic.PBDW.hyperparameter_tuning" title="Permalink to this definition"></a></dt>
+<dd><p>The hyperparameter <span class="math notranslate nohighlight">\(\xi\)</span> of the PBDW statement is calibrated as the one minimising the absolute error in <span class="math notranslate nohighlight">\(L^2\)</span>, namely</p>
+<div class="math notranslate nohighlight">
+\[\hat{\xi} = \text{arg}\,\min\limits_{\xi\in\mathbb{R}^+} E_{M, \xi}\]</div>
+<p>given <span class="math notranslate nohighlight">\(E_{M, \xi}\)</span> the average absolute error in <span class="math notranslate nohighlight">\(L^2\)</span> with <span class="math notranslate nohighlight">\(M\)</span> sensors. The optimization problem is solved sampling <span class="math notranslate nohighlight">\(\xi\)</span> in a specific range <span class="math notranslate nohighlight">\(\Xi \subset\mathbb{R}^+\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the validation set to reconstruct</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>xi_lim</strong> (<em>tuple of floats</em><em>, </em><em>optional</em><em> (</em><em>Default =</em><em> [</em><em>0</em><em>, </em><em>6</em><em>]</em><em>)</em>) – Lower and upper bound (the input is the exponent for <span class="math notranslate nohighlight">\(10^x\)</span>) of <span class="math notranslate nohighlight">\(\xi\)</span>, regularisation parameter of PBDW.</p></li>
+<li><p><strong>num_rep_exp</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 10</em><em>)</em>) – Number of repeated numerical experiment to ensure statistical robustness</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Number of basis function to use (if None is set to the number of basis functions)</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Number of sensor to use (if None is set to the number of basis sensors)</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>xi_opt</strong> (<em>float</em>) – Optimal value of <span class="math notranslate nohighlight">\(\hat{\xi}\)</span> per each numerical experiment</p></li>
+<li><p><strong>xi_samples</strong> (<em>np.ndarray</em>) – Sample values of <span class="math notranslate nohighlight">\(\xi\)</span></p></li>
+<li><p><strong>ave_abs_err</strong> (<em>np.ndarray</em>) – Average (also averaged wrt to the num. experiments) absolure reconstruction error associated to each output value of <span class="math notranslate nohighlight">\(\xi_{sample}\)</span></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pbdw_synthetic.PBDW.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pbdw_synthetic.html#PBDW.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pbdw_synthetic.PBDW.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>The PBDW system is solved</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[
+    \begin{array}{ccc}
+        \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\
+        \mathbb{K}^T &amp; &amp; 0
+    \end{array}
+    \right] \cdot
+    \left[
+    \begin{array}{c}
+        \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}
+    \end{array}
+    \right]   =
+    \left[
+    \begin{array}{c}
+        \mathbf{y} \\ \\ \mathbf{0}
+    \end{array}
+\right]\end{split}\]</div>
+<p>given <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span>. Then, the full can state for the snapshot <span class="math notranslate nohighlight">\(u\)</span> can be written as</p>
+<div class="math notranslate nohighlight">
+\[u(\mathbf{x};\boldsymbol{\mu}) \simeq z_N(\mathbf{x};\boldsymbol{\mu})+\eta_M(\mathbf{x};\boldsymbol{\mu})
+                            = \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \zeta_n(\mathbf{x})+
+                              \sum_{m=1}^M \theta_m(\boldsymbol{\mu})\cdot g_m(\mathbf{x})\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function as np.ndarray</em>) – Snap to reconstruct, if a function is provided, the variable is reshaped.</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of basis functions <span class="math notranslate nohighlight">\(\zeta_n\)</span> to use (if None is set to the number of basis functions)</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of basis sensors <span class="math notranslate nohighlight">\(g_m\)</span> to use (if None is set to the number of basis sensors)</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default = 0.</em><em>)</em>) – Hyperparameter <span class="math notranslate nohighlight">\(\xi\)</span> weighting the importance of the model with respect to the measurements.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>recon</strong> (<em>Function</em>) – Function containing the reconstruction using <span class="math notranslate nohighlight">\(M\)</span> sensors</p></li>
+<li><p><strong>resid</strong> (<em>Function</em>) – Function containing the residual field (absolute difference between interpolant and true field) using <span class="math notranslate nohighlight">\(M\)</span> sensors</p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pbdw_synthetic.PBDW.synt_test_error">
+<span class="sig-name descname"><span class="pre">synt_test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_int</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pbdw_synthetic.html#PBDW.synt_test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pbdw_synthetic.PBDW.synt_test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The absolute and relative error on the test set is computed, by solving the PBDW system</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[
+    \begin{array}{ccc}
+        \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\
+        \mathbb{K}^T &amp; &amp; 0
+    \end{array}
+    \right] \cdot
+    \left[
+    \begin{array}{c}
+        \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}
+    \end{array}
+    \right]   =
+    \left[
+    \begin{array}{c}
+        \mathbf{y} \\ \\ \mathbf{0}
+    \end{array}
+\right]\end{split}\]</div>
+<p>given <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span>. Then, the full can state for the snapshot <span class="math notranslate nohighlight">\(u\)</span> can be written as</p>
+<div class="math notranslate nohighlight">
+\[u(\mathbf{x};\boldsymbol{\mu}) \simeq z_N(\mathbf{x};\boldsymbol{\mu})+\eta_M(\mathbf{x};\boldsymbol{\mu})
+                            = \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \zeta_n(\mathbf{x})+
+                              \sum_{m=1}^M \theta_m(\boldsymbol{\mu})\cdot g_m(\mathbf{x})\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the test set to reconstruct with PBDW</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of basis functions <span class="math notranslate nohighlight">\(\zeta_n\)</span> to use (if None is set to the number of basis functions)</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of basis sensors <span class="math notranslate nohighlight">\(g_m\)</span> to use (if None is set to the number of basis sensors)</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default = 0.</em><em>)</em>) – Hyperparameter <span class="math notranslate nohighlight">\(\xi\)</span> weighting the importance of the model with respect to the measurements.</p></li>
+<li><p><strong>return_int</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – Logic variable for the return of the interpolant and the residual fields</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>meanAbsErr</strong> (<em>np.ndarray</em>) – Average absolute error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>meanRelErr</strong> (<em>np.ndarray</em>) – Average relative error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+<li><p><strong>recons</strong> (<em>FunctionsList</em>) – FunctionsList containing the reconstruction using <span class="math notranslate nohighlight">\(M_{max}\)</span> sensors</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – FunctionsList containing the residual field (absolute difference between interpolant and true field) using <span class="math notranslate nohighlight">\(M_{max}\)</span> sensors</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.online.pod_interpolation">
+<span id="pyforce-online-pod-interpolation-module"></span><h2>pyforce.online.pod_interpolation module<a class="headerlink" href="#module-pyforce.online.pod_interpolation" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.pod_interpolation.PODI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.pod_interpolation.</span></span><span class="sig-name descname"><span class="pre">PODI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_interpolation.html#PODI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_interpolation.PODI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to perform the online phase of the POD with Inteprolation (PODI) algorithm, in which the modal coefficients are found from suitable maps <span class="math notranslate nohighlight">\(\mathcal{F}_n:\boldsymbol{\mu} \rightarrow \alpha_n\)</span> (<span class="math notranslate nohighlight">\(n = 1, \dots, N\)</span>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modes</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of POD modes computed during the offline phase.</p></li>
+<li><p><strong>maps</strong> (<em>list</em>) – List of maps for the POD modal coefficients, they must be callable.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pod_interpolation.PODI.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_estimated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_interpolation.html#PODI.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_interpolation.PODI.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>After the coefficients of the POD basis are obtained by interpolating using the maps, the <cite>snap</cite> is approximated using linear combination of the POD modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function as np.ndarray</em>) – Snap to reconstruct, if a function is provided, the variable is reshaped.</p></li>
+<li><p><strong>mu_estimated</strong> (<em>np.ndarray</em>) – Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension <cite>[1, p]</cite> in which <cite>p</cite> the number of parameters.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reconstruction</strong> (<em>np.ndarray</em>) – Reconstructed field using <cite>maxBasis</cite> POD modes.</p></li>
+<li><p><strong>resid</strong> (<em>np.ndarray</em>) – Residual field using <cite>maxBasis</cite> POD modes.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pod_interpolation.PODI.synt_test_error">
+<span class="sig-name descname"><span class="pre">synt_test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_estimated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_interpolation.html#PODI.synt_test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_interpolation.PODI.synt_test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum absolute <span class="math notranslate nohighlight">\(E_N\)</span> and relative <span class="math notranslate nohighlight">\(\varepsilon_N\)</span> error on the test set is computed, by projecting it onto the reduced space in <span class="math notranslate nohighlight">\(L^2\)</span> with the coefficients estimated through callable maps or given as input.</p>
+<div class="math notranslate nohighlight">
+\[E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}\]</div>
+<div class="math notranslate nohighlight">
+\[\varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}}\]</div>
+<p>The coefficients of the POD basis are obtained by interpolating using the maps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the test error of the POD basis is performed.</p></li>
+<li><p><strong>mu_estimated</strong> (<em>np.ndarray</em>) – Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension <cite>[Ns, p]</cite> in which <cite>Ns</cite> is the number of test snapshots and <cite>p</cite> the number of parameters.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>alpha_coeff</strong> (<em>np.ndarray</em><em> (</em><em>optional</em><em>, </em><em>Default: None</em><em>)</em>) – Matrix with the estimated coefficients <span class="math notranslate nohighlight">\(\alpha_n\)</span>, they will be used if the input <cite>alpha_coeffs</cite> is not <cite>None</cite>.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ave_absErr</strong> (<em>np.ndarray</em>) – Average absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>ave_relErr</strong> (<em>np.ndarray</em>) – Average absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.online.pod_projection">
+<span id="pyforce-online-pod-projection-module"></span><h2>pyforce.online.pod_projection module<a class="headerlink" href="#module-pyforce.online.pod_projection" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.pod_projection.POD_project">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.pod_projection.</span></span><span class="sig-name descname"><span class="pre">POD_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_projection.html#POD_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_projection.POD_project" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to perform the online phase of the POD with projection from true field, in which the modal coefficients are found from the projection of the snapshot onto the reduced space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modes</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of POD modes computed during the offline phase.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pod_projection.POD_project.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_projection.html#POD_project.project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_projection.POD_project.project" title="Permalink to this definition"></a></dt>
+<dd><p>Project <cite>snap</cite> onto the reduced space of dimension <cite>maxBasis</cite>, by computing the modal coefficients <span class="math notranslate nohighlight">\(\{\alpha_i\}\)</span></p>
+<div class="math notranslate nohighlight">
+\[\alpha_i = (u, \psi_i)_{L^2} = \int_\Omega u\cdot \psi_i\,d\Omega\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function</em>) – Snap to project.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>coeff</strong> – Modal coefficient obtain by projection with POD modes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pod_projection.POD_project.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_projection.html#POD_project.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_projection.POD_project.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>The coefficients of the POD basis are obtained by projection, the <cite>snap</cite> is approximated using linear combination of the POD modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function as np.ndarray</em>) – Snap to reconstruct, if a function is provided, the variable is reshaped.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>reconstruction</strong> (<em>np.ndarray</em>) – Reconstructed field using <cite>maxBasis</cite> POD modes.</p></li>
+<li><p><strong>resid</strong> (<em>np.ndarray</em>) – Residual field using <cite>maxBasis</cite> POD modes.</p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.pod_projection.POD_project.synt_test_error">
+<span class="sig-name descname"><span class="pre">synt_test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_projection.html#POD_project.synt_test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_projection.POD_project.synt_test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum absolute <span class="math notranslate nohighlight">\(E_N\)</span> and relative <span class="math notranslate nohighlight">\(\varepsilon_N\)</span> error on the test set is computed, by projecting it onto the reduced space in <span class="math notranslate nohighlight">\(L^2\)</span></p>
+<div class="math notranslate nohighlight">
+\[E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}\]</div>
+<div class="math notranslate nohighlight">
+\[\varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{test}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}}\]</div>
+<p>The coefficients of the POD basis are obtained by interpolating using the maps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the test error of the POD basis is performed.</p></li>
+<li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ave_absErr</strong> (<em>np.ndarray</em>) – Average absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>ave_relErr</strong> (<em>np.ndarray</em>) – Average absolute errors as a function of the dimension of the reduced space.</p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.online.tr_geim_synthetic">
+<span id="pyforce-online-tr-geim-synthetic-module"></span><h2>pyforce.online.tr_geim_synthetic module<a class="headerlink" href="#module-pyforce.online.tr_geim_synthetic" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.tr_geim_synthetic.TRGEIM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.tr_geim_synthetic.</span></span><span class="sig-name descname"><span class="pre">TRGEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magic_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">magic_sen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/tr_geim_synthetic.html#TRGEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim_synthetic.TRGEIM" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class can be used to perform the online phase of the TR-GEIM algorihtm for synthetic measures <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span> obtained as evaluations of the magic sensors on the snapshot <span class="math notranslate nohighlight">\(u(\mathbf{x};\,\boldsymbol{\mu})\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u)+\varepsilon_m \qquad \qquad m = 1, \dots, M\]</div>
+<p>given <span class="math notranslate nohighlight">\(\varepsilon_m\)</span> random noise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magic_fun</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of magic functions computed during the offline phase.</p></li>
+<li><p><strong>magic_sen</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of magic sensors computed during the offline phase.</p></li>
+<li><p><strong>mean_beta</strong> (<em>np.ndarray</em>) – Mean values <span class="math notranslate nohighlight">\(\langle\beta_m\rangle\)</span> of the training reduced coefficients</p></li>
+<li><p><strong>std_beta</strong> (<em>np.ndarray</em>) – Standard deviations <span class="math notranslate nohighlight">\(\sigma_{\beta_m}\)</span> of the training reduced coefficients</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.tr_geim_synthetic.TRGEIM.compute_measure">
+<span class="sig-name descname"><span class="pre">compute_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/online/tr_geim_synthetic.html#TRGEIM.compute_measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim_synthetic.TRGEIM.compute_measure" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the measurement vector from the <cite>snap</cite> input, using the magic sensors stored to which synthetic random noise is added.
+If the dimension <cite>M</cite> is not given, the whole set of magic sensors is used.</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u) +\varepsilon_m \qquad \qquad m = 1, \dots, M\]</div>
+<p>If the dimension <span class="math notranslate nohighlight">\(M\)</span> is not given, the whole set of magic sensors is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function</em>) – Function from which measurements are to be extracted</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of sensor to use (if None is set to the number of magic functions/sensors)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>measure</strong> – Measurement vector :math:mathbf{y}inmathbb{R}^M`</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.tr_geim_synthetic.TRGEIM.hyperparameter_tuning">
+<span class="sig-name descname"><span class="pre">hyperparameter_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[10,</span> <span class="pre">50]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/tr_geim_synthetic.html#TRGEIM.hyperparameter_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim_synthetic.TRGEIM.hyperparameter_tuning" title="Permalink to this definition"></a></dt>
+<dd><p>The regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span> of the TR-GEIM linear system is calibrated as the one minimising the absolute error in <span class="math notranslate nohighlight">\(L^2\)</span>, namely</p>
+<div class="math notranslate nohighlight">
+\[\hat{\lambda} = \text{arg}\,\min\limits_{\lambda\in\mathbb{R}^+} E_{M, \lambda}\]</div>
+<p>given <span class="math notranslate nohighlight">\(E_{M, \lambda}\)</span> the average absolute error in <span class="math notranslate nohighlight">\(L^2\)</span> with <span class="math notranslate nohighlight">\(M\)</span> sensors. The optimization problem is solved sampling <span class="math notranslate nohighlight">\(\lambda\)</span> in a specific range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the validation set to reconstruct</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>lambda_lim</strong> (<em>tuple of floats</em><em>, </em><em>optional</em><em> (</em><em>Default =</em><em> [</em><em>10</em><em>, </em><em>50</em><em>]</em><em>)</em>) – Lower and upper bound for <span class="math notranslate nohighlight">\(\lambda^*\)</span> entering in the regularisation parameter of TR-GEIM as <span class="math notranslate nohighlight">\(\lambda = \lambda^* \cdot \sigma^2\)</span>, given <span class="math notranslate nohighlight">\(\sigma^2\)</span> as the variance of the noise.</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 20</em><em>)</em>) – Number of samples for the hyperparameter <span class="math notranslate nohighlight">\(\lambda\)</span> to optimize.</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Number of sensor to use (if None is set to the number of magic functions/sensors)</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>lambda_opt</strong> (<em>float</em>) – Optimal value of <span class="math notranslate nohighlight">\(\hat{\lambda}\)</span></p></li>
+<li><p><strong>lambda_star_samples</strong> (<em>np.ndarray</em>) – Sample values of <span class="math notranslate nohighlight">\(\lambda^\star\)</span> entering the regularising parameter as <span class="math notranslate nohighlight">\(\lambda=\lambda^\star \cdot \sigma^2\)</span></p></li>
+<li><p><strong>ave_abs_err</strong> (<em>np.ndarray</em>) – Average absolure reconstruction error associated to each output value of <span class="math notranslate nohighlight">\(\lambda^\star\)</span></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.tr_geim_synthetic.TRGEIM.reconstruct">
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dolfinx.fem.Function</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dolfinx.fem.Function</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/pyforce/online/tr_geim_synthetic.html#TRGEIM.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim_synthetic.TRGEIM.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>The interpolant for <cite>snap</cite> <span class="math notranslate nohighlight">\(u\)</span> input is computed, by solving the TR-GEIM linear system</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\left(\mathbb{B}^T\mathbb{B}+\lambda \mathbb{T}^T\mathbb{T}\right)\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y}+\lambda \mathbb{T}^T\mathbb{T} \langle{\boldsymbol{\beta}}\rangle\]</div>
+</div></blockquote>
+<p>then the inteprolant and residual are computed and returned</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{I}_M[u] = \sum_{m=1}^M \beta_m[u] \cdot q_m\qquad\qquad
+r_M = \left| u - \mathcal{I}_M[u]\right|\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function as np.ndarray</em>) – Snap to reconstruct, if a function is provided, the variable is reshaped.</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>interp</strong> (<em>Function</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM</p></li>
+<li><p><strong>resid</strong> (<em>Function</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span></p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+<li><p><strong>coeff</strong> (<em>np.ndarray</em>) – Coefficients of the GEIM expansion <span class="math notranslate nohighlight">\(\boldsymbol{\beta}(\boldsymbol{\mu})\)</span></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.tr_geim_synthetic.TRGEIM.synt_test_error">
+<span class="sig-name descname"><span class="pre">synt_test_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/tr_geim_synthetic.html#TRGEIM.synt_test_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim_synthetic.TRGEIM.synt_test_error" title="Permalink to this definition"></a></dt>
+<dd><p>The absolute and relative error on the test set is computed using the reconstruction obtained by solving the TR-GEIM linear system</p>
+<div class="math notranslate nohighlight">
+\[\left(\mathbb{B}^T\mathbb{B}+\lambda \mathbb{T}^T\mathbb{T}\right)\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y}+\lambda \mathbb{T}^T\mathbb{T} \langle{\boldsymbol{\beta}}\rangle\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions belonging to the test set to reconstruct</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of magic functions to use (if None is set to the number of magic functions/sensors)</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>return_int</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – Logic variable for the return of the interpolant and the residual fields</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>meanAbsErr</strong> (<em>np.ndarray</em>) – Average absolute error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>meanRelErr</strong> (<em>np.ndarray</em>) – Average relative error measured in <span class="math notranslate nohighlight">\(L^2\)</span></p></li>
+<li><p><strong>computational_time</strong> (<em>dict</em>) – Dictionary with the CPU time of the most relevant operations during the online phase.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – FunctionsList containing the interpolants using <span class="math notranslate nohighlight">\(M_{max}\)</span> sensors</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – FunctionsList containing the residual field (absolute difference between interpolant and true field) using <span class="math notranslate nohighlight">\(M_{max}\)</span> sensors</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.online">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyforce.online" title="Permalink to this heading"></a></h2>
+<p>pyforce/online.</p>
+<p>Online phase of the pyforce library.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyforce.offline.html" class="btn btn-neutral float-left" title="pyforce.offline package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pyforce.tools.html" class="btn btn-neutral float-right" title="pyforce.tools package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

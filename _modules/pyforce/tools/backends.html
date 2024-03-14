@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.tools.backends &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.tools.backends</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.tools.backends</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Fundamental tools</span>
+<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 30 August 2023</span>
+<span class="c1"># Latest Doc  Update: 25 June  2023</span>
+
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">metadata</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># import dolfinx</span>
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">assemble_scalar</span><span class="p">,</span> <span class="n">assemble_vector</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ufl</span> <span class="kn">import</span> <span class="n">grad</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">Measure</span>
+<span class="kn">from</span> <span class="nn">ufl.domain</span> <span class="kn">import</span> <span class="n">extract_unique_domain</span>
+<span class="c1"># Note that dx will be deprecated in the future, is it necessary to import the mesh in addition to V?</span>
+
+<span class="c1"># Class to make progress bar</span>
+<div class="viewcode-block" id="LoopProgress"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.LoopProgress">[docs]</a><span class="k">class</span> <span class="nc">LoopProgress</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to make progress bar.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msg : str</span>
+<span class="sd">        Message to be displayed</span>
+<span class="sd">    final : float, optional (Default = 100)</span>
+<span class="sd">        Maximum value for the iterations</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">final</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final</span> <span class="o">=</span> <span class="n">final</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instant</span> <span class="o">=</span> <span class="mf">0.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_time</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comp_times</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="n">out</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;: &#39;</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LoopProgress.update"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.LoopProgress.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">percentage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update message to display and clears the previous one.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : float</span>
+<span class="sd">            Interger or float value to add at the counter.</span>
+<span class="sd">        percentage : boolean, optional (Default = False)</span>
+<span class="sd">            Indicates if the bar should be displayed in %.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Compute average computational time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comp_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_time</span><span class="p">)</span>        
+        <span class="n">average_time</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp_times</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp_times</span><span class="p">)</span>
+
+        <span class="c1"># Update instant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instant</span> <span class="o">+=</span> <span class="n">step</span>
+
+        <span class="c1"># Write the message</span>
+        <span class="k">if</span> <span class="n">percentage</span><span class="p">:</span>
+            <span class="n">printed_inst</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instant</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">final</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; / 100.00%&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">printed_inst</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instant</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; / </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;: &#39;</span><span class="o">+</span><span class="n">printed_inst</span> <span class="o">+</span> <span class="s1">&#39; - </span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">average_time</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s/it&#39;</span>
+
+        <span class="c1"># Print output</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instant</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Update inital offset cpu time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_time</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div></div>
+
+<span class="c1"># Class to compute norms in L2, H1 and L^\infty and the inner product in L2</span>
+<div class="viewcode-block" id="norms"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms">[docs]</a><span class="k">class</span> <span class="nc">norms</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class to compute norms and inner products. :math:`L^2` and :math:`H^1` (semi and full are implemented for both scalar and vector fields), whereas the average and the integral are available for scalar only.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        V : FunctionSpace</span>
+<span class="sd">            Functional Space onto which the Function are defined.</span>
+<span class="sd">        is_H1 : boolean, optional (Default = False)</span>
+<span class="sd">            If the function belongs to :math:`H^1`, the forms for the inner products and norms are computed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">is_H1</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">metadata_degree</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u1</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u2</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># Deprecation warning in fenics-dolfinx=0.6.0 --&gt; try to correct this?</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span> 
+        
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;quadrature_degree&quot;</span><span class="p">:</span> <span class="n">metadata_degree</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">Measure</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">extract_unique_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if the functional space is related to a scalar function</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integ_form</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">is_H1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">semiH1form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span> <span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+            
+<div class="viewcode-block" id="norms.integral"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.integral">[docs]</a>    <span class="k">def</span> <span class="nf">integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the integral of a given scalar function `u` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \int_\Omega u \,d\Omega </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space V (it must be a scalar!)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        val : float</span>
+<span class="sd">            Integral over the domain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+            
+        <span class="n">val</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integ_form</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">val</span></div>
+
+<div class="viewcode-block" id="norms.average"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.average">[docs]</a>    <span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the integral average of a given **scalar** function `u` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \langle u \rangle = \frac{1}{|\Omega|}\int_\Omega u \,d\Omega</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space V (it must be a scalar!)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ave_value : float</span>
+<span class="sd">            Average over the domain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+        
+        <span class="n">dom_fun</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">dom_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">domain_norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">dom_fun</span><span class="p">)</span>
+        
+        <span class="n">ave_value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">domain_norm</span>
+        <span class="k">return</span> <span class="n">ave_value</span></div>
+
+<div class="viewcode-block" id="norms.L2norm"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2norm">[docs]</a>    <span class="k">def</span> <span class="nf">L2norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the :math:`L^2` norm of the function `u` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \| u\|_{L^2} = \sqrt{\int_\Omega u \cdot u\,d\Omega}</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : float</span>
+<span class="sd">            :math:`L^2` norm of the function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span><span class="p">))</span>
+            
+        <span class="k">return</span> <span class="n">value</span></div>
+                       
+<div class="viewcode-block" id="norms.H1norm"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1norm">[docs]</a>    <span class="k">def</span> <span class="nf">H1norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the :math:`H^1` semi or full norm of the function `u` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            | u |_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega}</span>
+
+<span class="sd">            </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \| u \|_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega + \int_\Omega u \cdot  u\,d\Omega}</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+<span class="sd">        semi : boolean, optional (Default = True)</span>
+<span class="sd">            Indicates if the semi norm must be computed.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : float</span>
+<span class="sd">            :math:`H^1` norm of the function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+        <span class="k">if</span> <span class="n">semi</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semiH1form_inner</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">value</span></div>
+    
+<div class="viewcode-block" id="norms.Linftynorm"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.Linftynorm">[docs]</a>    <span class="k">def</span> <span class="nf">Linftynorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the :math:`L^\infty` norm of a given function `u` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \| u \|_{L^\infty}=\max\limits_\Omega |u|</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : float</span>
+<span class="sd">            :math:`L^\infty` norm of the function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">))</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">))</span>
+            
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="norms.L2innerProd"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2innerProd">[docs]</a>    <span class="k">def</span> <span class="nf">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the :math:`L^2` inner product of the functions `u` and `v` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            (u,v)_{L^2}=\int_\Omega u\cdot v \,d\Omega</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+<span class="sd">        v : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : float</span>
+<span class="sd">            :math:`L^2` inner product between the functions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+                       
+<div class="viewcode-block" id="norms.H1innerProd"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1innerProd">[docs]</a>    <span class="k">def</span> <span class="nf">H1innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Computes the :math:`H^1` semi or full inner product of the functions `u` and `v` over the domain</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \langle u, v \,\rangle_{H^1} = \int_\Omega \nabla u \cdot \nabla v\,d\Omega</span>
+
+<span class="sd">            </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            (u,v)_{H^1} = \int_\Omega u\cdot v \,d\Omega + \int_\Omega \nabla u\cdot \nabla v \,d\Omega</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        u : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+<span class="sd">        v : Function</span>
+<span class="sd">            Function belonging to the same functional space `V`</span>
+<span class="sd">        semi : boolean, optional (Default = True)</span>
+<span class="sd">            Indicates if the semi norm must be computed.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : float</span>
+<span class="sd">            :math:`H^1` inner product of the functions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">Expression</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">interpolation_points</span><span class="p">()))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Input u is not a function: it may slower the calculations&quot;</span><span class="p">)</span>            
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+
+        <span class="k">if</span> <span class="n">semi</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semiH1form_inner</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">value</span></div></div>
+    
+    
+<span class="c1"># class compute_integral():</span>
+<span class="c1">#     def __init__(self, domain, V):</span>
+<span class="c1">#         self.domain = domain</span>
+<span class="c1">#         self.V = V</span>
+        
+<span class="c1">#         v = TestFunction(V)</span>
+<span class="c1">#         cell_area_form = form(v*dx)</span>
+<span class="c1">#         self.cell_area = assemble_vector(cell_area_form).array</span>
+        
+<span class="c1">#         self.h = dolfinx.cpp.mesh.h(domain, 2, range(len(domain.geometry.x)))</span>
+        
+<span class="c1">#     def integral(self,u):</span>
+<span class="c1">#         output = sum(u.x.array[:] * self.cell_area)</span>
+<span class="c1">#         return output</span>
+    
+<span class="c1">#     def L2norm(self,u):</span>
+<span class="c1">#         output = np.sqrt(sum(u.x.array[:]**2 * self.cell_area))</span>
+<span class="c1">#         return output</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

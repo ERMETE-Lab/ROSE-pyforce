@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.offline.pod &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.offline.pod</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.offline.pod</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Offline Phase: Proper Orthogonal Decomposition</span>
+<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 05 March 2024</span>
+<span class="c1"># Latest Doc  Update: 05 March 2024</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="POD"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD">[docs]</a><span class="k">class</span> <span class="nc">POD</span><span class="p">():</span>
+<span class="w">  </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to perform the POD on a list of snapshots :math:`u(\mathbf{x};\,\boldsymbol{\mu})` dependent on some parameter :math:`\boldsymbol{\mu}\in\mathcal{P}\subset\mathbb{R}^p`. </span>
+<span class="sd">    This class is used for `FunctionsList`, the POD modes are obtained from the eigendecomposition of the correlation matrix :math:`C\in\mathbb{R}^{N_s\times N_s}`</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        C_{ij} = \left(u(\cdot;\,\boldsymbol{\mu}_i),\,u(\cdot;\,\boldsymbol{\mu}_j)\right)_{L^2}\qquad i,j = 1, \dots, N_s</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        C \boldsymbol{\eta_n} = \lambda_n \boldsymbol{\eta_n}\qquad\qquad\qquad n = 1, \dots, N_s</span>
+<span class="sd">    </span>
+<span class="sd">    The eigenvalues :math:`\lambda_n` and eigenvectors :math:`\boldsymbol{\eta_n}` are immediately computed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_snap : FunctionsList</span>
+<span class="sd">      List of snapshots onto which the POD is performed.</span>
+<span class="sd">    name : str</span>
+<span class="sd">      Name of the field.</span>
+<span class="sd">    verbose : boolean, optional (Default = False) </span>
+<span class="sd">      If `True`, print of the progress is enabled.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_scipy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">fun_space</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="c1"># Generate the correlation matrix using inner product in L^2</span>
+    <span class="n">corrMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; correlation matrix&#39;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
+                <span class="n">corrMatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">train_snap</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">corrMatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrMatrix</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span><span class="n">ii</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Solving the eigenvalue problem and sorting the eigenvalue/eigenvector pairs</span>
+    <span class="k">if</span> <span class="n">use_scipy</span><span class="p">:</span>
+      <span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">corrMatrix</span><span class="p">,</span> <span class="n">subset_by_value</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>    
+      <span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">corrMatrix</span><span class="p">)</span> 
+    <span class="n">sorted_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span> <span class="n">eigenvalues</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span> <span class="p">)</span>
+    <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="n">sorted_indexes</span><span class="p">]</span>
+    <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="p">[:,</span><span class="n">sorted_indexes</span><span class="p">]</span>
+
+    <span class="c1"># if sum(eigenvalues &lt; 0) &gt; 0: </span>
+    <span class="c1">#     warnings.warn(&quot;Check eigenvalues: some of them are negative! \n Try DiscretePOD with `svd` method&quot;)</span>
+
+    <span class="c1"># Store the eigenvalue/eigenvector pairs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span>  <span class="o">=</span> <span class="n">eigenvalues</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span>
+
+<div class="viewcode-block" id="POD.GrahmSchmidt"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.GrahmSchmidt">[docs]</a>  <span class="k">def</span> <span class="nf">GrahmSchmidt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a step of the Gram-Schmidt process on POD modes :math:`\{\psi_k\}_{k=1}^r` adding `fun` :math:`=f` to enforce the orthonormality in :math:`L^2`</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      \psi_{r+1} = f - \sum_{k=1}^r \frac{(f, \psi_k)_{L^2}}{(\psi_k, \psi_k)_{L^2}}\psi_k</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fun : Function</span>
+<span class="sd">      Function to add to the POD basis.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    normalised_fun : Function</span>
+<span class="sd">      Orthonormalised function :math:`\psi_{r+1}` with respect to the POD basis :math:`\{\psi_k\}_{k=1}^r`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">)</span>
+    
+    <span class="c1"># Defining the summation term</span>
+    <span class="n">_rescaling</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">jj</span> <span class="o">&lt;</span> <span class="n">ii</span><span class="p">:</span>
+          <span class="n">_rescaling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span> <span class="p">)</span>
+    
+    <span class="c1"># Computing the normalised function</span>
+    <span class="n">normalised_fun</span> <span class="o">=</span> <span class="n">fun</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">_rescaling</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalised_fun</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">normalised_fun</span><span class="p">)</span></div>
+  
+    <span class="c1"># Deprecated?  </span>
+    <span class="c1"># for jj in range(ii+1):</span>
+    <span class="c1">#     if jj &lt; ii:</span>
+    <span class="c1">#         fun.vector.axpy(- self.norm.L2innerProd(fun, self.PODmodes(jj)) / self.norm.L2innerProd(self.PODmodes(jj), self.PODmodes(jj)),</span>
+    <span class="c1">#                                                 self.PODmodes.map(jj).vector)</span>
+            
+    <span class="c1"># return fun.x.array[:]  / self.norm.L2norm(fun)</span>
+  
+<div class="viewcode-block" id="POD.mode"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.mode">[docs]</a>  <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the `r`-th POD mode, according to the following formula</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">      \psi_{r} (\mathbf{x})= \frac{1}{\lambda_r}\sum_{i=1}^{N_s} \eta_{r, i}\,u(\mathbf{x};\,\boldsymbol{\mu}_i)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_snap : FunctionsList</span>
+<span class="sd">      List of snapshots onto which the POD is performed.</span>
+<span class="sd">    r : int</span>
+<span class="sd">      Integer input indicating the mode to define.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenvectors</span><span class="p">[:,</span><span class="n">r</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">r</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="POD.compute_basis"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.compute_basis">[docs]</a>  <span class="k">def</span> <span class="nf">compute_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">normalise</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the POD modes.</span>
+<span class="sd">    </span>
+<span class="sd">    To enforce the orthonormality in :math:`L^2`, the Grahm-Schmidt procedure can be used, if the number of modes to be used is high the numerical error in the eigendecomposition may be too large and the orthonormality is lost.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_snap : FunctionsList</span>
+<span class="sd">      List of snapshots onto which the POD is performed.</span>
+<span class="sd">    maxBasis : int</span>
+<span class="sd">      Integer input indicating the number of modes to define.</span>
+<span class="sd">    normalise : boolean, optional (Default = False)</span>
+<span class="sd">      If True, the Grahm-Schmidt procedure is used to normalise the POD modes.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">rankII</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">normalise</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GrahmSchmidt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">train_snap</span><span class="p">,</span> <span class="n">rankII</span><span class="p">)))</span>
+      <span class="k">else</span><span class="p">:</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">train_snap</span><span class="p">,</span> <span class="n">rankII</span><span class="p">))</span></div>
+       
+<div class="viewcode-block" id="POD.projection"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.projection">[docs]</a>  <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The reduced coefficients :math:`\{\alpha_k\}_{k=1}^N` of `u` using `N` modes :math:`\{\psi_k\}_{k=1}^N` are computed using projection in :math:`L_2`, i.e.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      \alpha_k(\boldsymbol{\mu}) = (u(\cdot;\,\boldsymbol{\mu}), \,\psi_k)_{L^2}\qquad k = 1, \dots, N</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : Function </span>
+<span class="sd">      Function object to project onto the reduced space of dimension `N`.</span>
+<span class="sd">    N : int</span>
+<span class="sd">      Dimension of the reduced space, modes to be used.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coeff : np.ndarray</span>
+<span class="sd">      Modal POD coefficients of `u`, :math:`\{\alpha_k\}_{k=1}^N`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># The coefficients are computed using projection in L^2</span>
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+      <span class="n">coeff</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">ii</span><span class="p">))</span> 
+
+    <span class="k">return</span> <span class="n">coeff</span></div>
+
+<div class="viewcode-block" id="POD.train_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.train_error">[docs]</a>  <span class="k">def</span> <span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`L^2`-sense</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}</span>
+<span class="sd">    .. math::</span>
+<span class="sd">      \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}}</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_snap : FunctionsList</span>
+<span class="sd">      List of snapshots onto which the train error of the POD basis is performed.</span>
+<span class="sd">    maxBasis : int</span>
+<span class="sd">      Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">    verbose : boolean, optional (Default = False) </span>
+<span class="sd">      If `True`, print of the progress is enabled.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    maxAbsErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">    maxRelErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">    coeff_matrix : np.ndarray </span>
+<span class="sd">      Matrix of the modal coefficients, obtained by projection in :math:`L^2`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+    <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+    <span class="n">coeff_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing train error &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span>
+
+    <span class="n">resid</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+        
+        <span class="c1"># Projecting the snapshots onto the reduced space</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">train_snap</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">maxBasis</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+          
+            <span class="c1"># building residual field</span>
+            <span class="n">resid</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">train_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">M</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
+            <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">M</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">M</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+
+        <span class="n">coeff_matrix</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">coeff</span><span class="p">[:]</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">coeff_matrix</span></div>
+
+<div class="viewcode-block" id="POD.test_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.test_error">[docs]</a>  <span class="k">def</span> <span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The average absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2`-sense</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      E_N = \left\langle \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2} \right\rangle_{\boldsymbol{\mu}\in\Xi_{\text{test}}}</span>
+<span class="sd">    .. math::</span>
+<span class="sd">      \varepsilon_N =\left\langle \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{L^2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{L^2}} \right\rangle_{\boldsymbol{\mu}\in\Xi_{\text{test}}}</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    test_snap : FunctionsList</span>
+<span class="sd">      List of snapshots onto which the test error of the POD basis is performed.</span>
+<span class="sd">    maxBasis : int</span>
+<span class="sd">      Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">    verbose : boolean, optional (Default = False) </span>
+<span class="sd">      If `True`, print of the progress is enabled.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    meanAbsErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">    maxRelErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">    coeff_matrix : np.ndarray </span>
+<span class="sd">      Matrix of the modal coefficients, obtained by projection in :math:`L^2`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">Ns_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_snap</span><span class="p">)</span>
+    <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+    <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+    <span class="n">coeff_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing POD test error (projection) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns_test</span><span class="p">)</span>
+
+    <span class="n">resid</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns_test</span><span class="p">):</span>
+      
+        <span class="c1"># Projecting the snapshots onto the reduced space</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">test_snap</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">maxBasis</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+            <span class="c1"># building residual field</span>
+            <span class="n">resid</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">M</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
+            <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">M</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">M</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+
+        <span class="n">coeff_matrix</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">coeff</span><span class="p">[:]</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+           <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">meanAbsErr</span> <span class="o">=</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">meanRelErr</span> <span class="o">=</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">meanAbsErr</span><span class="p">,</span> <span class="n">meanRelErr</span><span class="p">,</span> <span class="n">coeff_matrix</span></div></div>
+  
+
+<span class="c1"># discete POD - the SVD of the full snapshot matrix is used</span>
+<div class="viewcode-block" id="DiscretePOD"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD">[docs]</a><span class="k">class</span> <span class="nc">DiscretePOD</span><span class="p">():</span>
+<span class="w">  </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to perform the POD on a list of snapshots :math:`u(\mathbf{x};\,\boldsymbol{\mu})` dependent on some parameter :math:`\boldsymbol{\mu}`. </span>
+<span class="sd">    This class is used for several kind of inputs (`FunctionsList`, vectors, images, matrices...).</span>
+
+<span class="sd">    The snapshots are represented by a matrix :math:`\mathbb{S}\in\mathbb{R}^{\mathcal{N}_h\times N_s}`, such that</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathbb{S}_{ij} = u(\mathbf{x}_i;\,\boldsymbol{\mu}_j)</span>
+<span class="sd">    </span>
+<span class="sd">    in which the dependence on :math:`\mathbf{x}_i` can be a true spatial dependence or the dofs of a matrix/image.</span>
+
+<span class="sd">    The basis functions are computed using the `svd`, i.e.</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathbb{U}, \Sigma, \mathbb{V}^\dagger = \text{svd}(\mathbb{S})</span>
+
+<span class="sd">    The basis functions are orthogonal in :math:`l_2` sense, hence the matrix containing the modes is orthogonal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_snap : FunctionsMatrix or FunctionsList</span>
+<span class="sd">      List of snapshots onto which the POD is performed.</span>
+<span class="sd">    name : str</span>
+<span class="sd">      Name of the field.</span>
+<span class="sd">    Nmax : int, optional (default=None)</span>
+<span class="sd">      If `None` the full matrices are stored, else only the first `Nmax`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsMatrix</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Nmax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="c1"># Creating the snapshots matrix - check the variable type</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_snap</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+      <span class="n">snapMatrix</span> <span class="o">=</span> <span class="n">fun_list_2_fun_matrix</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">snapMatrix</span> <span class="o">=</span> <span class="n">train_snap</span>
+      
+    <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">FunctionsMatrix</span><span class="p">(</span><span class="n">snapMatrix</span><span class="o">.</span><span class="n">dofs</span><span class="p">)</span>
+
+    <span class="c1"># Performing SVD of the snapshot matrix</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">Sigma</span><span class="p">,</span> <span class="n">V_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">snapMatrix</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">Sigma</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> 
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Check singular values: some of them are negative!&quot;</span><span class="p">)</span>   
+
+    <span class="k">if</span> <span class="n">Nmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Sigma</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span> <span class="o">=</span> <span class="n">Nmax</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span> <span class="o">=</span> <span class="n">Sigma</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">Vh_train</span> <span class="o">=</span> <span class="n">V_T</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">,</span> <span class="p">:]</span> <span class="c1"># shape (Nmax, Ns)</span>
+
+    <span class="c1"># Computing POD basis</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">U</span> <span class="o">=</span> <span class="n">U</span>
+    <span class="k">for</span> <span class="n">rankII</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">U</span><span class="p">[:,</span> <span class="n">rankII</span><span class="p">])</span> <span class="c1"># shape (Nh, Nmax)</span>
+        
+       
+<div class="viewcode-block" id="DiscretePOD.projection"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.projection">[docs]</a>  <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The reduced coefficients :math:`\mathbf{V}^\dagger_\star\in\mathbb{R}^{N\times N_\star}` of `snap`:math:`=\mathbb{S}_\star\in\mathbb{R}^{\mathcal{N}_h\times N_\star}` using `N` modes :math:`\mathbb{U}\in\mathbb{R}^{\mathcal{N}_h\times N}` are computed using projection in :math:`l_2`, i.e.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      \mathbf{V}^\dagger_\star = \Sigma^{-1}\mathbb{U}^T\mathbb{S}_\star</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    snap : np.ndarray </span>
+<span class="sd">      Matrix object to project onto the reduced space of dimension `N`. Must be :math:`(\mathcal{N}_h, N_\star)`.</span>
+<span class="sd">    N : int, optional (default = None)</span>
+<span class="sd">      Dimension of the reduced space, modes to be used. If `None` all the modes are used.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coeff : np.ndarray</span>
+<span class="sd">      Modal POD coefficients of `snap`, :math:`\mathbf{V}^\dagger_\star`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">N</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+    
+    <span class="c1"># Vh_star = scipy.linalg.solve(np.diag(self.sing_vals), np.dot(self.modes.return_matrix().T, snap),</span>
+    <span class="c1">#                              assume_a=&#39;sym&#39;)</span>
+    <span class="n">Vh_star</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">)),</span> 
+                     <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">snap</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">Vh_star</span></div>
+  
+<div class="viewcode-block" id="DiscretePOD.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.reconstruct">[docs]</a>  <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Vh_star</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The reduced coefficients :math:`\mathbf{V}^\dagger_\star\in\mathbb{R}^{N\times N_\star}` are used to decode into the Full Order space :math:`\mathbb{R}^{\mathcal{N}_h}` using `N` modes :math:`\mathbb{U}\in\mathbb{R}^{\mathcal{N}_h\times N}`.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      \mathbb{S}_\star = \mathbb{U}\Sigma\mathbf{V}^\dagger_\star</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Vh_star : np.ndarray </span>
+<span class="sd">      Matrix object containing the POD coefficients. Must be :math:`(N, N_\star)`.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    snaps : np.ndarray</span>
+<span class="sd">      Reconstructed field returned as an element of :math:`\mathbf{R}^{\mathcal{N_h}\times N_\star}`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Vh_star</span><span class="p">)</span>
+    <span class="k">assert</span><span class="p">(</span> <span class="n">N</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span> <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()[:,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">[:</span><span class="n">N</span><span class="p">],</span> <span class="n">Vh_star</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DiscretePOD.train_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.train_error">[docs]</a>  <span class="k">def</span> <span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsMatrix</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`l^2`-sense</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}</span>
+<span class="sd">    .. math::</span>
+<span class="sd">      \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{2}}</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_snap : FunctionsMatrix or FunctionsList</span>
+<span class="sd">      List of snapshots to project and compute errors</span>
+<span class="sd">    maxBasis : int</span>
+<span class="sd">      Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">    verbose : boolean, optional (Default = False) </span>
+<span class="sd">      If `True`, print of the progress is enabled.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    maxAbsErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">    maxRelErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">assert</span><span class="p">(</span><span class="n">maxBasis</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span>
+    
+    <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+    <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Computing train error - &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span>
+      
+    <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+      <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+      <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+        <span class="n">recon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vh_train</span><span class="p">[:</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">mu</span><span class="p">])</span>
+        <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">recon</span> <span class="o">-</span> <span class="n">train_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm</span>
+      
+      <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

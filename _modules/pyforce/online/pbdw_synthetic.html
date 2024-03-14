@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.online.pbdw_synthetic &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.online.pbdw_synthetic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.online.pbdw_synthetic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Synthetic Online Phase: Parameterised-Background Data-Weak formulation</span>
+<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 12 December 2023</span>
+<span class="c1"># Latest Doc  Update: 12 December 2023</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">Function</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+<div class="viewcode-block" id="PBDW"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pbdw_synthetic.PBDW">[docs]</a><span class="k">class</span> <span class="nc">PBDW</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class implementing the online phase of the Parameterised-Background Data-Weak (PBDW) formulation, given a list of sensors&#39; Riesz representation :math:`\{g_m\}_{m=1}^M` for the update space and basis functions :math:`\{\zeta_n\}_{n=1}^N` for the reduced one.</span>
+<span class="sd">    In particular, the following matrices are defined :math:`(n,n&#39; = 1,\dots,N)` and :math:`(m,m&#39; = 1,\dots,M)` </span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathbb{A}_{mm&#39;}=\left(g_m,\,g_{m&#39;}\right)_{\mathcal{U}}  \qquad \qquad </span>
+<span class="sd">        \mathbb{K}_{mn}=\left(g_m,\,\zeta_{n}\right)_{\mathcal{U}}</span>
+<span class="sd">      </span>
+<span class="sd">    given :math:`\mathcal{U}` as the functional space.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basis_functions : FunctionsList</span>
+<span class="sd">        List of functions spanning the reduced space</span>
+<span class="sd">    basis_sensors : FunctionsList</span>
+<span class="sd">        List of sensors representation spanning the update space</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the snapshots (e.g., temperature T)</span>
+<span class="sd">    is_H1: boolean, optional (Default= False)</span>
+<span class="sd">        Boolean indicating whether to use scalar product in :math:`\mathcal{H}^1` or :math:`L^2`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">basis_sensors</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_H1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># store basis function and basis sensors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">_list</span>   <span class="o">=</span> <span class="n">basis_sensors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_space</span>
+        
+        <span class="c1"># Defining the norm class to make scalar products and norms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span> <span class="o">=</span> <span class="n">is_H1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norms</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">is_H1</span><span class="o">=</span><span class="n">is_H1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">)</span>
+
+        <span class="c1"># A_{ii,jj} = (basis_sensors[ii], basis_sensors[jj])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span><span class="n">M</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
+        
+        <span class="c1"># K_{ii,jj} = (basis_sensors[ii], basis_functions[jj])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span> <span class="o">=</span> <span class="n">N</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span> <span class="o">=</span> <span class="n">M</span>
+
+<div class="viewcode-block" id="PBDW.synt_test_error"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pbdw_synthetic.PBDW.synt_test_error">[docs]</a>    <span class="k">def</span> <span class="nf">synt_test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">N</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">M</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                        <span class="n">noise_value</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reg_param</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
+                        <span class="n">return_int</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The absolute and relative error on the test set is computed, by solving the PBDW system</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \left[ </span>
+<span class="sd">                \begin{array}{ccc}</span>
+<span class="sd">                    \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\</span>
+<span class="sd">                    \mathbb{K}^T &amp; &amp; 0</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right] \cdot</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right]   =</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \mathbf{y} \\ \\ \mathbf{0}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">            \right]</span>
+
+<span class="sd">        given :math:`\mathbf{y}\in\mathbb{R}^M`. Then, the full can state for the snapshot :math:`u` can be written as</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            u(\mathbf{x};\boldsymbol{\mu}) \simeq z_N(\mathbf{x};\boldsymbol{\mu})+\eta_M(\mathbf{x};\boldsymbol{\mu})</span>
+<span class="sd">                                        = \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \zeta_n(\mathbf{x})+</span>
+<span class="sd">                                          \sum_{m=1}^M \theta_m(\boldsymbol{\mu})\cdot g_m(\mathbf{x})</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_snap : FunctionsList</span>
+<span class="sd">            List of functions belonging to the test set to reconstruct with PBDW</span>
+<span class="sd">        N : int, optional (default = None)</span>
+<span class="sd">            Maximum number of basis functions :math:`\zeta_n` to use (if None is set to the number of basis functions)</span>
+<span class="sd">        M : int, optional (default = None)</span>
+<span class="sd">            Maximum number of basis sensors :math:`g_m` to use (if None is set to the number of basis sensors)</span>
+<span class="sd">        noise_value : float, optional (default = None)</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : float, optional (default = 0.)</span>
+<span class="sd">            Hyperparameter :math:`\xi` weighting the importance of the model with respect to the measurements.</span>
+<span class="sd">        return_int : boolean, optional (default = False)</span>
+<span class="sd">            Logic variable for the return of the interpolant and the residual fields</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        meanAbsErr : np.ndarray</span>
+<span class="sd">            Average absolute error measured in :math:`L^2`</span>
+<span class="sd">        meanRelErr : np.ndarray</span>
+<span class="sd">            Average relative error measured in :math:`L^2`</span>
+<span class="sd">        computational_time : dict</span>
+<span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+<span class="sd">        recons : FunctionsList</span>
+<span class="sd">            FunctionsList containing the reconstruction using :math:`M_{max}` sensors</span>
+<span class="sd">        resids : FunctionsList</span>
+<span class="sd">            FunctionsList containing the residual field (absolute difference between interpolant and true field) using :math:`M_{max}` sensors</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+        <span class="k">elif</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+        <span class="k">elif</span> <span class="n">N</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of basis functions must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+
+        <span class="n">Ns_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_snap</span><span class="p">)</span>
+        <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">M</span> <span class="o">-</span> <span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing PBDW test error (synthetic) with N = &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns_test</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_int</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">recons</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+            <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+            
+        <span class="c1"># Variables to store the computational times</span>
+        <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measure&#39;</span><span class="p">]</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;LinearSystem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span>       <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">return_int</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Reconstruction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,))</span>
+         
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>    
+        
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns_test</span><span class="p">):</span>
+            
+            <span class="c1"># Compute snapshot norm</span>
+            <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">norma_snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="c1"># Compute measures</span>
+            <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">y_clean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="n">y_clean</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="n">semi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">y_clean</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measure&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            
+            <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">noise_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y_clean</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span> <span class="o">=</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">M</span><span class="p">,))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y_clean</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measure&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+
+                <span class="c1"># Assembling and solving the linear system</span>
+                <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">y</span><span class="p">[:</span><span class="n">mm</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">sys_matr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="n">mm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">mm</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]])</span>
+                <span class="n">sys_matr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))])</span>
+                <span class="n">sys_matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sys_matr1</span><span class="p">,</span> <span class="n">sys_matr2</span><span class="p">])</span>
+
+                <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matr</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;LinearSystem&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+                <span class="c1"># Compute the error</span>
+                <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">resid</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">mm</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">mm</span><span class="p">:]))</span>
+                <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">mm</span> <span class="o">-</span> <span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
+                <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">mm</span> <span class="o">-</span> <span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span><span class="n">mm</span> <span class="o">-</span> <span class="n">N</span><span class="p">]</span> <span class="o">/</span> <span class="n">norma_snap</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">+=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">return_int</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">mm</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">M</span><span class="p">:</span>
+                    
+                        <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                        <span class="n">reconstr</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="n">residual</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                        <span class="n">reconstr</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">mm</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">mm</span><span class="p">:])</span>
+                        <span class="n">residual</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">reconstr</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:])</span>
+
+                        <span class="n">recons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reconstr</span><span class="p">)</span>
+                        <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Reconstruction&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_int</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">computational_time</span><span class="p">,</span> <span class="n">recons</span><span class="p">,</span> <span class="n">resids</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="PBDW.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pbdw_synthetic.PBDW.reconstruct">[docs]</a>    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                          <span class="n">noise_value</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reg_param</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The PBDW system is solved</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \left[ </span>
+<span class="sd">                \begin{array}{ccc}</span>
+<span class="sd">                    \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\</span>
+<span class="sd">                    \mathbb{K}^T &amp; &amp; 0</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right] \cdot</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right]   =</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \mathbf{y} \\ \\ \mathbf{0}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">            \right]</span>
+
+<span class="sd">        given :math:`\mathbf{y}\in\mathbb{R}^M`. Then, the full can state for the snapshot :math:`u` can be written as</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            u(\mathbf{x};\boldsymbol{\mu}) \simeq z_N(\mathbf{x};\boldsymbol{\mu})+\eta_M(\mathbf{x};\boldsymbol{\mu})</span>
+<span class="sd">                                        = \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \zeta_n(\mathbf{x})+</span>
+<span class="sd">                                          \sum_{m=1}^M \theta_m(\boldsymbol{\mu})\cdot g_m(\mathbf{x})</span>
+<span class="sd"> </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snap : Function as np.ndarray</span>
+<span class="sd">            Snap to reconstruct, if a function is provided, the variable is reshaped.</span>
+<span class="sd">        N : int, optional (default = None)</span>
+<span class="sd">            Maximum number of basis functions :math:`\zeta_n` to use (if None is set to the number of basis functions)</span>
+<span class="sd">        M : int, optional (default = None)</span>
+<span class="sd">            Maximum number of basis sensors :math:`g_m` to use (if None is set to the number of basis sensors)</span>
+<span class="sd">        noise_value : float, optional (default = None)</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : float, optional (default = 0.)</span>
+<span class="sd">            Hyperparameter :math:`\xi` weighting the importance of the model with respect to the measurements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        recon : Function</span>
+<span class="sd">            Function containing the reconstruction using :math:`M` sensors</span>
+<span class="sd">        resid : Function</span>
+<span class="sd">            Function containing the residual field (absolute difference between interpolant and true field) using :math:`M` sensors</span>
+<span class="sd">        computational_time : dict</span>
+<span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span><span class="p">(</span><span class="n">M</span> <span class="o">&gt;=</span> <span class="n">N</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="n">snap</span> <span class="o">=</span> <span class="n">snap</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        
+        <span class="c1"># Variables to store the computational times</span>
+        <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span> 
+        
+        <span class="c1"># Compute measurement vector</span>
+        <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">y_clean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                <span class="n">y_clean</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="n">semi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y_clean</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+    
+        <span class="k">if</span> <span class="n">noise_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y_clean</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span> <span class="o">=</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">M</span><span class="p">,))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y_clean</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="c1"># Assembling and solving the linear system</span>
+        <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">y</span><span class="p">[:</span><span class="n">M</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">sys_matr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]])</span>
+        <span class="n">sys_matr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))])</span>
+        <span class="n">sys_matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sys_matr1</span><span class="p">,</span> <span class="n">sys_matr2</span><span class="p">])</span>
+
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matr</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;LinearSystem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="n">recon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">M</span><span class="p">:])</span>
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snap</span> <span class="o">-</span> <span class="n">recon</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">recon</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">computational_time</span></div>
+
+<div class="viewcode-block" id="PBDW.hyperparameter_tuning"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pbdw_synthetic.PBDW.hyperparameter_tuning">[docs]</a>    <span class="k">def</span> <span class="nf">hyperparameter_tuning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                              <span class="n">xi_lim</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">n_samples</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">num_rep_exp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                              <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The hyperparameter :math:`\xi` of the PBDW statement is calibrated as the one minimising the absolute error in :math:`L^2`, namely</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \hat{\xi} = \text{arg}\,\min\limits_{\xi\in\mathbb{R}^+} E_{M, \xi}</span>
+<span class="sd">        </span>
+<span class="sd">        given :math:`E_{M, \xi}` the average absolute error in :math:`L^2` with :math:`M` sensors. The optimization problem is solved sampling :math:`\xi` in a specific range :math:`\Xi \subset\mathbb{R}^+`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            List of functions belonging to the validation set to reconstruct</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        xi_lim : tuple of floats, optional (Default = [0, 6])</span>
+<span class="sd">            Lower and upper bound (the input is the exponent for :math:`10^x`) of :math:`\xi`, regularisation parameter of PBDW.</span>
+<span class="sd">        num_rep_exp : int, optional (Default = 10)</span>
+<span class="sd">            Number of repeated numerical experiment to ensure statistical robustness</span>
+<span class="sd">        N : int, optional (Default = None)</span>
+<span class="sd">            Number of basis function to use (if None is set to the number of basis functions)</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of sensor to use (if None is set to the number of basis sensors)</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xi_opt : float</span>
+<span class="sd">            Optimal value of :math:`\hat{\xi}` per each numerical experiment</span>
+<span class="sd">        xi_samples : np.ndarray</span>
+<span class="sd">            Sample values of :math:`\xi`</span>
+<span class="sd">        ave_abs_err : np.ndarray</span>
+<span class="sd">            Average (also averaged wrt to the num. experiments) absolure reconstruction error associated to each output value of :math:`\xi_{sample}`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+        <span class="k">elif</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+        <span class="k">elif</span> <span class="n">N</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of basis functions must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+            
+        <span class="c1"># Defining the lambda^* parameters for the optimization problem</span>
+        <span class="n">xi_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">xi_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xi_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># Defining structures to store the absolute errors</span>
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+    
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">snaps</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;PBDW HyperParameter Tuning for sigma = </span><span class="si">{:.2e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">noise_value</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - &#39;</span><span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">num_rep_exp</span> <span class="p">)</span>
+            
+            
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="c1"># snap_norm[mu] = self.norms.L2norm(snaps(mu))</span>
+            <span class="n">snap_norm</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="n">semi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+        
+       <span class="c1"># The numerical experiment is repeated to ensure statistical robustness </span>
+        <span class="n">abs_errs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">rel_errs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">xi_opts</span>  <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_rep_exp</span><span class="p">):</span>
+            <span class="n">abs_errs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)))</span>
+            <span class="n">rel_errs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)))</span>
+            
+            <span class="c1"># Solving the optimization problem using brute force</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">xi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xi_samples</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+                    <span class="c1"># Adding synthetic noise</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="p">:]))</span>
+
+                    <span class="c1"># Creating matrix and vector</span>
+                    <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">y</span><span class="p">[:</span><span class="n">mm</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                    <span class="n">sys_matr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">xi</span> <span class="o">*</span> <span class="p">(</span><span class="n">mm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">mm</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]])</span>
+                    <span class="n">sys_matr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))])</span>
+                    <span class="n">sys_matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sys_matr1</span><span class="p">,</span> <span class="n">sys_matr2</span><span class="p">])</span>
+
+                    <span class="c1"># Solving the linear system</span>
+                    <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matr</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+                    
+                    <span class="c1"># Computing absolute error</span>
+                    <span class="n">resid</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">mm</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">mm</span><span class="p">:])))</span>
+                    <span class="n">abs_errs</span><span class="p">[</span><span class="n">exp</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
+                    <span class="n">rel_errs</span><span class="p">[</span><span class="n">exp</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs_errs</span><span class="p">[</span><span class="n">exp</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norm</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+                
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                    
+            <span class="n">xi_opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xi_samples</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">abs_errs</span><span class="p">[</span><span class="n">exp</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))])</span>
+        
+        <span class="k">return</span> <span class="n">xi_opts</span><span class="p">,</span> <span class="n">xi_samples</span><span class="p">,</span> <span class="n">abs_errs</span><span class="p">,</span> <span class="n">rel_errs</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

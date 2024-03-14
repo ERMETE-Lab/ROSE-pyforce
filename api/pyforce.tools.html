@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.tools package &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bibliography" href="../bibliography.html" />
+    <link rel="prev" title="pyforce.online package" href="pyforce.online.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyforce.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyforce.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html">pyforce.offline package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html">pyforce.online package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pyforce.tools package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.tools.backends">pyforce.tools.backends module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.tools.functions_list">pyforce.tools.functions_list module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.tools.plotting">pyforce.tools.plotting module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.tools.timer">pyforce.tools.timer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.tools.write_read">pyforce.tools.write_read module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.tools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.html#module-pyforce">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="pyforce.html">pyforce package</a></li>
+      <li class="breadcrumb-item active">pyforce.tools package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pyforce.tools.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyforce-tools-package">
+<h1>pyforce.tools package<a class="headerlink" href="#pyforce-tools-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pyforce.tools.backends">
+<span id="pyforce-tools-backends-module"></span><h2>pyforce.tools.backends module<a class="headerlink" href="#module-pyforce.tools.backends" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.tools.backends.LoopProgress">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.backends.</span></span><span class="sig-name descname"><span class="pre">LoopProgress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#LoopProgress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.LoopProgress" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to make progress bar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<em>str</em>) – Message to be displayed</p></li>
+<li><p><strong>final</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default = 100</em><em>)</em>) – Maximum value for the iterations</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.LoopProgress.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#LoopProgress.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.LoopProgress.update" title="Permalink to this definition"></a></dt>
+<dd><p>Update message to display and clears the previous one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<em>float</em>) – Interger or float value to add at the counter.</p></li>
+<li><p><strong>percentage</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – Indicates if the bar should be displayed in %.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.backends.</span></span><span class="sig-name descname"><span class="pre">norms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_H1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to compute norms and inner products. <span class="math notranslate nohighlight">\(L^2\)</span> and <span class="math notranslate nohighlight">\(H^1\)</span> (semi and full are implemented for both scalar and vector fields), whereas the average and the integral are available for scalar only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional Space onto which the Function are defined.</p></li>
+<li><p><strong>is_H1</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If the function belongs to <span class="math notranslate nohighlight">\(H^1\)</span>, the forms for the inner products and norms are computed.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.H1innerProd">
+<span class="sig-name descname"><span class="pre">H1innerProd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.H1innerProd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.H1innerProd" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the <span class="math notranslate nohighlight">\(H^1\)</span> semi or full inner product of the functions <cite>u</cite> and <cite>v</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[\langle u, v \,\rangle_{H^1} = \int_\Omega \nabla u \cdot \nabla v\,d\Omega\]</div>
+<div class="math notranslate nohighlight">
+\[(u,v)_{H^1} = \int_\Omega u\cdot v \,d\Omega + \int_\Omega \nabla u\cdot \nabla v \,d\Omega\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p></li>
+<li><p><strong>v</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p></li>
+<li><p><strong>semi</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = True</em><em>)</em>) – Indicates if the semi norm must be computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – <span class="math notranslate nohighlight">\(H^1\)</span> inner product of the functions</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.H1norm">
+<span class="sig-name descname"><span class="pre">H1norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.H1norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.H1norm" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the <span class="math notranslate nohighlight">\(H^1\)</span> semi or full norm of the function <cite>u</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[| u |_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega}\]</div>
+<div class="math notranslate nohighlight">
+\[\| u \|_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega + \int_\Omega u \cdot  u\,d\Omega}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p></li>
+<li><p><strong>semi</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = True</em><em>)</em>) – Indicates if the semi norm must be computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – <span class="math notranslate nohighlight">\(H^1\)</span> norm of the function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.L2innerProd">
+<span class="sig-name descname"><span class="pre">L2innerProd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.L2innerProd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.L2innerProd" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the <span class="math notranslate nohighlight">\(L^2\)</span> inner product of the functions <cite>u</cite> and <cite>v</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[(u,v)_{L^2}=\int_\Omega u\cdot v \,d\Omega\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p></li>
+<li><p><strong>v</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – <span class="math notranslate nohighlight">\(L^2\)</span> inner product between the functions</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.L2norm">
+<span class="sig-name descname"><span class="pre">L2norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.L2norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.L2norm" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the <span class="math notranslate nohighlight">\(L^2\)</span> norm of the function <cite>u</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[\| u\|_{L^2} = \sqrt{\int_\Omega u \cdot u\,d\Omega}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – <span class="math notranslate nohighlight">\(L^2\)</span> norm of the function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.Linftynorm">
+<span class="sig-name descname"><span class="pre">Linftynorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.Linftynorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.Linftynorm" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the <span class="math notranslate nohighlight">\(L^\infty\)</span> norm of a given function <cite>u</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[\| u \|_{L^\infty}=\max\limits_\Omega |u|\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space <cite>V</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – <span class="math notranslate nohighlight">\(L^\infty\)</span> norm of the function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.average">
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.average" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the integral average of a given <strong>scalar</strong> function <cite>u</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[\langle u \rangle = \frac{1}{|\Omega|}\int_\Omega u \,d\Omega\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space V (it must be a scalar!)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ave_value</strong> – Average over the domain</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.backends.norms.integral">
+<span class="sig-name descname"><span class="pre">integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/backends.html#norms.integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.backends.norms.integral" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the integral of a given scalar function <cite>u</cite> over the domain</p>
+<div class="math notranslate nohighlight">
+\[\int_\Omega u \,d\Omega\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u</strong> (<em>Function</em>) – Function belonging to the same functional space V (it must be a scalar!)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>val</strong> – Integral over the domain</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.tools.functions_list">
+<span id="pyforce-tools-functions-list-module"></span><h2>pyforce.tools.functions_list module<a class="headerlink" href="#module-pyforce.tools.functions_list" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">FunctionsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class wrapping a list of functions. They are stored as a <cite>list</cite> of <cite>np.ndarray</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>function_space</strong> (<em>FunctionSpace</em>) – Functional Space onto which the Function are defined.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dofs_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.append" title="Permalink to this definition"></a></dt>
+<dd><p>Extend the current list by adding a new function.
+The dolfinx.fem.Function element is stored in a list as a numpy array, to avoid problems when the number of elements becomes large.
+The input can be either a <cite>np.ndarray</cite> or a <cite>dolfinx.fem.Function</cite>, in the latter case it is mapped to <cite>np.ndarray</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dofs_fun</strong> (<em>np.ndarray</em>) – Functions to be appended.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.clear" title="Permalink to this definition"></a></dt>
+<dd><p>Clear the storage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.copy" title="Permalink to this definition"></a></dt>
+<dd><p>Defining the copy of the <cite>_list</cite> of elements</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.delete" title="Permalink to this definition"></a></dt>
+<dd><p>Delete a single element in position <cite>idx</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Integers indicating the position inside the <cite>_list</cite> to delete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.lin_combine">
+<span class="sig-name descname"><span class="pre">lin_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.lin_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.lin_combine" title="Permalink to this definition"></a></dt>
+<dd><p>Linearly combine functions (<cite>a_i = vec[i]</cite>) in the list <span class="math notranslate nohighlight">\(\{\phi_i\}_{i=0}^N\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=0}^N a_i\cdot \phi_i\]</div>
+<p>given <cite>N = len(vec)</cite> and <span class="math notranslate nohighlight">\(\mathbf{a}\in\mathbb{R}^N\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Iterable containing the coefficients of the linear combination.</p></li>
+<li><p><strong>use_numpy</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default=True</em><em>)</em>) – If <cite>True</cite> the functions are treated as <cite>np.ndarray</cite>, otherwise the formulation in <cite>dolfinx</cite> is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>combination</strong> – Function object storing the result of the linear combination</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.map">
+<span class="sig-name descname"><span class="pre">map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.map" title="Permalink to this definition"></a></dt>
+<dd><p>Mapping the element in position <cite>idx</cite> into a <cite>dolfinx.fem.Function</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Integers indicating the position inside the <cite>_list</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>eval_fun</strong> – Evaluated dofs into a Function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.sort">
+<span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.sort" title="Permalink to this definition"></a></dt>
+<dd><p>Sorting the list according to order - iterable of indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order</strong> (<em>list</em>) – List of indices for the sorting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">FunctionsMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dofs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class wrapping a list of functions without relying on <em>dolfinx</em> capabilities. They are stored as a <cite>list</cite> of <cite>np.ndarray</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dofs</strong> (<em>np.ndarray</em>) – Degrees of freedom of the functions <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dofs_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.append" title="Permalink to this definition"></a></dt>
+<dd><p>Extend the current list by adding a new function. The input must be a <cite>np.ndarray</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dofs_fun</strong> (<em>np.ndarray</em>) – Functions to be appended.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.clear" title="Permalink to this definition"></a></dt>
+<dd><p>Clear the storage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.copy" title="Permalink to this definition"></a></dt>
+<dd><p>Defining the copy of the <cite>_list</cite> of elements</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.delete" title="Permalink to this definition"></a></dt>
+<dd><p>Delete a single element in position <cite>idx</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Integers indicating the position inside the <cite>_list</cite> to delete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.lin_combine">
+<span class="sig-name descname"><span class="pre">lin_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.lin_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.lin_combine" title="Permalink to this definition"></a></dt>
+<dd><p>Linearly combine functions (<cite>a_i = vec[i]</cite>) in the list <span class="math notranslate nohighlight">\(\{\phi_i\}_{i=0}^N\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=0}^N a_i\cdot \phi_i\]</div>
+<p>given <cite>N = len(vec)</cite> and <span class="math notranslate nohighlight">\(\mathbf{a}\in\mathbb{R}^N\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vec</strong> (<em>np.ndarray</em>) – Iterable containing the coefficients of the linear combination.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>combination</strong> – Function object storing the result of the linear combination</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.return_matrix">
+<span class="sig-name descname"><span class="pre">return_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.return_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.return_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the list of arrays as a matrix <span class="math notranslate nohighlight">\(S\in\mathbb{R}^{\mathcal{N}_h\times N_s}\)</span>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.sort">
+<span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.sort" title="Permalink to this definition"></a></dt>
+<dd><p>Sorting the list according to order - iterable of indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order</strong> (<em>list</em>) – List of indices for the sorting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.fun_list_2_fun_matrix">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">fun_list_2_fun_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#fun_list_2_fun_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.fun_list_2_fun_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>This function can be used to convert a <cite>FunctionsList</cite> object to a <cite>FunctionsMatrix</cite> one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fun_list</strong> (<a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Object with the list of functions to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fun_matrix</strong> – Object containing the functions list converted to a list of arrays, not relying on <em>dolfinx</em>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix">FunctionsMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.fun_matrix_2_fun_list">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">fun_matrix_2_fun_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><span class="pre">FunctionsMatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#fun_matrix_2_fun_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.fun_matrix_2_fun_list" title="Permalink to this definition"></a></dt>
+<dd><p>This function can be used to convert a <cite>FunctionsMatrix</cite> object to a <cite>FunctionsList</cite> one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun_matrix</strong> (<a class="reference internal" href="#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><em>FunctionsMatrix</em></a>) – Object containing the functions as a list of arrays to convert.</p></li>
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional space of the functions (the dofs should be compliant).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fun_list</strong> – Object with the list of functions converted.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList">FunctionsList</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.train_test_split">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">train_test_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fun_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.33</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#train_test_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.train_test_split" title="Permalink to this definition"></a></dt>
+<dd><p>This function can be used to create a train and test using <cite>sklearn</cite> capabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun_list</strong> (<a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Object containing the functions as a list of arrays to convert.</p></li>
+<li><p><strong>test_size</strong> (<em>float</em>) – DimensionFunctional space of the functions (the dofs should be compliant).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em>) – Object with the list of parameters to be split.</p></li>
+<li><p><strong>fun_list</strong> (<em>FunctionsList</em>) – Object with the list of functions to be split.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional (Default = 1/3)</em>) – Size of the test set, must be between 0 and 1.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional (Default = 42)</em>) – Random seed for the splitting algorithm.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyforce.tools.plotting">
+<span id="pyforce-tools-plotting-module"></span><h2>pyforce.tools.plotting module<a class="headerlink" href="#module-pyforce.tools.plotting" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.plotting.PlotScalar">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.plotting.</span></span><span class="sig-name descname"><span class="pre">PlotScalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fun:</span> <span class="pre">dolfinx.fem.Function,</span> <span class="pre">filename:</span> <span class="pre">str,</span> <span class="pre">format:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'png',</span> <span class="pre">varname:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">clim=None,</span> <span class="pre">colormap=&lt;matplotlib.colors.LinearSegmentedColormap</span> <span class="pre">object&gt;,</span> <span class="pre">resolution=[1080,</span> <span class="pre">720]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/plotting.html#PlotScalar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.plotting.PlotScalar" title="Permalink to this definition"></a></dt>
+<dd><p>Python function to plot a scalar field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>Function</em>) – Field to plot.</p></li>
+<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the file to save.</p></li>
+<li><p><strong>clim</strong> (<em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Colorbar limit, if <cite>None</cite> the mininum and maximum of <cite>fun</cite> are computed.</p></li>
+<li><p><strong>colormap</strong> (<em>optional</em><em> (</em><em>Default = jet</em><em>)</em>) – Colormap for the plot</p></li>
+<li><p><strong>resolution</strong> (<em>list</em><em>, </em><em>optional</em><em> (</em><em>Default =</em><em> [</em><em>1080</em><em>, </em><em>720</em><em>]</em><em>)</em>) – Resolution of the image</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.plotting.PlotVector">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.plotting.</span></span><span class="sig-name descname"><span class="pre">PlotVector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fun:</span> <span class="pre">dolfinx.fem.Function,</span> <span class="pre">filename:</span> <span class="pre">str,</span> <span class="pre">format:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'png',</span> <span class="pre">varname:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">clim=None,</span> <span class="pre">mag_plot=True,</span> <span class="pre">colormap=&lt;matplotlib.colors.LinearSegmentedColormap</span> <span class="pre">object&gt;,</span> <span class="pre">resolution=[1080,</span> <span class="pre">720]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/plotting.html#PlotVector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.plotting.PlotVector" title="Permalink to this definition"></a></dt>
+<dd><p>Python function to plot a scalar field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>Function</em>) – Field to plot.</p></li>
+<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the file to save.</p></li>
+<li><p><strong>mag_plot</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = True</em><em>)</em>) – </p></li>
+<li><p><strong>clim</strong> (<em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Colorbar limit, if <cite>None</cite> the maximum of <cite>fun</cite> are computed (minimum is assumed 0).
+Magnitude plot is performed, otherwise glyphs.</p></li>
+<li><p><strong>colormap</strong> (<em>optional</em><em> (</em><em>Default = jet</em><em>)</em>) – Colormap for the plot</p></li>
+<li><p><strong>resolution</strong> (<em>list</em><em>, </em><em>optional</em><em> (</em><em>Default =</em><em> [</em><em>1080</em><em>, </em><em>720</em><em>]</em><em>)</em>) – Resolution of the image</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.plotting.get_scalar_grid">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.plotting.</span></span><span class="sig-name descname"><span class="pre">get_scalar_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/plotting.html#get_scalar_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.plotting.get_scalar_grid" title="Permalink to this definition"></a></dt>
+<dd><p>This function extracts the dofs of a scalar function for the plot using pyvista.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>Function</em>) – Function from which the dofs are extracted.</p></li>
+<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable.</p></li>
+<li><p><strong>real</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = True</em><em>)</em>) – Real dofs are considered, if <cite>False</cite> imaginary dofs are used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyforce.tools.timer">
+<span id="pyforce-tools-timer-module"></span><h2>pyforce.tools.timer module<a class="headerlink" href="#module-pyforce.tools.timer" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.tools.timer.Timer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.timer.</span></span><span class="sig-name descname"><span class="pre">Timer</span></span><a class="reference internal" href="../_modules/pyforce/tools/timer.html#Timer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.timer.Timer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.timer.Timer.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/timer.html#Timer.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.timer.Timer.start" title="Permalink to this definition"></a></dt>
+<dd><p>Start a new timer</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.timer.Timer.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/timer.html#Timer.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.timer.Timer.stop" title="Permalink to this definition"></a></dt>
+<dd><p>Stop the timer, and report the elapsed time</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pyforce.tools.timer.TimerError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.timer.</span></span><span class="sig-name descname"><span class="pre">TimerError</span></span><a class="reference internal" href="../_modules/pyforce/tools/timer.html#TimerError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.timer.TimerError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>A custom exception used to report errors in use of Timer class</p>
+</dd></dl>
+
+</section>
+<section id="module-pyforce.tools.write_read">
+<span id="pyforce-tools-write-read-module"></span><h2>pyforce.tools.write_read module<a class="headerlink" href="#module-pyforce.tools.write_read" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.write_read.ImportH5">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.write_read.</span></span><span class="sig-name descname"><span class="pre">ImportH5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/write_read.html#ImportH5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.write_read.ImportH5" title="Permalink to this definition"></a></dt>
+<dd><p>This function can be used to load from xdmf/h5 files scalar or vector list of functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional space in which the functions live.</p></li>
+<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the file to read as xdmf/h5 file.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>(</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, printing is enabled</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>snap</strong> (<em>FunctionsList</em>) – Imported list of functions</p></li>
+<li><p><strong>params_np</strong> (<em>list</em>) – Imported list of parameters</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.tools.write_read.StoreFunctionsList">
+<span class="sig-prename descclassname"><span class="pre">pyforce.tools.write_read.</span></span><span class="sig-name descname"><span class="pre">StoreFunctionsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/write_read.html#StoreFunctionsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.write_read.StoreFunctionsList" title="Permalink to this definition"></a></dt>
+<dd><p>This function can be used to save in <cite>xdmf/h5</cite> files scalar or vector list of functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domain</strong> (<em>dolfinx.mesh</em>) – Mesh containing the geometry.</p></li>
+<li><p><strong>snap</strong> (<a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions to save.</p></li>
+<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the file to save as xdmf/h5 file.</p></li>
+<li><p><strong>order</strong> (optional (Default = <cite>None</cite>)) – It must be passed as a list of integers containing the ordered indeces.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.tools.write_read.import_OF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.write_read.</span></span><span class="sig-name descname"><span class="pre">import_OF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_dofs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/write_read.html#import_OF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.write_read.import_OF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class used to import data from OpenFOAM and interpolate them onto <em>dolfinx</em> mesh.</p>
+<dl class="simple">
+<dt>The fluidfoam library (see <a class="reference external" href="https://github.com/fluiddyn/fluidfoam">https://github.com/fluiddyn/fluidfoam</a>) is exploited for the import process</dt><dd><ul class="simple">
+<li><p>Supported OpenFoam Versions : 2.4.0, 4.1 to 9 (org), v1712plus to v2212plus (com)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path of the OpenFOAM case directory.</p></li>
+<li><p><strong>extract_dofs</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default=False</em><em>)</em>) – If true, the dofs <span class="math notranslate nohighlight">\(x,\,y,\,z\)</span> of the OpenFOAM mesh are imported.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.write_read.import_OF.foam_to_dolfinx">
+<span class="sig-name descname"><span class="pre">foam_to_dolfinx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/write_read.html#import_OF.foam_to_dolfinx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.write_read.import_OF.foam_to_dolfinx" title="Permalink to this definition"></a></dt>
+<dd><p>Converting the OpenFOAM data imported into <cite>FunctionsList</cite> based on <em>dolfinx</em> structures. The snapshots are projected onto a suitable functional space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional Space onto which data are projected.</p></li>
+<li><p><strong>snaps</strong> (<em>list</em>) – List of <cite>numpy.ndarray</cite> of size <cite>(ndofs, ndim)</cite> with the OpenFOAM snapshots.</p></li>
+<li><p><strong>variables</strong> (<em>list</em>) – Lisr of spatial variables, either 2D (e.g., <cite>[‘x’, ‘y’]</cite>, <cite>[‘x’, ‘z’]</cite>, <cite>[‘y’, ‘z’]</cite>) or 3D (e.g., <cite>[‘x’, ‘y’, ‘z’]</cite>).</p></li>
+<li><p><strong>cut_value</strong> (<em>float</em><em>, </em><em>(</em><em>Default = 0.</em><em>)</em>) – For 2D meshes, one dimension is cut and this is the associated value.</p></li>
+<li><p><strong>verbose</strong> (<em>str</em><em>, </em><em>(</em><em>Default = None</em><em>)</em>) – If not <cite>None</cite>, printing is enabled with input message.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>snap_dolfinx</strong> – Project list of functions in <em>dolfinx</em>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList">FunctionsList</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.write_read.import_OF.import_field">
+<span class="sig-name descname"><span class="pre">import_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/write_read.html#import_OF.import_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.write_read.import_OF.import_field" title="Permalink to this definition"></a></dt>
+<dd><p>Importing all time instances (<strong>skipping zero folder</strong>) from OpenFOAM directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_name</strong> (<em>str</em>) – Name of the field to import.</p></li>
+<li><p><strong>vector</strong> (<em>boolean</em><em>, </em><em>(</em><em>Default: False</em><em>)</em>) – Labelling if the field is a vector.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>(</em><em>Default = True</em><em>)</em>) – If <cite>True</cite>, printing is enabled</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>field</strong> (<em>list</em>) – Imported list of functions (each element is a <cite>numpy.ndarray</cite>), sorted in time.</p></li>
+<li><p><strong>time_instants</strong> (<em>list</em>) – Sorted list of time.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyforce.tools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyforce.tools" title="Permalink to this heading"></a></h2>
+<p>pyforce/tools.</p>
+<p>Basic tools for the pyforce library.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyforce.online.html" class="btn btn-neutral float-left" title="pyforce.online package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../bibliography.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
