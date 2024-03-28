@@ -68,7 +68,7 @@ nbsphinx_execute = 'never'
 here = Path(__file__).parent.resolve()
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints', 'Tutorials/BenchmarkData']
 autodoc_mock_imports = ["dolfinx", "ufl", "petsc4py", "pyvista", "h5py"]
 
 # -- Options for HTML output -------------------------------------------------

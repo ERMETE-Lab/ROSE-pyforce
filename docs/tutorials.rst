@@ -5,18 +5,32 @@ In this section some tutorials on how to use pyforce will be discussed.
 
 The following case studies are discussed:
 
-- **Stationary Multi-group Diffusion equation**: ANL11-A2 reactor from the Argonne Code Center - Supplement 2 at https://www.osti.gov/biblio/12030251.
-- **Flow over Cylinder** (solved with FEniCSx): DFG2 benchmark from `FeatFlow Repository <https://wwwold.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking/flow/dfg_benchmark2_re100.html>`_
+1. **Flow over Cylinder** (solved with FEniCSx): DFG2 benchmark
 
----
+    - *Offline*: Generation of parametric snapshots.
+    - *Offline*: Creation of the reduced space using POD for vector fields and plotting the modes.
+    - *Online*:  POD with Interpolation adopting linear and RBF interpolation.
 
-In the coming weeks, some Jupyter notebooks will be published explaining how to use the *pyforce* package.
+2. **Stationary Multi-group Diffusion equation**: ANL11-A2 reactor from the Argonne Code Center - Supplement 2 at https://www.osti.gov/biblio/12030251. The following topics will be discussed:
 
----
+    - *Offline*: Generation of parametric snapshots using *FunctionsList* class and later export.
+    - *Offline*: Creation of the reduced space using the Proper Orthogonal Decomposition (POD).
+    - *Offline*: Generalised Empirical Interpolation Method (GEIM) to generate basis functions and place sensors.
+    - *Online*:  Effect of random noise onto the GEIM reconstruction, stabilisation with TR-GEIM.
+
+..
+    - *Offline*: Sensor Placement with the SGREEDY algorithm using the POD basis.
+    - *Online*:  Direct State estimation Parameterised-Background Data-Weak formulation (PBDW), considering noisy data.
+
+    3. **Buoyant Cavity/EVOL** (solved with OpenFOAM)?
+
+        - *Offline*: Import from OpenFOAM and plotting using *pyvista*.
+        - *Offline*: Creation of the reduced space using the POD and GEIM.
+        - *Online*:  Indirect Reconstruction (PE+POD-I), considering noisy data.
 
 .. toctree::
     :maxdepth: 1
     :caption: List of Tutorials:
 
-    MultiGroup Neutron Diffusion - ANL11-A2 benchmark <Tutorials/01_ANL11-A2_stationary.rst>
-    Unsteady Laminar Navier Stokes - DFG2 benchmark <Tutorials/02_DFG2_benchmark.rst>
+    Unsteady Laminar Navier Stokes - DFG2 benchmark <Tutorials/01_DFG2_benchmark.rst>
+    MultiGroup Neutron Diffusion - ANL11-A2 benchmark <Tutorials/02_ANL11-A2_stationary.rst>
