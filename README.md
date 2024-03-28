@@ -80,8 +80,9 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 The *pyforce* package is tested on some tutorials available in the [docs](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html), including fluid dynamics and neutronics problems.
 
 1. Laminar Flow over Cylinder (DFG2 benchmark): solved with *dolfinx*;
-2. Multi-Group Neutron Diffusion (ANL11-A2 benchmark: solved in *dolfinx*.
+2. Multi-Group Neutron Diffusion (ANL11-A2 benchmark): solved in *dolfinx*.
 
+*Coming Soon*: multiphysics (neutronics+thermal-hydraulics) with *dolfinx* and OpenFOAM.
 ## Authors
 
 **pyforce** is currently developed and mantained at [Nuclear Reactors Group - ERMETE Lab](https://github.com/ERMETE-Lab) by
