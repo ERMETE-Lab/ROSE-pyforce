@@ -16,6 +16,7 @@
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -411,21 +412,25 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    params : list</span>
+<span class="sd">        List of parameters to be split.</span>
 <span class="sd">    fun_list: FunctionsList</span>
 <span class="sd">        Object containing the functions as a list of arrays to convert.</span>
 <span class="sd">    test_size : float</span>
 <span class="sd">        DimensionFunctional space of the functions (the dofs should be compliant).</span>
+<span class="sd">    random_state : int, optional (Default = 42)</span>
+<span class="sd">        Random seed for the splitting algorithm.</span>
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    params : list</span>
-<span class="sd">        Object with the list of parameters to be split.</span>
-<span class="sd">    fun_list : FunctionsList</span>
-<span class="sd">        Object with the list of functions to be split.</span>
-<span class="sd">    test_size : float, optional (Default = 1/3)</span>
-<span class="sd">        Size of the test set, must be between 0 and 1.</span>
-<span class="sd">    random_state : int, optional (Default = 42)</span>
-<span class="sd">        Random seed for the splitting algorithm.</span>
+<span class="sd">    train_params : list</span>
+<span class="sd">        List of the train parameters.</span>
+<span class="sd">    test_params : list</span>
+<span class="sd">        List of the test parameters.</span>
+<span class="sd">    train_fun : list</span>
+<span class="sd">        List of the train functions.</span>
+<span class="sd">    test_fun : list</span>
+<span class="sd">        List of the test functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">),</span><span class="s2">&quot;Snapshots and parameters must have the same length.&quot;</span>

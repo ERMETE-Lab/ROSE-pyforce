@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow past a cylinder (DFG 2D-3 benchmark) &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Offline Phase" href="02_offline_POD.html" />
+    <link rel="prev" title="Unsteady Laminar Navier Stokes - DFG2 benchmark" href="../01_DFG2_benchmark.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Generation of the snapshots</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Mesh-generation">Mesh generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Physical-and-discretization-parameters">Physical and discretization parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Assembling-variational-forms">Assembling variational forms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Solving-the-time-dependent-problem">Solving the time-dependent problem</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="02_offline_POD.html">Offline Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_online_POD-I.html">Online Phase: POD-I</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../tutorials.html">Tutorials</a></li>
+          <li class="breadcrumb-item"><a href="../01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+      <li class="breadcrumb-item active">Flow past a cylinder (DFG 2D-3 benchmark)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/01_LaminarNS/01_generateFlowData.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Flow-past-a-cylinder-(DFG-2D-3-benchmark)">
+<h1>Flow past a cylinder (DFG 2D-3 benchmark)<a class="headerlink" href="#Flow-past-a-cylinder-(DFG-2D-3-benchmark)" title="Permalink to this heading"></a></h1>
+<p>This notebook implements the solution of the flow over cylinder based on the implementation by J. Dokken on the <a class="reference external" href="https://jsdokken.com/dolfinx-tutorial/chapter2/ns_code2.html">FEniCSx tutorials</a> and the <a class="reference external" href="https://github.com/jorgensd/dolfinx_ipcs">IPCS solver for Navier-Stokes</a>.</p>
+<p>The kinematic velocity is given by <span class="math notranslate nohighlight">\(\nu=\frac{\mu}{\rho}=0.001\,\frac{m^2}{s}\)</span> and the inflow velocity profile is specified as (with <span class="math notranslate nohighlight">\(\mathbf{x}=[x,y]^T\)</span>) <span class="math">\begin{equation*}
+\begin{split}
+\mathbf{u}_{in}(\mathbf{x},t) &= \left[ U \cdot \frac{4\,y(0.41-y)}{0.41^2}, 0 \right]^T\\
+U=U(t) &= 1.5\sin(\pi t/8)
+\end{split}
+\end{equation*}</span> which has a maximum magnitude of <span class="math notranslate nohighlight">\(1.5\)</span> at <span class="math notranslate nohighlight">\(y=0.41/2\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gmsh</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span> <span class="nn">petsc4py</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">gmshio</span><span class="p">,</span> <span class="n">XDMFFile</span>
+
+<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
+</pre></div>
+</div>
+</div>
+<section id="Mesh-generation">
+<h2>Mesh generation<a class="headerlink" href="#Mesh-generation" title="Permalink to this heading"></a></h2>
+<p>The geometry and the domain will be defined using <em>gmsh</em> in Python.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">mesh_factor</span> <span class="o">=</span> <span class="mf">.5</span>
+
+<span class="c1"># Initialize the gmsh module</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+<span class="c1"># Load the .geo file</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s1">&#39;cyl_dfg2D.geo&#39;</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+<span class="c1"># Set algorithm (adaptive = 1, Frontal-Delaunay = 6)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.MeshSizeFactor&quot;</span><span class="p">,</span> <span class="n">mesh_factor</span><span class="p">)</span>
+<span class="n">gdim</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Linear Finite Element</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">gdim</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s2">&quot;Netgen&quot;</span><span class="p">)</span>
+
+<span class="n">clear_output</span><span class="p">()</span>
+
+<span class="c1"># Import into dolfinx</span>
+<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">mesh</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">gmshio</span><span class="o">.</span><span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
+
+<span class="n">ft</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Facet markers&quot;</span>
+
+<span class="n">bound_markers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">bound_markers</span><span class="p">[</span><span class="s1">&#39;inlet&#39;</span><span class="p">]</span>     <span class="o">=</span> <span class="mi">1</span>
+<span class="n">bound_markers</span><span class="p">[</span><span class="s1">&#39;walls&#39;</span><span class="p">]</span>     <span class="o">=</span> <span class="mi">2</span>
+<span class="n">bound_markers</span><span class="p">[</span><span class="s1">&#39;outlet&#39;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">3</span>
+<span class="n">bound_markers</span><span class="p">[</span><span class="s1">&#39;obstacle&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">domain_marker</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">gdim</span><span class="p">,</span> <span class="n">gdim</span><span class="p">)</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">gdim</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gdim</span><span class="p">)</span>
+
+<span class="c1"># Finalize the gmsh module</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Physical-and-discretization-parameters">
+<h2>Physical and discretization parameters<a class="headerlink" href="#Physical-and-discretization-parameters" title="Permalink to this heading"></a></h2>
+<p>Following the DGF-2 benchmark, we define our problem specific parameters</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">T</span> <span class="o">=</span> <span class="mi">8</span>                       <span class="c1"># Final time</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">5.00e-4</span>                <span class="c1"># Time step size</span>
+<span class="n">num_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">T</span><span class="o">/</span><span class="n">dt</span><span class="p">)</span>
+
+<span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span>
+<span class="n">params</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">T</span>
+
+<span class="c1"># Define boundary conditions</span>
+<span class="k">class</span> <span class="nc">InletVelocity</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">gdim</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="n">dtype</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScalarType</span><span class="p">)</span>
+        <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.41</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mf">0.41</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The Reynolds number is </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">/</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The Reynolds number is 100.00
+</pre></div></div>
+</div>
+</section>
+<section id="Assembling-variational-forms">
+<h2>Assembling variational forms<a class="headerlink" href="#Assembling-variational-forms" title="Permalink to this heading"></a></h2>
+<p>The Navier-Stokes equations are discretised using a fractional step method: at first, a tentative velocity is computed and then the incompressibility constraint is enforced through the solution the pressure Poisson problem.</p>
+<p>Three different options have been implemented for the time discretisation of the tentative velocity problem:</p>
+<ol class="arabic simple">
+<li><p><em>BDF2</em> = Backward Differentiation Formula of order 2</p></li>
+<li><p><em>CN</em> = Crank-Nicolson</p></li>
+<li><p><em>EI</em> = Euler Implitict</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ns</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">time_adv</span> <span class="o">=</span> <span class="s1">&#39;BDF2&#39;</span>
+
+<span class="n">step01</span> <span class="o">=</span> <span class="n">tentative_velocity</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span><span class="p">,</span> <span class="n">InletVelocity</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">bound_markers</span><span class="p">,</span> <span class="n">time_adv</span><span class="o">=</span><span class="n">time_adv</span><span class="p">)</span>
+<span class="n">step01</span><span class="o">.</span><span class="n">assembleForm</span><span class="p">(</span><span class="n">direct</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">step02</span> <span class="o">=</span> <span class="n">pressure_projection</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">bound_markers</span><span class="p">,</span> <span class="n">time_adv</span><span class="o">=</span><span class="n">time_adv</span><span class="p">)</span>
+<span class="n">step02</span><span class="o">.</span><span class="n">assembleForm</span><span class="p">(</span><span class="n">direct</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">step03</span> <span class="o">=</span> <span class="n">update_velocity</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">time_adv</span><span class="o">=</span><span class="n">time_adv</span><span class="p">)</span>
+<span class="n">step03</span><span class="o">.</span><span class="n">assembleForm</span><span class="p">(</span><span class="n">direct</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Setting-up-the-tools-to-compute-drag-and-lift-coefficient">
+<h3>Setting up the tools to compute drag and lift coefficient<a class="headerlink" href="#Setting-up-the-tools-to-compute-drag-and-lift-coefficient" title="Permalink to this heading"></a></h3>
+<p>The FOM will be validation against the FEATFLOW dataset comparing the drag <span class="math notranslate nohighlight">\(c_D\)</span> and lift <span class="math notranslate nohighlight">\(c_L\)</span> coefficients, defined as</p>
+<p><span class="math">\begin{equation*}
+\begin{split}
+c_{\text{D}} &= \frac{2}{\rho L U_{mean}^2}\int_{\Gamma_S} \nu \frac{\partial u_{t_S}}{\partial \mathbf{n}}n_y -p n_x~\mathrm{d} s\\
+c_{\text{L}} &= -\frac{2}{\rho L U_{mean}^2}\int_{\Gamma_S} \nu \frac{\partial u_{t_S}}{\partial \mathbf{n}}n_x + p n_y~\mathrm{d} s
+\end{split}
+\end{equation*}</span> where <span class="math notranslate nohighlight">\(u_{t_S}\)</span> is the tangential velocity component at the interface of the obstacle <span class="math notranslate nohighlight">\(\partial\Omega_S\)</span>, defined as <span class="math notranslate nohighlight">\(u_{t_S}=u\cdot (n_y,-n_x)\)</span>, <span class="math notranslate nohighlight">\(U_{mean}=1\)</span> the average inflow velocity, and <span class="math notranslate nohighlight">\(L\)</span> the length of the channel. We use <code class="docutils literal notranslate"><span class="pre">UFL</span></code> to create the relevant integrals, and assemble them at each time step.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;rhoLU2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">get_drag_lift</span> <span class="o">=</span> <span class="n">drag_lift</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ft</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">bound_markers</span><span class="p">[</span><span class="s1">&#39;obstacle&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Solving-the-time-dependent-problem">
+<h2>Solving the time-dependent problem<a class="headerlink" href="#Solving-the-time-dependent-problem" title="Permalink to this heading"></a></h2>
+<p>The velocity and the pressure are stored to be later saved in appropriate data structures.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">progr_bar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="s1">&#39;Solving NS&#39;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+
+<span class="n">store_snap</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">if</span> <span class="n">store_snap</span><span class="p">:</span>
+    <span class="n">u_xdmf</span> <span class="o">=</span> <span class="n">XDMFFile</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="s2">&quot;Snapshots/snaps_u.xdmf&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">p_xdmf</span> <span class="o">=</span> <span class="n">XDMFFile</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="s2">&quot;Snapshots/snaps_p.xdmf&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="n">u_xdmf</span><span class="o">.</span><span class="n">write_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="n">p_xdmf</span><span class="o">.</span><span class="n">write_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+<span class="n">LL</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">kk</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">time_store</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
+
+    <span class="c1"># Update current time step</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+
+    <span class="c1"># Tentative velocity</span>
+    <span class="n">step01</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Pressure projection</span>
+    <span class="n">step02</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="n">step01</span><span class="o">.</span><span class="n">u_tilde</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">time_adv</span> <span class="o">!=</span> <span class="s1">&#39;EI&#39;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">step01</span><span class="o">.</span><span class="n">uOld</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">loc_</span><span class="p">,</span> <span class="n">step01</span><span class="o">.</span><span class="n">u_n</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">loc_n</span><span class="p">:</span>
+            <span class="n">loc_</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">loc_n</span><span class="p">)</span>
+
+    <span class="n">step03</span><span class="o">.</span><span class="n">advance</span><span class="p">(</span><span class="n">step01</span><span class="o">.</span><span class="n">u_tilde</span><span class="p">,</span> <span class="n">step02</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="n">step01</span><span class="o">.</span><span class="n">pOld</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">axpy</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">step02</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span>
+    <span class="n">step01</span><span class="o">.</span><span class="n">pOld</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
+
+    <span class="c1"># Save solution</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">kk</span> <span class="o">*</span> <span class="n">LL</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">store_snap</span><span class="p">:</span>
+            <span class="n">u_xdmf</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="n">step03</span><span class="o">.</span><span class="n">u_new</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">p_xdmf</span><span class="o">.</span><span class="n">write_function</span><span class="p">(</span><span class="n">step01</span><span class="o">.</span><span class="n">pOld</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+        <span class="c1"># Compute QoI</span>
+        <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">step03</span><span class="o">.</span><span class="n">u_new</span><span class="p">,</span> <span class="n">step01</span><span class="o">.</span><span class="n">pOld</span><span class="p">)</span>
+
+        <span class="n">kk</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Update old</span>
+    <span class="k">with</span> <span class="n">step03</span><span class="o">.</span><span class="n">u_new</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">loc_</span><span class="p">,</span> <span class="n">step01</span><span class="o">.</span><span class="n">uOld</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">loc_n</span><span class="p">:</span>
+        <span class="n">loc_</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">loc_n</span><span class="p">)</span>
+
+
+    <span class="n">progr_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">store_snap</span><span class="p">:</span>
+    <span class="n">u_xdmf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">p_xdmf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Solving NS: 0.020 / 8.00 - 0.099 s/it
+</pre></div></div>
+</div>
+<p>Store QoI data</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">res</span><span class="p">[</span><span class="s1">&#39;t_u&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">t_u</span>
+<span class="n">res</span><span class="p">[</span><span class="s1">&#39;t_p&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">t_p</span>
+<span class="n">res</span><span class="p">[</span><span class="s1">&#39;C_D&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">C_D</span>
+<span class="n">res</span><span class="p">[</span><span class="s1">&#39;C_L&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">C_L</span>
+<span class="n">res</span><span class="p">[</span><span class="s1">&#39;dP&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">p_diff</span>
+
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;Benchmark_Data/QoI_&#39;</span><span class="o">+</span><span class="n">time_adv</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<section id="Comparison-with-benchmark-data">
+<h3>Comparison with benchmark data<a class="headerlink" href="#Comparison-with-benchmark-data" title="Permalink to this heading"></a></h3>
+<p>The drag and lift coefficients are compared with benchmark data from <a class="reference external" href="https://wwwold.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking/flow/dfg_benchmark2_re100.html">DFG2</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/bdforces_lv4.txt&quot;</span><span class="p">)</span>
+<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
+
+<span class="c1"># time_adv_schemes = [&#39;BDF2&#39;, &#39;CN&#39;, &#39;EI&#39;]</span>
+<span class="n">time_adv_schemes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BDF2&#39;</span><span class="p">]</span>
+<span class="n">QoI_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;Benchmark_Data/QoI_&#39;</span><span class="o">+</span><span class="n">time_adv_schemes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">))]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">turbo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">line_styles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">]</span>
+
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">16</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">QoI_data</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="s1">&#39;t_u&#39;</span><span class="p">],</span> <span class="n">QoI_data</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="s1">&#39;C_D&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;FEniCSx-&quot;</span><span class="o">+</span><span class="n">time_adv_schemes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">turek</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">turek</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;^&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">markevery</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;FEATFLOW&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Drag coefficient $c_D$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">QoI_data</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="s1">&#39;t_u&#39;</span><span class="p">],</span> <span class="n">QoI_data</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="s1">&#39;C_L&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;FEniCSx-&quot;</span><span class="o">+</span><span class="n">time_adv_schemes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">turek</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">turek</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">4</span><span class="p">],</span> <span class="s2">&quot;^&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">markevery</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;FEATFLOW&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Lift coefficient $c_L$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">QoI_data</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="s1">&#39;t_p&#39;</span><span class="p">],</span> <span class="n">QoI_data</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="s1">&#39;dP&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;FEniCSx-&quot;</span><span class="o">+</span><span class="n">time_adv_schemes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">turek</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">turek_p</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">6</span><span class="p">]</span><span class="o">-</span><span class="n">turek_p</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;^&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">markevery</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;FEATFLOW&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Pressure Difference $\delta p$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Time $t$ (s)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;./Benchmark_Data/FOM_bench_comparison.pdf&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_01_LaminarNS_01_generateFlowData_15_0.png" src="../../_images/Tutorials_01_LaminarNS_01_generateFlowData_15_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../01_DFG2_benchmark.html" class="btn btn-neutral float-left" title="Unsteady Laminar Navier Stokes - DFG2 benchmark" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="02_offline_POD.html" class="btn btn-neutral float-right" title="Offline Phase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -17,10 +17,11 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Steady State MultiGroup Diffusion for ANL11-A2 benchmark" href="Tutorials/01_ANL11-A2_stationary.html" />
+    <link rel="next" title="Unsteady Laminar Navier Stokes - DFG2 benchmark" href="Tutorials/01_DFG2_benchmark.html" />
     <link rel="prev" title="Installation notes" href="installation.html" /> 
 </head>
 
@@ -51,8 +52,8 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation notes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Tutorials/01_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tutorials/02_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorials/01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorials/02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
@@ -87,18 +88,32 @@
 <h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this heading"></a></h1>
 <p>In this section some tutorials on how to use pyforce will be discussed.</p>
 <p>The following case studies are discussed:</p>
-<ul class="simple">
-<li><p><strong>Stationary Multi-group Diffusion equation</strong>: ANL11-A2 reactor from the Argonne Code Center - Supplement 2 at <a class="reference external" href="https://www.osti.gov/biblio/12030251">https://www.osti.gov/biblio/12030251</a>.</p></li>
-<li><p><strong>Flow over Cylinder</strong> (solved with FEniCSx): DFG2 benchmark from <a class="reference external" href="https://wwwold.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking/flow/dfg_benchmark2_re100.html">FeatFlow Repository</a></p></li>
+<ol class="arabic">
+<li><p><strong>Flow over Cylinder</strong> (solved with FEniCSx): DFG2 benchmark</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Offline</em>: Generation of parametric snapshots.</p></li>
+<li><p><em>Offline</em>: Creation of the reduced space using POD for vector fields and plotting the modes.</p></li>
+<li><p><em>Online</em>:  POD with Interpolation adopting linear and RBF interpolation.</p></li>
 </ul>
-<p>—</p>
-<p>In the coming weeks, some Jupyter notebooks will be published explaining how to use the <em>pyforce</em> package.</p>
-<p>—</p>
+</div></blockquote>
+</li>
+<li><p><strong>Stationary Multi-group Diffusion equation</strong>: ANL11-A2 reactor from the Argonne Code Center - Supplement 2 at <a class="reference external" href="https://www.osti.gov/biblio/12030251">https://www.osti.gov/biblio/12030251</a>. The following topics will be discussed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Offline</em>: Generation of parametric snapshots using <em>FunctionsList</em> class and later export.</p></li>
+<li><p><em>Offline</em>: Creation of the reduced space using the Proper Orthogonal Decomposition (POD).</p></li>
+<li><p><em>Offline</em>: Generalised Empirical Interpolation Method (GEIM) to generate basis functions and place sensors.</p></li>
+<li><p><em>Online</em>:  Effect of random noise onto the GEIM reconstruction, stabilisation with TR-GEIM.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">List of Tutorials:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Tutorials/01_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorials/02_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorials/01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorials/02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
 </ul>
 </div>
 </section>
@@ -108,7 +123,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Tutorials/01_ANL11-A2_stationary.html" class="btn btn-neutral float-right" title="Steady State MultiGroup Diffusion for ANL11-A2 benchmark" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Tutorials/01_DFG2_benchmark.html" class="btn btn-neutral float-right" title="Unsteady Laminar Navier Stokes - DFG2 benchmark" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

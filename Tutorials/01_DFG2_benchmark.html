@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unsteady Laminar Navier Stokes - DFG2 benchmark &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Flow past a cylinder (DFG 2D-3 benchmark)" href="01_LaminarNS/01_generateFlowData.html" />
+    <link rel="prev" title="Tutorials" href="../tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyforce
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unsteady Laminar Navier Stokes - DFG2 benchmark</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html">Generation of the snapshots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html">Offline Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/03_online_POD-I.html">Online Phase: POD-I</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Unsteady Laminar Navier Stokes - DFG2 benchmark</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Tutorials/01_DFG2_benchmark.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="unsteady-laminar-navier-stokes-dfg2-benchmark">
+<h1>Unsteady Laminar Navier Stokes - DFG2 benchmark<a class="headerlink" href="#unsteady-laminar-navier-stokes-dfg2-benchmark" title="Permalink to this heading"></a></h1>
+<p>The DFG2 benchmark is taken from the <a class="reference external" href="https://wwwold.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking/flow/dfg_benchmark2_re100.html">FeatFlow Repository</a>.
+It’s 2D version of a Flow Over Cylinder Problem, able to observe Von-Karman vortex shedding.</p>
+<a class="reference internal image-reference" href="../_images/dfg2_ns_benchmark.png"><img alt="dfg2_ns_benchmark" class="align-center" src="../_images/dfg2_ns_benchmark.png" style="width: 750px;" /></a>
+<p>The governing equations are the Navier Stokes equations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{
+    \begin{array}{ll}
+    \nabla\cdot \mathbf{u} = 0 &amp; \mathbf{x}\in\Omega\\
+    \frac{\partial \mathbf{u}}{\partial t} + \left(\mathbf{u}\cdot \nabla\right)\mathbf{u} -\nu \Delta \mathbf{u} + \nabla p = 0 &amp; \mathbf{x}\in\Omega\\
+    \mathbf{u}=\mathbf{u}_{in},\;\; \frac{\partial p}{\partial \mathbf{n}} = 0 &amp; \mathbf{x}\in\Gamma_{in} \\
+    \mathbf{u}=\mathbf{0},\;\; \frac{\partial p}{\partial \mathbf{n}} = 0 &amp; \mathbf{x}\in\Gamma_{w} \\
+    \frac{\partial \mathbf{u}}{\partial \mathbf{n}}=0,\;\; p = 0 &amp; \mathbf{x}\in\Gamma_{out}
+    \end{array}
+\right.\end{split}\]</div>
+<p>given <span class="math notranslate nohighlight">\(\Omega\)</span> as the domain and <span class="math notranslate nohighlight">\(\partial\Omega\)</span> as its boundary, composed by <span class="math notranslate nohighlight">\(\partial\Omega = \Gamma_{in}\cup\Gamma_{w}\cup\Gamma_{out}\)</span> where <span class="math notranslate nohighlight">\(\Gamma_{in}\)</span> is the inlet boundary, <span class="math notranslate nohighlight">\(\Gamma_{w}\)</span> is the wall boundary and <span class="math notranslate nohighlight">\(\Gamma_{out}\)</span> is the outlet.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html">Generation of the snapshots</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html#Mesh-generation">Mesh generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html#Physical-and-discretization-parameters">Physical and discretization parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html#Assembling-variational-forms">Assembling variational forms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html#Setting-up-the-tools-to-compute-drag-and-lift-coefficient">Setting up the tools to compute drag and lift coefficient</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html#Solving-the-time-dependent-problem">Solving the time-dependent problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/01_generateFlowData.html#Comparison-with-benchmark-data">Comparison with benchmark data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html">Offline Phase</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Importing-Snapshots">Importing Snapshots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#POD-algorithm">POD algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Decay-of-the-POD-eigenvalues">Decay of the POD eigenvalues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Definition-of-the-modes">Definition of the modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Computing-the-training-error">Computing the training error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Generation-of-the-maps">Generation of the maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Linear-Interpolation">Linear Interpolation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Radial-Basis-Function-Interpolation">Radial Basis Function Interpolation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Plotting-the-maps">Plotting the maps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/02_offline_POD.html#Post-Process:-plotting-the-POD-modes">Post Process: plotting the POD modes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="01_LaminarNS/03_online_POD-I.html">Online Phase: POD-I</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/03_online_POD-I.html#Importing-Snapshots-and-offline-results">Importing Snapshots and offline results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_LaminarNS/03_online_POD-I.html#Online-Phase">Online Phase</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/03_online_POD-I.html#Test-Error">Test Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_LaminarNS/03_online_POD-I.html#Post-Process">Post Process</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="01_LaminarNS/01_generateFlowData.html" class="btn btn-neutral float-right" title="Flow past a cylinder (DFG 2D-3 benchmark)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
