@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/ERMETE-Lab" target="_blank" >
-    <img alt="pyforce" src="./images/immy_pyforce2.png" width="450" />
+    <img alt="pyforce" src="./images/immy_pyforce2.png" width="600" />
   </a>
 </p>
 
