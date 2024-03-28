@@ -131,7 +131,7 @@ class TRGEIM():
          
         timing = Timer() 
     
-        resid = Function(snaps.fun_space)
+        resid = Function(snaps.fun_space).copy()
         for mu in range(Ns):
             
             timing.start()
@@ -146,7 +146,7 @@ class TRGEIM():
                     y_clean = np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])
                 else:
                     y_clean = np.hstack([y_clean, np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])])
-
+                
                 # Adding synthetic noise
                 y = y_clean + np.random.normal(0, noise_value, len(y_clean))
                 computational_time['Measure'][mu, mm] = timing.stop()
@@ -184,7 +184,7 @@ class TRGEIM():
         if return_int == True:
             return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time, interps, resids
         else:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0)
+            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time
 
     def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
         r"""

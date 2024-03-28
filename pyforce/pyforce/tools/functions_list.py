@@ -332,21 +332,25 @@ def train_test_split(params: list, fun_list: FunctionsList, test_size: float = 0
 
     Parameters
     ----------
+    params : list
+        List of parameters to be split.
     fun_list: FunctionsList
         Object containing the functions as a list of arrays to convert.
     test_size : float
         DimensionFunctional space of the functions (the dofs should be compliant).
+    random_state : int, optional (Default = 42)
+        Random seed for the splitting algorithm.
         
     Returns
     -------
-    params : list
-        Object with the list of parameters to be split.
-    fun_list : FunctionsList
-        Object with the list of functions to be split.
-    test_size : float, optional (Default = 1/3)
-        Size of the test set, must be between 0 and 1.
-    random_state : int, optional (Default = 42)
-        Random seed for the splitting algorithm.
+    train_params : list
+        List of the train parameters.
+    test_params : list
+        List of the test parameters.
+    train_fun : list
+        List of the train functions.
+    test_fun : list
+        List of the test functions.
     """
     
     assert len(fun_list) == len(params),"Snapshots and parameters must have the same length."
