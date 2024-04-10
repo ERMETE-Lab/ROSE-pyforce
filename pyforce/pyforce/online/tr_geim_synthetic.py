@@ -171,8 +171,8 @@ class TRGEIM():
                 if return_int == True and mm + 1 == M:
                     
                     timing.start()
-                    interpolant.x.array[:] = self.mf.lin_combine(coeff)
-                    residual.x.array[:] = np.abs(snaps(mu) - interpolant.x.array[:])
+                    interpolant = self.mf.lin_combine(coeff)
+                    residual = np.abs(snaps(mu) - interpolant)
 
                     interps.append(interpolant)
                     resids.append(residual)

@@ -232,7 +232,7 @@ class import_OF():
             self.of_dofs = np.array([x, y, z])
         
         snap_dolfinx = FunctionsList(V)
-        fun_ = Function(V)
+        fun_ = Function(V).copy()
         
         if verbose is not None:
             progressBar = LoopProgress(msg = verbose, final = len(snaps))

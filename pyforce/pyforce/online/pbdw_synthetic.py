@@ -166,8 +166,8 @@ class PBDW():
         # Variables to store the computational times
         computational_time = dict()
         computational_time['Measure']      = np.zeros((Ns_test, M))
-        computational_time['LinearSystem'] = np.zeros((Ns_test, M))
-        computational_time['Errors']       = np.zeros((Ns_test, M))
+        computational_time['LinearSystem'] = np.zeros((Ns_test, M - N + 1))
+        computational_time['Errors']       = np.zeros((Ns_test, M - N + 1))
         if return_int == True:
             computational_time['Reconstruction'] = np.zeros((Ns_test,))
          
@@ -182,9 +182,9 @@ class PBDW():
             computational_time['Errors'][mu, :] = timing.stop()
 
             # Compute measures
-            timing.start()
             y_clean = np.zeros((M,))
             for mm in range(M):
+                timing.start()
                 if self.is_H1:
                     y_clean[mm] = self.norms.H1innerProd(test_snap(mu), self.basis_sensors(mm), semi=False)
                 else:
@@ -208,23 +208,21 @@ class PBDW():
                 sys_matr = np.vstack([sys_matr1, sys_matr2])
 
                 coeff = la.solve(sys_matr, rhs)
-                computational_time['LinearSystem'][mu, mm] = timing.stop()
+                computational_time['LinearSystem'][mu, mm - N] = timing.stop()
 
                 # Compute the error
                 timing.start()
                 resid.x.array[:] = test_snap(mu) - (self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:]))
                 absErr[mu,mm - N] = self.norms.L2norm(resid)
                 relErr[mu,mm - N] = absErr[mu,mm - N] / norma_snap
-                computational_time['Errors'][mu, mm] += timing.stop()
+                computational_time['Errors'][mu, mm - N] += timing.stop()
 
                 if return_int == True and mm + 1 == M:
                     
                         timing.start()
-                        reconstr = Function(self.V).copy()
-                        residual = Function(self.V).copy()
 
-                        reconstr.x.array[:] = self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:])
-                        residual.x.array[:] = np.abs(test_snap(mu) - reconstr.x.array[:])
+                        reconstr = self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:])
+                        residual = np.abs(test_snap(mu) - reconstr)
 
                         recons.append(reconstr)
                         resids.append(residual)
