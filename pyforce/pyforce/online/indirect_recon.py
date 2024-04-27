@@ -1,7 +1,7 @@
 # Indirect Reconstruction algorithm tools
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 18 July  2023
-# Latest Doc  Update: 18 July  2023
+# Latest Code Update: 13 April 2024
+# Latest Doc  Update: 13 April 2024
 
 import numpy as np
 from scipy.optimize import brute, shgo, differential_evolution, minimize, least_squares, Bounds
@@ -119,7 +119,7 @@ class PE():
 
         return sol.x, guess
 
-    def synt_test_error(self, test_param: list, test_snaps: FunctionsList, GEIM_msen: FunctionsList, Mmax: int, 
+    def synt_test_error(self, test_param: np.ndarray, test_snaps: FunctionsList, GEIM_msen: FunctionsList, Mmax: int, 
                         noise_value = None, use_brute = True, grid_elem = 10,
                         verbose = False):
         r"""
@@ -127,8 +127,8 @@ class PE():
         
         Parameters
         ----------
-        test_param : list
-            List containing the parameters of the test set (truth)
+        test_param : np.ndarray
+            `np.ndarray` with shape $(N_s, p)$ given $N_s$ the number of samples and $p$ the dimension of the parameter vector
         test_snaps : FunctionsList
             List of functions belonging to the test set, used to generate the measurements
         GEIM_msen : FunctionsList
@@ -174,9 +174,9 @@ class PE():
 
         for idx_mu in range(Ns):
             
-            timing.start()
             y_clean = np.zeros((Mmax,))
             for mm in range(Mmax):
+                timing.start()  
                 y_clean[mm] = normss.L2innerProd(test_snaps(idx_mu), GEIM_msen(mm))
                 computational_time['Measure'][idx_mu, mm] = timing.stop()
                 

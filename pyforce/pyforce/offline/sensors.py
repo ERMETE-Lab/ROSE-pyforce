@@ -1,7 +1,7 @@
 # Offline Phase: sensors positioning
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 05 March 2024
-# Latest Doc  Update: 05 March  2024
+# Latest Code Update: 25 April 2024
+# Latest Doc  Update: 25 April 2024
 
 import numpy as np
 import scipy
@@ -235,7 +235,6 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
 
     self.basis = basis
     self.V = V
-    self.norm = norms(self.V)
     self.name = name
     self.domain = domain
 
@@ -243,7 +242,7 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
     self.sens_class = gaussian_sensors(domain, self.V, s, assemble_riesz = True)
 
   def generate(self, N: int, Mmax: int, tol: float = 0.2,
-               xm : list = None, sampleEvery : int = 10, is_H1 : bool = True, verbose = False):
+               xm : list = None, sampleEvery : int = 10, is_H1 : bool = False, verbose = False):
     r"""
     Selection of sensors position with a Riesz representation :math:`\{g_m\}_{m=1}^M` either in :math:`L^2` or :math:`H^1`.
     The positions of the sensors are either freely selected on the mesh or given as input.
@@ -267,6 +266,7 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
 
     """
 
+    self.norm = norms(self.V, is_H1 = is_H1)
     sens_lib = self.sens_class.create(xm = xm, sampleEvery=sampleEvery, is_H1=is_H1, verbose=verbose)
 
     inf_sup_list = []
@@ -275,7 +275,13 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
     self.basis_sens = FunctionsList(self.V)
 
     # Define first point
-    sensIDX = np.argmax( self.sens_class.action(self.basis(0), sens_lib) )
+    if is_H1:
+        measure = np.zeros((len(sens_lib), ))
+        for jj in range(len(sens_lib)):
+            measure[jj] = self.norm.H1innerProd(np.abs(self.basis(0)), sens_lib(jj), semi = False)
+        sensIDX = np.argmax(measure)
+    else:
+        sensIDX = np.argmax( self.sens_class.action(np.abs(self.basis(0)), sens_lib) )
     self.basis_sens.append(sens_lib(sensIDX))
     self.xm_sens.append(self.sens_class.xm_list[sensIDX])
     
@@ -295,13 +301,29 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
 
         for ii in range(m):
             for jj in range(m):
-                matr_A[ii, jj] = self.norm.L2innerProd(self.basis_sens(ii), self.basis_sens(jj))
+                if jj>=ii:
+                    if is_H1:
+                        matr_A[ii, jj] = self.norm.H1innerProd(self.basis_sens(ii), self.basis_sens(jj), semi = False)
+                    else:
+                        matr_A[ii, jj] = self.norm.L2innerProd(self.basis_sens(ii), self.basis_sens(jj))
+                else:
+                    matr_A[ii, jj] = matr_A[jj, ii]
+                    
             for kk in range(n):
-                matr_K[ii, kk] = self.norm.L2innerProd(self.basis_sens(ii), self.basis(kk))
+                if is_H1:
+                    matr_K[ii, kk] = self.norm.H1innerProd(self.basis_sens(ii), self.basis(kk), semi = False)
+                else:
+                    matr_K[ii, kk] = self.norm.L2innerProd(self.basis_sens(ii), self.basis(kk))
 
         for ii in range(n):
             for jj in range(n):
-                matr_Z[ii, jj] = self.norm.L2innerProd(self.basis(ii), self.basis(jj))
+                if jj>=ii:
+                    if is_H1:
+                        matr_Z[ii, jj] = self.norm.H1innerProd(self.basis(ii), self.basis(jj), semi = False)
+                    else:
+                        matr_Z[ii, jj] = self.norm.L2innerProd(self.basis(ii), self.basis(jj))
+                else:
+                    matr_Z[ii, jj] = matr_Z[jj, ii]
         
         schurComplement = np.matmul(matr_K.T, np.matmul(np.linalg.inv(matr_A), matr_K))
         
@@ -319,11 +341,22 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
         w_inf = self.basis.lin_combine(eigenVec_beta[:, idx_min_eig])
 
         # Compute projection 
-        coeff = self.sens_class.action(w_inf, self.basis_sens)
+        coeff = np.zeros((len(self.basis_sens),))
+        for jj in range(len(self.basis_sens)):
+            if is_H1:        
+                coeff[jj] = self.norm.H1innerProd(w_inf, self.basis_sens(jj), semi = False)
+            else:
+                coeff[jj] = self.norm.L2innerProd(w_inf, self.basis_sens(jj))
+        # coeff = self.sens_class.action(w_inf, self.basis_sens)
 
         # Identify the least approximated functional    
         resid.x.array[:] = self.basis_sens.lin_combine(coeff) - w_inf
-        measure = abs(self.sens_class.action(resid, sens_lib))
+        if is_H1:
+            measure = np.zeros((len(sens_lib),))
+            for jj in range(len(sens_lib)):
+                measure[jj] = abs(self.norm.H1innerProd(resid, sens_lib(jj), semi = False))
+        else:
+            measure = abs(self.sens_class.action(resid, sens_lib))
         sensIDX = np.argmax(measure)
         self.xm_sens.append(self.sens_class.xm_list.pop(sensIDX))
         self.basis_sens.append(sens_lib._list.pop(sensIDX))
@@ -349,21 +382,31 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
 
     for ii in range(m):
         for jj in range(m):
-            matr_A[ii, jj] = self.norm.L2innerProd(self.basis_sens(ii), self.basis_sens(jj))
+            if is_H1:
+                matr_A[ii, jj] = self.norm.H1innerProd(self.basis_sens(ii), self.basis_sens(jj), semi = False)
+            else:
+                matr_A[ii, jj] = self.norm.L2innerProd(self.basis_sens(ii), self.basis_sens(jj))
         for kk in range(n):
-            matr_K[ii, kk] = self.norm.L2innerProd(self.basis_sens(ii), self.basis(kk))
-    
+            if is_H1:
+                matr_K[ii, kk] = self.norm.H1innerProd(self.basis_sens(ii), self.basis(kk), semi = False)
+            else:
+                matr_K[ii, kk] = self.norm.L2innerProd(self.basis_sens(ii), self.basis(kk))
+
     for ii in range(n):
         for jj in range(n):
-            matr_Z[ii, jj] = self.norm.L2innerProd(self.basis(ii), self.basis(jj))
-
+            if is_H1:
+                matr_Z[ii, jj] = self.norm.H1innerProd(self.basis(ii), self.basis(jj), semi = False)
+            else:
+                matr_Z[ii, jj] = self.norm.L2innerProd(self.basis(ii), self.basis(jj))
+        
     schurComplement = np.matmul(matr_K.T, np.matmul(np.linalg.inv(matr_A), matr_K))
     
     # Solve the eig problem for beta
     beta_squared, eigenVec_beta = scipy.linalg.eigh(schurComplement, matr_Z)
 
     inf_sup_list.append( np.sqrt(min(beta_squared)) )
-    print(f'm = {m+0:02}, n = {n+0:02} | beta_n,m = {inf_sup_list[-1]:.6f}')
+    if verbose:
+        print(f'm = {m+0:02}, n = {n+0:02} | beta_n,m = {inf_sup_list[-1]:.6f}')
 
   def approx_loop(self, Mmax: int, is_H1 : bool = True):
     r"""

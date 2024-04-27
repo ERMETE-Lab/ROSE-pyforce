@@ -234,7 +234,7 @@ class PBDW():
         if return_int == True:
             return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time, recons, resids
         else:
-            return absErr.mean(axis = 0), relErr.mean(axis = 0)
+            return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time
         
     def reconstruct(self, snap: np.ndarray, N : int, M : int, 
                           noise_value : float = None, reg_param : float = 0.):
