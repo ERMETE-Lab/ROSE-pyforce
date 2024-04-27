@@ -29,5 +29,8 @@ given :math:`\Omega` as the domain and :math:`\partial\Omega` as its boundary, c
 
     Generation of the snapshots <02_MGDiffusion/01_generate_snaps.ipynb>
     Offline Phase: POD  <02_MGDiffusion/02a_offline_POD.ipynb>
-    Offline Phase: GEIM <02_MGDiffusion/02c_offline_GEIM.ipynb>
+    Offline Phase: GEIM <02_MGDiffusion/02b_offline_GEIM.ipynb>
+    Offline Phase: SGREEDY <02_MGDiffusion/02c_offline_SGREEDY.ipynb>
+    Offline Phase: PBDW <02_MGDiffusion/02d_offline_PBDW.ipynb>
     Online Phase: GEIM - effect of random noise <02_MGDiffusion/03a_online_GEIM.ipynb>
+    Online Phase: PBDW - effect of the Riesz Representation <02_MGDiffusion/03b_online_PBDW.ipynb>

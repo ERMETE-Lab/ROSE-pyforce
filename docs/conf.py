@@ -77,3 +77,9 @@ autodoc_mock_imports = ["dolfinx", "ufl", "petsc4py", "pyvista", "h5py"]
 # Options for HTML output
 html_theme = 'sphinx_rtd_theme'
 # html_theme = 'pydata_sphinx_theme'
+
+html_logo = "images/pyforce_logo.png"
+html_theme_options = {
+    'logo_only': True,
+    'display_version': False,
+}
