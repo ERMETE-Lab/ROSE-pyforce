@@ -36,12 +36,10 @@
 
           
           
-          <a href="../../index.html" class="icon icon-home">
-            pyforce
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -55,7 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Generation of the snapshots</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Mesh-generation">Mesh generation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Physical-and-discretization-parameters">Physical and discretization parameters</a></li>
@@ -68,6 +66,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
@@ -358,7 +357,7 @@ Solving NS: 0.020 / 8.00 - 0.099 s/it
 <span class="n">res</span><span class="p">[</span><span class="s1">&#39;C_L&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">C_L</span>
 <span class="n">res</span><span class="p">[</span><span class="s1">&#39;dP&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">get_drag_lift</span><span class="o">.</span><span class="n">p_diff</span>
 
-<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../BenchmarkData/LaminarNS_DFG2/QoI_&#39;</span><span class="o">+</span><span class="n">time_adv</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;Benchmark_Data/QoI_&#39;</span><span class="o">+</span><span class="n">time_adv</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -369,12 +368,12 @@ Solving NS: 0.020 / 8.00 - 0.099 s/it
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;../BenchmarkData/LaminarNS_DFG2/bdforces_lv4.txt&quot;</span><span class="p">)</span>
-<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;../BenchmarkData/LaminarNS_DFG2/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/bdforces_lv4.txt&quot;</span><span class="p">)</span>
+<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
 
 <span class="c1"># time_adv_schemes = [&#39;BDF2&#39;, &#39;CN&#39;, &#39;EI&#39;]</span>
 <span class="n">time_adv_schemes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BDF2&#39;</span><span class="p">]</span>
-<span class="n">QoI_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../BenchmarkData/LaminarNS_DFG2//QoI_&#39;</span><span class="o">+</span><span class="n">time_adv_schemes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">))]</span>
+<span class="n">QoI_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;Benchmark_Data/QoI_&#39;</span><span class="o">+</span><span class="n">time_adv_schemes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">))]</span>
 <span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">turbo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_adv_schemes</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
 <span class="n">line_styles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">]</span>
 
@@ -409,6 +408,8 @@ Solving NS: 0.020 / 8.00 - 0.099 s/it
 <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;./Benchmark_Data/FOM_bench_comparison.pdf&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

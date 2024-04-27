@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steady Buoyant Navier-Stokes for Differentially Heated Cavity &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Importing Snapshots from OpenFOAM" href="03_BuoyantCavity_OF6/01_import_OFsnaps.html" />
+    <link rel="prev" title="Online Phase: PBDW" href="02_MGDiffusion/03b_online_PBDW.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/01_import_OFsnaps.html">Generation of the snapshots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02a_offline_POD.html">Offline Phase: POD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02c_offline_maps.html">Offline Phase: generation of the maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/03_online_IR.html">Online Phase: Indirect Reconstruction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Steady Buoyant Navier-Stokes for Differentially Heated Cavity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Tutorials/03_buoyant_cavity.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="steady-buoyant-navier-stokes-for-differentially-heated-cavity">
+<h1>Steady Buoyant Navier-Stokes for Differentially Heated Cavity<a class="headerlink" href="#steady-buoyant-navier-stokes-for-differentially-heated-cavity" title="Permalink to this heading"></a></h1>
+<p>The Differentially Heated Cavity is taken from the <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM tutorial</a>.
+It’s 2D Cavity with velocity imposed at the left and right boundary, along with <span id="id1">[<a class="reference internal" href="../bibliography.html#id23" title="Kajal Chandra Saha. Double lid driven cavity with different moving wall directions for low reynolds number flow. International Journal of Applied Mathematics and Theoretical Physics, 4(3):67, 2018. doi:10.11648/j.ijamtp.20180403.11.">Sah18</a>]</span>.</p>
+<a class="reference internal image-reference" href="../_images/two_sided_lid_driven_cavity.png"><img alt="cavity" class="align-center" src="../_images/two_sided_lid_driven_cavity.png" style="width: 350px;" /></a>
+<p>The governing equations are the Navier-Stokes with energy equation under the Boussinesq approximation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{ \begin{aligned}
+\nabla \cdot \mathbf{u}&amp;=0 \quad &amp;\text{ in } \Omega\\
+(\mathbf{u} \cdot \nabla)\mathbf{u} - \nu \Delta \mathbf{u}+ \nabla p - \mathbf{g}\cdot\beta(T-T_\infty) &amp;=0 &amp; \text{ in } \Omega \\
+\mathbf{u} \cdot \nabla T - \alpha \Delta T&amp;= 0\quad&amp; \text{ in } \Omega
+\end{aligned} \right.\end{split}\]</div>
+<p>given <span class="math notranslate nohighlight">\(\Omega\)</span> as the domain.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="03_BuoyantCavity_OF6/01_import_OFsnaps.html">Generation of the snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_BuoyantCavity_OF6/02a_offline_POD.html">Offline Phase: POD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/02a_offline_POD.html#POD-algorithm">POD algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02a_offline_POD.html#Definition-of-the-modes">Definition of the modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02a_offline_POD.html#Computing-the-training-error-and-reduced-coefficient">Computing the training error and reduced coefficient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02a_offline_POD.html#Post-process:-plotting-modes">Post-process: plotting modes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="03_BuoyantCavity_OF6/02b_offline_GEIM.html">Offline Phase: GEIM</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/02b_offline_GEIM.html#GEIM-algorithm">GEIM algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02b_offline_GEIM.html#Generation-of-the-magic-functions/sensors">Generation of the magic functions/sensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/02b_offline_GEIM.html#Post-process:-plotting-magic-functions-and-sensors">Post-process: plotting magic functions and sensors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="03_BuoyantCavity_OF6/02c_offline_maps.html">Offline Phase: generation of the maps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/02c_offline_maps.html#Mapping-the-coefficients-of-the-observable-fields">Mapping the coefficients of the observable fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/02c_offline_maps.html#Mapping-the-coefficients-of-the-non-observable-fields">Mapping the coefficients of the non-observable fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="03_BuoyantCavity_OF6/03_online_IR.html">Online Phase: Indirect Reconstruction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/03_online_IR.html#Parameter-Estimation">Parameter Estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/03_online_IR.html#Proper-Orthogonal-Decomposition-with-Interpolation-(POD-I)">Proper Orthogonal Decomposition with Interpolation (POD-I)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_BuoyantCavity_OF6/03_online_IR.html#Post-Process">Post Process</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="02_MGDiffusion/03b_online_PBDW.html" class="btn btn-neutral float-left" title="Online Phase: PBDW" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="03_BuoyantCavity_OF6/01_import_OFsnaps.html" class="btn btn-neutral float-right" title="Importing Snapshots from OpenFOAM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline Phase: generation of the POD modes &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Offline Phase: GEIM algorithm" href="02b_offline_GEIM.html" />
+    <link rel="prev" title="Importing Snapshots from OpenFOAM" href="01_import_OFsnaps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="01_import_OFsnaps.html">Generation of the snapshots</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Offline Phase: POD</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#POD-algorithm">POD algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02c_offline_maps.html">Offline Phase: generation of the maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_online_IR.html">Online Phase: Indirect Reconstruction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../tutorials.html">Tutorials</a></li>
+          <li class="breadcrumb-item"><a href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes for Differentially Heated Cavity</a></li>
+      <li class="breadcrumb-item active">Offline Phase: generation of the POD modes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/03_BuoyantCavity_OF6/02a_offline_POD.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Offline-Phase:-generation-of-the-POD-modes">
+<h1>Offline Phase: generation of the POD modes<a class="headerlink" href="#Offline-Phase:-generation-of-the-POD-modes" title="Permalink to this heading"></a></h1>
+<p>This notebook implements the offline phase of the following algorithms:</p>
+<ul class="simple">
+<li><p>Proper Orthogonal Decomposition (POD)</p></li>
+</ul>
+<p>In particular, the basis functions (named modes) are generated through the POD procedure.</p>
+<p>The snapshots are related to the Buoyant Cavity problem in fluid dynamics, governed by the Navier-Stokes equations, including energy, under the Boussinesq approximation. In particular, the snapshots have been generated using the case reported in <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM tutorials</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">gmshio</span>
+<span class="kn">import</span> <span class="nn">gmsh</span>
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
+
+<span class="kn">from</span> <span class="nn">pyforce.offline.pod</span> <span class="kn">import</span> <span class="n">POD</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
+
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;norm_T&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
+<span class="n">tex_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\mathbf</span><span class="si">{u}</span><span class="s1">&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The snapshots are dependent on two different parameters: the Reynolds and the Richardson number, split into train and test set <span class="math">\begin{equation}
+\begin{array}{cc}
+Re_{train} = [15:5:150] & Ri_{train} = [0.2:0.4:5] \\
+Re_{test} = [17.5:10:147.5] & Ri_{test} = [0.4:0.8:44]
+\end{array}
+\end{equation}</span></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dRe</span> <span class="o">=</span> <span class="mf">5.</span>
+<span class="n">dRi</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="c1"># Train/Test Parameters</span>
+<span class="n">Re_train_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span>  <span class="mi">150</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRe</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">15</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>  <span class="mi">150</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRe</span><span class="o">*</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">Ri_train_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span>   <span class="mi">5</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRi</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.2</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>   <span class="mi">5</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRi</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>  <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Let us generate the mesh for importing OpenFOAM dataset into <em>dolfinx</em></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Initialize the gmsh module</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+<span class="c1"># Load the .geo file</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s1">&#39;cavity.geo&#39;</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+<span class="c1"># Set algorithm (adaptive = 1, Frontal-Delaunay = 6)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">gdim</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Linear Finite Element</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">gdim</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s2">&quot;Netgen&quot;</span><span class="p">)</span>
+
+<span class="c1"># Import into dolfinx</span>
+<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">gmshio</span><span class="o">.</span><span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+<span class="c1">########################################################################################################</span>
+
+<span class="n">tdim</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span>
+<span class="n">fdim</span> <span class="o">=</span> <span class="n">tdim</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">fdim</span><span class="p">,</span> <span class="n">tdim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Info    : Reading &#39;cavity.geo&#39;...
+Info    : Done reading &#39;cavity.geo&#39;
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 30%] Meshing curve 2 (Line)
+Info    : [ 50%] Meshing curve 3 (Line)
+Info    : [ 80%] Meshing curve 4 (Line)
+Info    : Done meshing 1D (Wall 0.000233847s, CPU 0.000251s)
+Info    : Meshing 2D...
+Info    : Meshing surface 1 (Transfinite)
+Info    : Done meshing 2D (Wall 0.00335411s, CPU 0s)
+Info    : 16384 nodes 32770 elements
+Info    : Optimizing mesh (Netgen)...
+Info    : Done optimizing mesh (Wall 1.4808e-06s, CPU 5e-06s)
+</pre></div></div>
+</div>
+<p>Let us define the functional space onto which the OpenFOAM data have been projected; then, the snapshots can be imported.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">ufl_cell</span><span class="p">(),</span> <span class="mi">1</span><span class="p">))]</span>
+
+<span class="n">train_snaps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">test_snaps</span>  <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="n">training</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+        <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TrainSet_&#39;</span><span class="o">+</span><span class="n">field</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TestSet_&#39;</span> <span class="o">+</span><span class="n">field</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">path_snap</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+        <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">test_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<section id="POD-algorithm">
+<h2>POD algorithm<a class="headerlink" href="#POD-algorithm" title="Permalink to this heading"></a></h2>
+<p>A dict will be created with the POD class of each field.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pod_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">POD</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">field</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_scipy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing p correlation matrix: 364.000 / 364.00 - 0.269 s/it
+Computing norm_T correlation matrix: 364.000 / 364.00 - 0.267 s/it
+Computing U correlation matrix: 364.000 / 364.00 - 0.369 s/it
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pod_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">POD</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_scipy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing norm_T correlation matrix: 364.000 / 364.00 - 0.269 s/it
+</pre></div></div>
+</div>
+<p>Let us plot the eigenvalues</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">PODeigFig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span><span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">color</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">))))</span>
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">eigenvalues</span><span class="o">.</span><span class="n">size</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+                 <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">),</span> <span class="s2">&quot;-^&quot;</span><span class="p">,</span>
+                 <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;$&quot;</span> <span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $i$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">40</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">.4</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$1-\frac{\lambda_i}{\sum_{k=1}^</span><span class="si">{N_s}</span><span class="s2"> \lambda_k}$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">color</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">))))</span>
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+                 <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[:</span><span class="mi">40</span><span class="p">]),</span> <span class="s2">&quot;-^&quot;</span><span class="p">,</span>
+                 <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;$&quot;</span> <span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $i$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">40</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\sqrt{\lambda_i}$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_12_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_12_0.png" />
+</div>
+</div>
+<section id="Definition-of-the-modes">
+<h3>Definition of the modes<a class="headerlink" href="#Definition-of-the-modes" title="Permalink to this heading"></a></h3>
+<p>Let us define and save the POD modes.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Nmax</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">path_offline</span> <span class="o">=</span> <span class="s1">&#39;./Offline_results/&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisFunctions&#39;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisFunctions&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">compute_basis</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">Nmax</span><span class="p">,</span> <span class="n">normalise</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">,</span> <span class="s1">&#39;POD_&#39;</span> <span class="o">+</span><span class="n">field</span><span class="p">,</span> <span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisFunctions/basisPOD_&#39;</span> <span class="o">+</span> <span class="n">field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Computing-the-training-error-and-reduced-coefficient">
+<h3>Computing the training error and reduced coefficient<a class="headerlink" href="#Computing-the-training-error-and-reduced-coefficient" title="Permalink to this heading"></a></h3>
+<p>Then, let us compute the training errors and the POD basis coefficients.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_PODcoeff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="n">train_abs_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nmax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)))</span>
+<span class="n">train_rel_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nmax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)))</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">pod_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">train_error</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">Nmax</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">train_abs_err</span><span class="p">[:,</span> <span class="n">field_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">train_rel_err</span><span class="p">[:,</span> <span class="n">field_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="n">train_PODcoeff</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing train error p: 364.000 / 364.00 - 0.095 s/it
+Computing train error norm_T: 364.000 / 364.00 - 0.092 s/it
+Computing train error U: 364.000 / 364.00 - 0.130 s/it
+</pre></div></div>
+</div>
+<p>Let us build the store the coefficients of the reduced basis coefficients to be later used.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">train_PODcoeff</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;coeffs.pod&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>The max absolute and relative reconstruction error is compared for the different algorithms, given the following definitions <span class="math">\begin{equation*}
+\begin{split}
+E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}\\
+\varepsilon_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \frac{\left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}}{\left\| u(\cdot;\,\boldsymbol{\mu}) \right\|_{L^2(\Omega)}}
+\end{split}
+\end{equation*}</span> given <span class="math notranslate nohighlight">\(\mathcal{P}_N[u]\)</span> the reconstruction operator with <span class="math notranslate nohighlight">\(N\)</span> basis functions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">TrainingErrFig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">Nmax</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">train_abs_err</span><span class="p">[:</span><span class="n">Nmax</span><span class="p">,</span> <span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;g-s&#39;</span><span class="p">,</span>   <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;POD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">train_rel_err</span><span class="p">[:</span><span class="n">Nmax</span><span class="p">,</span> <span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;g-s&#39;</span><span class="p">,</span>   <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;POD&#39;</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$E_N[&quot;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;]$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\varepsilon_N[&quot;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;]$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $N$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $N$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+
+<span class="n">TrainingErrFig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_20_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_20_0.png" />
+</div>
+</div>
+</section>
+<section id="Post-process:-plotting-modes">
+<h3>Post-process: plotting modes<a class="headerlink" href="#Post-process:-plotting-modes" title="Permalink to this heading"></a></h3>
+<p>The POD modes are plotted using <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vtk</span>
+<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">import</span> <span class="nn">dolfinx</span>
+
+<span class="n">pv</span><span class="o">.</span><span class="n">start_xvfb</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">vector_grids</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span> <span class="n">mag_plot</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">):</span>
+
+    <span class="n">topology</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">create_vtk_mesh</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">function_space</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">topology</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">values</span><span class="p">[:,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">fun</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun</span><span class="p">)))</span>
+    <span class="n">grid</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="k">if</span> <span class="n">mag_plot</span><span class="p">:</span>
+        <span class="n">warped</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">warp_by_vector</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warped</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">glyph</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.025</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">warped</span><span class="p">,</span> <span class="n">values</span>
+
+<span class="k">def</span> <span class="nf">grids</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="n">topology</span><span class="p">,</span> <span class="n">cell_types</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">create_vtk_mesh</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">function_space</span><span class="p">)</span>
+    <span class="n">u_grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">topology</span><span class="p">,</span> <span class="n">cell_types</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
+    <span class="n">u_grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span><span class="o">.</span><span class="n">real</span>
+    <span class="n">u_grid</span><span class="o">.</span><span class="n">set_active_scalars</span><span class="p">(</span><span class="s1">&#39;fun&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">u_grid</span>
+
+<span class="k">def</span> <span class="nf">plotModes</span><span class="p">(</span> <span class="n">pod_modes</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shape</span> <span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+               <span class="n">mag_plot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colormap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">):</span>
+
+    <span class="n">nrows</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">resolution</span> <span class="o">=</span> <span class="p">[</span><span class="mi">900</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">900</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">]</span>
+    <span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
+
+    <span class="n">lab_fontsize</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">title_fontsize</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.05</span>
+
+    <span class="n">dict_cb</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="n">varname</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                    <span class="n">title_font_size</span><span class="o">=</span><span class="n">title_fontsize</span><span class="p">,</span>
+                    <span class="n">label_font_size</span><span class="o">=</span><span class="n">lab_fontsize</span><span class="p">,</span>
+                    <span class="n">n_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span>
+                    <span class="n">position_x</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">position_y</span><span class="o">=</span><span class="mf">0.885</span><span class="p">,</span>
+                    <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pod_modes</span><span class="o">.</span><span class="n">fun_space</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">vector_plot</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vector_plot</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">vector_plot</span><span class="p">:</span>
+                <span class="n">warped</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">vector_grids</span><span class="p">(</span><span class="n">pod_modes</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="n">mag_plot</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">)</span>
+                <span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warped</span> <span class="o">=</span> <span class="n">grids</span><span class="p">(</span><span class="n">pod_modes</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+                <span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">pod_modes</span><span class="p">(</span><span class="n">idx</span><span class="p">)),</span> <span class="nb">max</span><span class="p">(</span><span class="n">pod_modes</span><span class="p">(</span><span class="n">idx</span><span class="p">))]</span>
+
+            <span class="n">plotter</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="n">varname</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="s1">&#39; - POD mode &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">warped</span><span class="p">,</span> <span class="n">clim</span> <span class="o">=</span> <span class="n">clim</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalar_bar_args</span><span class="o">=</span><span class="n">dict_cb</span><span class="p">)</span>
+            <span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
+            <span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">zoom</span><span class="p">)</span>
+
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">plotter</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+    <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Let us plot the first 4 POD modes of each variable.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plotModes</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">)</span>
+<span class="n">plotModes</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">)</span>
+
+<span class="n">plotModes</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">RdYlBu_r</span><span class="p">)</span>
+<span class="n">plotModes</span><span class="p">(</span><span class="n">pod_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">mag_plot</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">RdYlBu_r</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_1.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_2.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_3.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02a_offline_POD_24_3.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="01_import_OFsnaps.html" class="btn btn-neutral float-left" title="Importing Snapshots from OpenFOAM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="02b_offline_GEIM.html" class="btn btn-neutral float-right" title="Offline Phase: GEIM algorithm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

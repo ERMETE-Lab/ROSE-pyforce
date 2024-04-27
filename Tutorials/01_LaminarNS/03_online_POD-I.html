@@ -36,12 +36,10 @@
 
           
           
-          <a href="../../index.html" class="icon icon-home">
-            pyforce
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -55,7 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="01_generateFlowData.html">Generation of the snapshots</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_offline_POD.html">Offline Phase</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Online Phase: POD-I</a><ul>
@@ -66,6 +64,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
@@ -489,8 +488,8 @@ Computing POD test error (interpolation) - u: 40.000 / 40.00 - 0.020 s/it
 
 
 <span class="c1">############### PLOTTING ###############</span>
-<span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;../BenchmarkData/LaminarNS_DFG2/bdforces_lv4.txt&quot;</span><span class="p">)</span>
-<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;../BenchmarkData/LaminarNS_DFG2/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
+<span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/bdforces_lv4.txt&quot;</span><span class="p">)</span>
+<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
 
 <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">reconstructions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
 <span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">turbo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>

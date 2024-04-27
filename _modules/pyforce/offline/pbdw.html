@@ -30,12 +30,10 @@
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            pyforce
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -80,8 +78,8 @@
   <h1>Source code for pyforce.offline.pbdw</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Offline Phase: Parameterised-Background Data-Weak</span>
 <span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 12 October 2023</span>
-<span class="c1"># Latest Doc  Update: 18 July 2023</span>
+<span class="c1"># Latest Code Update: 25 April 2024</span>
+<span class="c1"># Latest Doc  Update: 25 April 2024</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
@@ -112,11 +110,11 @@
 <span class="sd">        List of functions spanning the reduced space</span>
 <span class="sd">    basis_sensors : FunctionsList</span>
 <span class="sd">        List of sensors representation spanning the update space</span>
-<span class="sd">    name : str</span>
-<span class="sd">        Name of the snapshots (e.g., temperature T)</span>
+<span class="sd">    is_H1 : boolean, optional (default=False)</span>
+<span class="sd">        If `True`, the Riesz representation in :math:`H^1` is used.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">basis_sensors</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">basis_sensors</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">is_H1</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     
         <span class="c1"># store basis function and basis sensors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
@@ -128,33 +126,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_space</span>
         
         <span class="c1"># Defining the norm class to make scalar products and norms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">norms</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norms</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">is_H1</span> <span class="o">=</span> <span class="n">is_H1</span><span class="p">)</span>
 
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">)</span>
         <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">)</span>
 
-        <span class="c1"># A_{ii,jj} = (basis_sensors[ii], basis_sensors[jj])_L2</span>
+        <span class="c1"># A_{ii,jj} = (basis_sensors[ii], basis_sensors[jj])_U (either L2 or H1)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span><span class="n">M</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">is_H1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
         
-        <span class="c1"># K_{ii,jj} = (basis_sensors[ii], basis_functions[jj])_L2</span>
+        <span class="c1"># K_{ii,jj} = (basis_sensors[ii], basis_functions[jj])_U (either L2 or H1)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">is_H1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
 
         <span class="c1"># Z_{ii, jj} = (basis_functions[ii], basis_functions[jj])_L2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">is_H1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
 

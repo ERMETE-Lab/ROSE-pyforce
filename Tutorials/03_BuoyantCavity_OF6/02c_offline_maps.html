@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline Phase: generating reduced coefficient maps &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Online Phase: Indirect Reconstruction" href="03_online_IR.html" />
+    <link rel="prev" title="Offline Phase: GEIM algorithm" href="02b_offline_GEIM.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="01_import_OFsnaps.html">Generation of the snapshots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02a_offline_POD.html">Offline Phase: POD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Offline Phase: generation of the maps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Mapping-the-coefficients-of-the-observable-fields">Mapping the coefficients of the observable fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Mapping-the-coefficients-of-the-non-observable-fields">Mapping the coefficients of the non-observable fields</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="03_online_IR.html">Online Phase: Indirect Reconstruction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../tutorials.html">Tutorials</a></li>
+          <li class="breadcrumb-item"><a href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes for Differentially Heated Cavity</a></li>
+      <li class="breadcrumb-item active">Offline Phase: generating reduced coefficient maps</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/03_BuoyantCavity_OF6/02c_offline_maps.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Offline-Phase:-generating-reduced-coefficient-maps">
+<h1>Offline Phase: generating reduced coefficient maps<a class="headerlink" href="#Offline-Phase:-generating-reduced-coefficient-maps" title="Permalink to this heading"></a></h1>
+<p>This notebook implements the generation of the maps of the reduced coefficients (obtained by GEIM and POD) using the following methods:</p>
+<ul class="simple">
+<li><p>Piecewise-Linear Interpolation</p></li>
+<li><p>Radial Basis Function (RBF) Interpolation</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span> <span class="k">as</span> <span class="n">interp</span>
+
+<span class="n">path_offline</span> <span class="o">=</span> <span class="s1">&#39;./Offline_results/&#39;</span>
+
+<span class="n">geim_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">]</span>
+<span class="n">pod_var_names</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
+
+<span class="n">geim_tex_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span>
+<span class="n">pod_tex_var_names</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\mathbf</span><span class="si">{u}</span><span class="s1">&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Let us import the reduced coefficients for GEIM (temperature) and POD (pressure and velocity)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_coeffs</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;coeffs.geim&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="n">pod_coeffs</span>  <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;coeffs.pod&#39;</span><span class="p">,</span>  <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>The snapshots are dependent on two different parameters: the Reynolds and the Richardson number, split into train and test set <span class="math">\begin{equation}
+Re_{train} = [15:5:150] \qquad\qquad Ri_{train} = [0.2:0.4:5]
+\end{equation}</span></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dRe</span> <span class="o">=</span> <span class="mf">5.</span>
+<span class="n">dRi</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="c1"># Train Parameters</span>
+<span class="n">Re_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span>  <span class="mi">150</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRe</span><span class="p">)</span>
+<span class="n">Ri_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span>   <span class="mi">5</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRi</span><span class="p">)</span>
+
+<span class="n">Ri</span><span class="p">,</span> <span class="n">Re</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Ri_train</span><span class="p">,</span> <span class="n">Re_train</span><span class="p">)</span>
+<span class="n">mu_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">Re</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Ri</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<section id="Mapping-the-coefficients-of-the-observable-fields">
+<h2>Mapping the coefficients of the observable fields<a class="headerlink" href="#Mapping-the-coefficients-of-the-observable-fields" title="Permalink to this heading"></a></h2>
+<p>In this section, the reduced coordinate obtained by the GEIM algorithm, i.e., <span class="math notranslate nohighlight">\(\boldsymbol{\beta}^T\)</span>, observable fields (only temperature in this case) will be mapped <span class="math">\begin{equation*}
+\mathcal{F}_T: \boldsymbol{\mu} \longrightarrow \boldsymbol{\beta}^T(\boldsymbol{\mu})
+\end{equation*}</span></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_maps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="n">Mmax</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">geim_var_names</span><span class="p">:</span>
+    <span class="n">geim_maps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">geim_maps</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;LinInt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">interp</span><span class="o">.</span><span class="n">LinearNDInterpolator</span><span class="p">(</span><span class="n">mu_train</span><span class="p">,</span> <span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mmax</span><span class="p">)]</span>
+    <span class="n">geim_maps</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;Clough&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">interp</span><span class="o">.</span><span class="n">CloughTocher2DInterpolator</span><span class="p">(</span><span class="n">mu_train</span><span class="p">,</span> <span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">],</span> <span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mmax</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<p>Before plotting, we can store them using <code class="docutils literal notranslate"><span class="pre">pickle</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">geim_maps</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;maps.geim&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Let us plot the maps for the first 8 coefficients</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">field_i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">field</span> <span class="o">=</span> <span class="n">geim_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span>
+
+<span class="n">Re_plot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">Ri_plot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Re_plot</span><span class="p">,</span> <span class="n">Ri_plot</span><span class="p">)</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="k">for</span> <span class="nb">map</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">geim_maps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span>
+                            <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;projection&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">})</span>
+    <span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">):</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">mu_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+
+        <span class="n">eval_map</span> <span class="o">=</span> <span class="n">geim_maps</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="nb">map</span><span class="p">][</span><span class="n">rank</span><span class="p">](</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+        <span class="n">surf</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">eval_map</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">eval_map</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">]))))</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">zlim</span><span class="o">=</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">]))),</span> <span class="nb">max</span><span class="p">(</span><span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])))</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$Re$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$Ri$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">Re_plot</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">Ri_plot</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">geim_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\beta_{&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;}^&#39;</span><span class="o">+</span><span class="n">geim_tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                       <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;round,pad=0.5&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="mf">0.925</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Map = &#39;</span><span class="o">+</span><span class="nb">map</span><span class="o">+</span><span class="s1">&#39; - Field = $&#39;</span><span class="o">+</span><span class="n">geim_tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;round,pad=0.5&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_11_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_11_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_11_1.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_11_1.png" />
+</div>
+</div>
+</section>
+<section id="Mapping-the-coefficients-of-the-non-observable-fields">
+<h2>Mapping the coefficients of the non-observable fields<a class="headerlink" href="#Mapping-the-coefficients-of-the-non-observable-fields" title="Permalink to this heading"></a></h2>
+<p>In this section, the reduced coordinate obtained by the POD procedure, i.e., <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}^p\)</span> and <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}^\mathbf{u}\)</span>, non-observable fields (pressure and velocity in this case) will be mapped <span class="math">\begin{equation*}
+\mathcal{F}_p: \boldsymbol{\mu} \longrightarrow \boldsymbol{\alpha}^p(\boldsymbol{\mu})\qquad
+\mathcal{F}_{\mathbf{u}}: \boldsymbol{\mu} \longrightarrow \boldsymbol{\alpha}^{\mathbf{u}}(\boldsymbol{\mu})
+\end{equation*}</span></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[122]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pod_maps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="n">Nmax</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_var_names</span><span class="p">:</span>
+    <span class="n">pod_maps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">pod_maps</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;LinInt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">interp</span><span class="o">.</span><span class="n">LinearNDInterpolator</span><span class="p">(</span><span class="n">mu_train</span><span class="p">,</span> <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)]</span>
+    <span class="n">pod_maps</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;Clough&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">interp</span><span class="o">.</span><span class="n">CloughTocher2DInterpolator</span><span class="p">(</span><span class="n">mu_train</span><span class="p">,</span> <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">],</span> <span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<p>Before plotting, we can store them using <code class="docutils literal notranslate"><span class="pre">pickle</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[129]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pod_maps</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;maps.pod&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Let us plot the first coefficients</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmaps</span> <span class="o">=</span> <span class="p">[</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">RdYlBu_r</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pod_var_names</span><span class="p">):</span>
+
+    <span class="n">Re_plot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">Ri_plot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Re_plot</span><span class="p">,</span> <span class="n">Ri_plot</span><span class="p">)</span>
+
+    <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="k">for</span> <span class="nb">map</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pod_maps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span>
+                                <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;projection&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">})</span>
+        <span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">):</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">mu_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">mu_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+
+            <span class="n">eval_map</span> <span class="o">=</span> <span class="n">pod_maps</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="nb">map</span><span class="p">][</span><span class="n">rank</span><span class="p">](</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+            <span class="n">surf</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">eval_map</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">cmaps</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">eval_map</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">cmaps</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">offset</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">]))))</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">zlim</span><span class="o">=</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">]))),</span> <span class="nb">max</span><span class="p">(</span><span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])))</span>
+
+            <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$Re$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$Ri$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">Re_plot</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">Ri_plot</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">rank</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\alpha_{&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;}^&#39;</span><span class="o">+</span><span class="n">pod_tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;round,pad=0.5&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="mf">0.925</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Map = &#39;</span><span class="o">+</span><span class="nb">map</span><span class="o">+</span><span class="s1">&#39; - Field = $&#39;</span><span class="o">+</span><span class="n">pod_tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">boxstyle</span><span class="o">=</span><span class="s1">&#39;round,pad=0.5&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_1.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_2.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_3.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02c_offline_maps_17_3.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="02b_offline_GEIM.html" class="btn btn-neutral float-left" title="Offline Phase: GEIM algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="03_online_IR.html" class="btn btn-neutral float-right" title="Online Phase: Indirect Reconstruction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

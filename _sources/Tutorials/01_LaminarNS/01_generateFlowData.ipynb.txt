@@ -304,7 +304,7 @@
     "res['C_L'] = get_drag_lift.C_L\n",
     "res['dP']  = get_drag_lift.p_diff\n",
     "\n",
-    "pickle.dump(res, open('../BenchmarkData/LaminarNS_DFG2/QoI_'+time_adv, 'wb'))"
+    "pickle.dump(res, open('Benchmark_Data/QoI_'+time_adv, 'wb'))"
    ]
   },
   {
@@ -332,12 +332,12 @@
     }
    ],
    "source": [
-    "turek = np.loadtxt(\"../BenchmarkData/LaminarNS_DFG2/bdforces_lv4.txt\")\n",
-    "turek_p = np.loadtxt(\"../BenchmarkData/LaminarNS_DFG2/pointvalues_lv4.txt\")\n",
+    "turek = np.loadtxt(\"Benchmark_Data/bdforces_lv4.txt\")\n",
+    "turek_p = np.loadtxt(\"Benchmark_Data/pointvalues_lv4.txt\")\n",
     "\n",
     "# time_adv_schemes = ['BDF2', 'CN', 'EI']\n",
     "time_adv_schemes = ['BDF2']\n",
-    "QoI_data = [pickle.load(open('../BenchmarkData/LaminarNS_DFG2//QoI_'+time_adv_schemes[kk], 'rb')) for kk in range(len(time_adv_schemes))]\n",
+    "QoI_data = [pickle.load(open('Benchmark_Data/QoI_'+time_adv_schemes[kk], 'rb')) for kk in range(len(time_adv_schemes))]\n",
     "colors = cm.turbo(np.linspace(0., 0.85, len(time_adv_schemes)+1))\n",
     "line_styles = ['-', '--', '-.']\n",
     "\n",
@@ -371,7 +371,9 @@
     "plt.xlabel(r\"Time $t$ (s)\", fontsize=25)\n",
     "plt.grid()\n",
     "plt.xlim(0,T)\n",
-    "plt.legend(framealpha=1, fontsize=20)"
+    "plt.legend(framealpha=1, fontsize=20)\n",
+    "\n",
+    "fig.savefig('./Benchmark_Data/FOM_bench_comparison.pdf', format='pdf', dpi=300, bbox_inches='tight')"
    ]
   }
  ],

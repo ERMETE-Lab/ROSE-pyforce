@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Importing Snapshots from OpenFOAM &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Offline Phase: generation of the POD modes" href="02a_offline_POD.html" />
+    <link rel="prev" title="Steady Buoyant Navier-Stokes for Differentially Heated Cavity" href="../03_buoyant_cavity.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Generation of the snapshots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02a_offline_POD.html">Offline Phase: POD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02c_offline_maps.html">Offline Phase: generation of the maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_online_IR.html">Online Phase: Indirect Reconstruction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../tutorials.html">Tutorials</a></li>
+          <li class="breadcrumb-item"><a href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes for Differentially Heated Cavity</a></li>
+      <li class="breadcrumb-item active">Importing Snapshots from OpenFOAM</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/03_BuoyantCavity_OF6/01_import_OFsnaps.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Importing-Snapshots-from-OpenFOAM">
+<h1>Importing Snapshots from OpenFOAM<a class="headerlink" href="#Importing-Snapshots-from-OpenFOAM" title="Permalink to this heading"></a></h1>
+<p>This notebook uses <em>pyforce</em> to import some parametric data generated with OpenFOAM-6, exploiting the <em>fluidfoam</em> library.</p>
+<p>The snapshots are related to the Buoyant Cavity problem in fluid dynamics, governed by the Navier-Stokes equations, including energy, under the Boussinesq approximation. In particular, the snapshots have been generated using the case reported in <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM tutorials</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">gmshio</span>
+<span class="kn">import</span> <span class="nn">gmsh</span>
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
+
+<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">import_OF</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/OpenFOAM/&#39;</span>
+
+<span class="n">importing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TrainSet&#39;</span><span class="p">,</span> <span class="s1">&#39;TestSet&#39;</span><span class="p">]</span>
+
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
+<span class="n">is_vector</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="c1"># var_names = [&#39;U&#39;]</span>
+<span class="c1"># is_vector = [True]</span>
+</pre></div>
+</div>
+</div>
+<p>The snapshots are dependent on two different parameters: the Reynolds and the Richardson number, split into train and test set <span class="math">\begin{equation}
+\begin{array}{cc}
+Re_{train} = [15:5:150] & Ri_{train} = [0.2:0.4:5] \\
+Re_{test} = [17.5:10:147.5] & Ri_{test} = [0.4:0.8:44]
+\end{array}
+\end{equation}</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dRe</span> <span class="o">=</span> <span class="mf">5.</span>
+<span class="n">dRi</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="c1"># Train/Test Parameters</span>
+<span class="n">Re_train_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span>  <span class="mi">150</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRe</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">15</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>  <span class="mi">150</span><span class="o">+</span><span class="n">dRe</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRe</span><span class="o">*</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">Ri_train_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span>   <span class="mi">5</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRi</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.2</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>   <span class="mi">5</span><span class="o">+</span><span class="n">dRi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">dRi</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>  <span class="p">]</span>
+
+<span class="n">mu_train_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Re_train_test</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">Ri_train_test</span><span class="p">[</span><span class="n">kk</span><span class="p">])</span> <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">importing</span><span class="p">))]</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mu_train_test</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">mu_train_test</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Train&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mu_train_test</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">mu_train_test</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="s1">&#39;gs&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Test&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Reynolds Number $Re$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Richardson Number $Ri$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc379e6d7e0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_01_import_OFsnaps_3_1.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_01_import_OFsnaps_3_1.png" />
+</div>
+</div>
+<p>Let us generate the mesh for importing OpenFOAM dataset into <em>dolfinx</em></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Initialize the gmsh module</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+<span class="c1"># Load the .geo file</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s1">&#39;cavity.geo&#39;</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+<span class="c1"># Set algorithm (adaptive = 1, Frontal-Delaunay = 6)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">gdim</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Linear Finite Element</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">gdim</span><span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s2">&quot;Netgen&quot;</span><span class="p">)</span>
+
+<span class="c1"># Import into dolfinx</span>
+<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">gmshio</span><span class="o">.</span><span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
+<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+<span class="c1">########################################################################################################</span>
+
+<span class="n">tdim</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span>
+<span class="n">fdim</span> <span class="o">=</span> <span class="n">tdim</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">fdim</span><span class="p">,</span> <span class="n">tdim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Info    : Reading &#39;cavity.geo&#39;...
+Info    : Done reading &#39;cavity.geo&#39;
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 30%] Meshing curve 2 (Line)
+Info    : [ 50%] Meshing curve 3 (Line)
+Info    : [ 80%] Meshing curve 4 (Line)
+Info    : Done meshing 1D (Wall 0.000607034s, CPU 0.000692s)
+Info    : Meshing 2D...
+Info    : Meshing surface 1 (Transfinite)
+Info    : Done meshing 2D (Wall 0.00732976s, CPU 0.007374s)
+Info    : 16384 nodes 32770 elements
+Info    : Optimizing mesh (Netgen)...
+Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
+</pre></div></div>
+</div>
+<p>Let us define the functional space onto which the OpenFOAM data are projected.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">ufl_cell</span><span class="p">(),</span> <span class="mi">1</span><span class="p">))]</span>
+<span class="c1"># fun_spaces = [FunctionSpace(domain, ufl.VectorElement(&quot;CG&quot;, domain.ufl_cell(), 1))]</span>
+</pre></div>
+</div>
+</div>
+<p>Let us import the pressure <span class="math notranslate nohighlight">\(p\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span> and velocity <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> fields. The mapping between OpenFOAM and <em>dolfinx</em> is performed using <span class="math notranslate nohighlight">\(N\)</span>-dimensional interpolation implemented in <em>scipy</em>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">impo_i</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">dolfinx_path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span><span class="o">+</span><span class="n">importing</span><span class="p">[</span><span class="n">impo_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_&#39;</span>
+<span class="n">snaps</span> <span class="o">=</span> <span class="p">{</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]:</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">])</span> <span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">))}</span>
+
+<span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="s1">&#39;Import &#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; - &#39;</span><span class="o">+</span><span class="n">importing</span><span class="p">[</span><span class="n">impo_i</span><span class="p">],</span> <span class="n">final</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Re_train_test</span><span class="p">[</span><span class="n">impo_i</span><span class="p">])</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ri_train_test</span><span class="p">[</span><span class="n">impo_i</span><span class="p">]))</span>
+
+    <span class="n">caseI</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">Re_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Re_train_test</span><span class="p">[</span><span class="n">impo_i</span><span class="p">])):</span>
+        <span class="n">Re</span> <span class="o">=</span> <span class="n">Re_train_test</span><span class="p">[</span><span class="n">impo_i</span><span class="p">][</span><span class="n">Re_i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">Ri_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Ri_train_test</span><span class="p">[</span><span class="n">impo_i</span><span class="p">])):</span>
+            <span class="n">Ri</span> <span class="o">=</span> <span class="n">Ri_train_test</span><span class="p">[</span><span class="n">impo_i</span><span class="p">][</span><span class="n">Ri_i</span><span class="p">]</span>
+
+            <span class="n">path_</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="n">importing</span><span class="p">[</span><span class="n">impo_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Case_</span><span class="si">{</span><span class="n">caseI</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1">_Re</span><span class="si">{</span><span class="n">Re</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">_Ri</span><span class="si">{</span><span class="n">Ri</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="n">oF</span> <span class="o">=</span> <span class="n">import_OF</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">of_snaps</span> <span class="o">=</span> <span class="n">oF</span><span class="o">.</span><span class="n">import_field</span><span class="p">(</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">vector</span><span class="o">=</span><span class="n">is_vector</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Projection in dolfinx</span>
+            <span class="n">dolfinx_snap</span> <span class="o">=</span> <span class="n">oF</span><span class="o">.</span><span class="n">foam_to_dolfinx</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">of_snaps</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span>  <span class="n">cut_value</span> <span class="o">=</span> <span class="n">oF</span><span class="o">.</span><span class="n">of_dofs</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">uu</span> <span class="ow">in</span> <span class="n">dolfinx_snap</span><span class="o">.</span><span class="n">_list</span><span class="p">:</span>
+                <span class="n">snaps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uu</span><span class="p">)</span>
+
+            <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">caseI</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">del</span> <span class="n">bar</span>
+
+    <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">snaps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]],</span> <span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">dolfinx_path</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Import U - TrainSet: 364.000 / 364.00 - 1.324 s/it
+</pre></div></div>
+</div>
+<p>Let us normalise the temperature field, using <code class="docutils literal notranslate"><span class="pre">min-max</span></code> to have it scaled between <span class="math notranslate nohighlight">\((0,1)\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span>
+
+<span class="n">field_i</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">field</span> <span class="o">=</span> <span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">imp</span> <span class="ow">in</span> <span class="n">importing</span><span class="p">:</span>
+    <span class="c1"># imp = importing[0]</span>
+    <span class="n">dolfinx_path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span><span class="o">+</span><span class="n">imp</span><span class="o">+</span><span class="s1">&#39;_&#39;</span>
+
+    <span class="n">T_snaps</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">dolfinx_path</span><span class="o">+</span><span class="n">field</span><span class="p">,</span> <span class="n">field</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">imp</span> <span class="o">==</span> <span class="s1">&#39;TrainSet&#39;</span><span class="p">:</span>
+        <span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span> <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">T_snaps</span><span class="o">.</span><span class="n">_list</span><span class="p">])</span>
+        <span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span> <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">T_snaps</span><span class="o">.</span><span class="n">_list</span><span class="p">])</span>
+
+    <span class="n">T_norm_snaps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">T_snaps</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">T_snaps</span><span class="o">.</span><span class="n">_list</span><span class="p">:</span>
+        <span class="n">T_norm_snaps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">snap</span> <span class="o">-</span> <span class="n">_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">_max</span> <span class="o">-</span> <span class="n">_min</span><span class="p">))</span>
+
+    <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">T_norm_snaps</span><span class="p">,</span> <span class="s1">&#39;norm_&#39;</span><span class="o">+</span><span class="n">field</span><span class="p">,</span> <span class="n">dolfinx_path</span><span class="o">+</span><span class="s1">&#39;norm_&#39;</span><span class="o">+</span><span class="n">field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../03_buoyant_cavity.html" class="btn btn-neutral float-left" title="Steady Buoyant Navier-Stokes for Differentially Heated Cavity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="02a_offline_POD.html" class="btn btn-neutral float-right" title="Offline Phase: generation of the POD modes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

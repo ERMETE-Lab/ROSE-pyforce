@@ -33,12 +33,10 @@
 
           
           
-          <a href="index.html" class="icon icon-home">
-            pyforce
+          <a href="index.html">
+            
+              <img src="_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -52,8 +50,9 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation notes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Tutorials/01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorials/01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Tutorials/02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorials/03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
@@ -104,7 +103,18 @@
 <li><p><em>Offline</em>: Generation of parametric snapshots using <em>FunctionsList</em> class and later export.</p></li>
 <li><p><em>Offline</em>: Creation of the reduced space using the Proper Orthogonal Decomposition (POD).</p></li>
 <li><p><em>Offline</em>: Generalised Empirical Interpolation Method (GEIM) to generate basis functions and place sensors.</p></li>
+<li><p><em>Offline</em>: Sensor Placement with the SGREEDY algorithm using the POD basis.</p></li>
 <li><p><em>Online</em>:  Effect of random noise onto the GEIM reconstruction, stabilisation with TR-GEIM.</p></li>
+<li><p><em>Online</em>:  Direct State estimation Parameterised-Background Data-Weak formulation (PBDW), considering noisy data.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>Buoyant Cavity</strong> (solved with OpenFOAM-6, taken from <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM</a>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Offline</em>: Import from OpenFOAM and plotting using <em>pyvista</em>.</p></li>
+<li><p><em>Offline</em>: Creation of the reduced space using the POD and GEIM.</p></li>
+<li><p><em>Online</em>:  Indirect Reconstruction (PE+POD-I), considering noisy data.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -112,8 +122,9 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">List of Tutorials:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Tutorials/01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorials/01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tutorials/02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorials/03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
 </ul>
 </div>
 </section>

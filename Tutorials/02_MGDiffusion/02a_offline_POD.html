@@ -24,7 +24,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Offline Phase: GEIM algorithm" href="02c_offline_GEIM.html" />
+    <link rel="next" title="Offline Phase: GEIM algorithm" href="02b_offline_GEIM.html" />
     <link rel="prev" title="ANL11-A2 reactor: multigroup Neutron Diffusion" href="01_generate_snaps.html" /> 
 </head>
 
@@ -36,12 +36,10 @@
 
           
           
-          <a href="../../index.html" class="icon icon-home">
-            pyforce
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -55,7 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="01_generate_snaps.html">Generation of the snapshots</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Offline Phase: POD</a><ul>
@@ -63,10 +61,14 @@
 <li class="toctree-l4"><a class="reference internal" href="#POD-algorithm">POD algorithm</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="02c_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02c_offline_SGREEDY.html">Offline Phase: SGREEDY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02d_offline_PBDW.html">Offline Phase: PBDW</a></li>
 <li class="toctree-l3"><a class="reference internal" href="03a_online_GEIM.html">Online Phase: GEIM - effect of random noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03b_online_PBDW.html">Online Phase: PBDW - effect of the Riesz Representation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
@@ -144,22 +146,28 @@
 <span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
 
-<span class="c1"># Initialize the gmsh module</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<span class="n">use_msh</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="c1"># Load the .geo file</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s1">&#39;ANL11A2_octave.geo&#39;</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+<span class="c1"># If the snapshots are generated from a different computer than the one used for the offline/online simulation, there may be issues in the number of dofs</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">use_msh</span><span class="p">):</span>
+    <span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">read_from_msh</span><span class="p">(</span><span class="s2">&quot;ANL11A2_octave.msh&quot;</span><span class="p">,</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mesh_comm</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Initialize the gmsh module</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
 
-<span class="c1"># Set algorithm (adaptive = 1, Frontal-Delaunay = 6)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="c1"># Load the .geo file</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s1">&#39;ANL11A2_octave.geo&#39;</span><span class="p">)</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
 
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">gdim</span><span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s2">&quot;Netgen&quot;</span><span class="p">)</span>
+    <span class="c1"># Set algorithm (adaptive = 1, Frontal-Delaunay = 6)</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 
-<span class="c1"># Domain</span>
-<span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mesh_comm</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
-<span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">gdim</span><span class="p">)</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s2">&quot;Netgen&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Domain</span>
+    <span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mesh_comm</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
+    <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 
 <span class="n">fuel1_marker</span>    <span class="o">=</span> <span class="mi">1</span>
 <span class="n">fuel2_marker</span>    <span class="o">=</span> <span class="mi">2</span>
@@ -422,7 +430,7 @@ E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsy
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="01_generate_snaps.html" class="btn btn-neutral float-left" title="ANL11-A2 reactor: multigroup Neutron Diffusion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="02c_offline_GEIM.html" class="btn btn-neutral float-right" title="Offline Phase: GEIM algorithm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="02b_offline_GEIM.html" class="btn btn-neutral float-right" title="Offline Phase: GEIM algorithm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

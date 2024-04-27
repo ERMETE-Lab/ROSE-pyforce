@@ -35,12 +35,10 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
-            pyforce
+          <a href="../index.html">
+            
+              <img src="../_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -54,14 +52,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="01_DFG2_benchmark.html">Unsteady Laminar Navier Stokes - DFG2 benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html">Generation of the snapshots</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02a_offline_POD.html">Offline Phase: POD</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html">Offline Phase: SGREEDY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html">Offline Phase: PBDW</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html">Online Phase: GEIM - effect of random noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html">Online Phase: PBDW - effect of the Riesz Representation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
@@ -135,14 +137,24 @@ It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in t
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html">Offline Phase: GEIM</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html#Importing-Snapshots">Importing Snapshots</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html#GEIM-algorithm">GEIM algorithm</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html#Generation-of-the-magic-functions/sensors">Generation of the magic functions/sensors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html#Comparison-of-the-training-errors">Comparison of the training errors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html">Offline Phase: GEIM</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#Importing-Snapshots">Importing Snapshots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#GEIM-algorithm">GEIM algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#Generation-of-the-magic-functions/sensors">Generation of the magic functions/sensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#Comparison-of-the-training-errors">Comparison of the training errors</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_GEIM.html#Calculation-of-the-Lebesgue-Constant">Calculation of the Lebesgue Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#Calculation-of-the-Lebesgue-Constant">Calculation of the Lebesgue Constant</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html">Offline Phase: SGREEDY</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html#Importing-Snapshots">Importing Snapshots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html#SGREEDY-for-POD-basis">SGREEDY for POD basis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html">Offline Phase: PBDW</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html#Importing-basis-function-and-sensors">Importing basis function and sensors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html#Compute-the-inf-sup-constant">Compute the <em>inf-sup</em> constant</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html">Online Phase: GEIM - effect of random noise</a><ul>
@@ -150,6 +162,14 @@ It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in t
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html#Online-Reconstruction">Online Reconstruction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html#Effect-of-random-noise">Effect of random noise</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html#Plotting-the-interpolant-and-the-residual-fields">Plotting the interpolant and the residual fields</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html">Online Phase: PBDW - effect of the Riesz Representation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Importing-Snapshots">Importing Snapshots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Online-Reconstruction">Online Reconstruction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Plotting-the-interpolant-and-the-residual-fields">Plotting the interpolant and the residual fields</a></li>
 </ul>
 </li>
 </ul>

@@ -30,12 +30,10 @@
 
           
           
-          <a href="../../../index.html" class="icon icon-home">
-            pyforce
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.1.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -106,7 +104,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="n">tmp_fun</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">=</span> <span class="n">tmp_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">=</span> <span class="n">tmp_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># this must be a int</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -134,10 +132,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
-            <span class="k">assert</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FunctionsList.delete"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -177,7 +175,7 @@
        <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-       <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+       <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">),</span> <span class="s2">&quot;The order vector (&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;) must have the same length of the list (&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;)&quot;</span>
        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)):</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">ii</span><span class="p">]])</span></div>
 
@@ -246,11 +244,11 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dofs : np.ndarray</span>
+<span class="sd">    dofs : int</span>
 <span class="sd">        Degrees of freedom of the functions :math:`\mathcal{N}_h`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dofs</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dofs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">dofs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
@@ -285,10 +283,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
-            <span class="k">assert</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dofs</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dofs</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dofs</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dofs</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FunctionsMatrix.delete"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsMatrix.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -399,7 +397,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fun_list</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
     
-    <span class="k">assert</span><span class="p">(</span><span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">fun_matrix</span><span class="o">.</span><span class="n">dofs</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">fun_matrix</span><span class="o">.</span><span class="n">dofs</span><span class="p">,</span> <span class="s2">&quot;The fun_list dofs are &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;, whereas the fun_matrix are &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">fun_matrix</span><span class="o">.</span><span class="n">dofs</span><span class="p">)</span>
     
     <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fun_matrix</span><span class="p">)):</span>
         <span class="n">fun_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fun_matrix</span><span class="p">(</span><span class="n">ii</span><span class="p">))</span>
@@ -433,7 +431,7 @@
 <span class="sd">        List of the test functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">),</span><span class="s2">&quot;Snapshots and parameters must have the same length.&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="s2">&quot;Snapshots and parameters must have the same length.&quot;</span>
     
     <span class="n">res</span> <span class="o">=</span> <span class="n">sk_split</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">fun_list</span><span class="o">.</span><span class="n">_list</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
     
