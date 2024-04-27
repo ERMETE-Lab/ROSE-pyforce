@@ -26,7 +26,7 @@ class FunctionsList():
         self._list = list()
 
         tmp_fun = Function(self.fun_space).copy()
-        self.fun_shape = tmp_fun.x.array.shape
+        self.fun_shape = tmp_fun.x.array.shape[0] # this must be a int
 
     def __call__(self, idx) -> np.ndarray:
         """
@@ -54,10 +54,10 @@ class FunctionsList():
         """
 
         if isinstance(dofs_fun, Function):
-            assert(dofs_fun.x.array.shape == self.fun_shape)
+            assert dofs_fun.x.array.shape[0] == self.fun_shape, "The input function dofs_fun has "+str(dofs_fun.x.array.shape[0])+", instead of "+str(self.fun_shape)
             self._list.append(dofs_fun.x.array[:])
         else:
-            assert(dofs_fun.shape == self.fun_shape)
+            assert dofs_fun.shape[0] == self.fun_shape, "The input function dofs_fun has "+str(dofs_fun.shape[0])+", instead of "+str(self.fun_shape)
             self._list.append(dofs_fun)
 
     def delete(self, idx: int) -> None:
@@ -97,7 +97,7 @@ class FunctionsList():
        tmp = self._list.copy()
        self.clear()
 
-       assert len(tmp) == len(order)
+       assert len(tmp) == len(order), "The order vector ("+str(len(order))+") must have the same length of the list ("+str(len(tmp))+")"
        for ii in range(len(order)):
           self.append(tmp[order[ii]])
 
@@ -166,11 +166,11 @@ class FunctionsMatrix():
 
     Parameters
     ----------
-    dofs : np.ndarray
+    dofs : int
         Degrees of freedom of the functions :math:`\mathcal{N}_h`.
 
     """
-    def __init__(self, dofs: float) -> None:
+    def __init__(self, dofs: int) -> None:
         self.dofs = dofs
         self._list = list()
 
@@ -205,10 +205,10 @@ class FunctionsMatrix():
         """
 
         if isinstance(dofs_fun, Function):
-            assert(dofs_fun.x.array.shape == self.dofs)
+            assert dofs_fun.x.array.shape[0] == self.dofs, "The input function dofs_fun has "+str(dofs_fun.x.array.shape[0])+", instead of "+str(self.fun_shape)
             self._list.append(dofs_fun.x.array[:])
         else:
-            assert(len(dofs_fun) == self.dofs)
+            assert dofs_fun.shape[0] == self.dofs, "The input function dofs_fun has "+str(dofs_fun.shape[0])+", instead of "+str(self.fun_shape)
             self._list.append(dofs_fun)
 
     def delete(self, idx: int) -> None:
@@ -319,7 +319,7 @@ def fun_matrix_2_fun_list(fun_matrix: FunctionsMatrix, V: FunctionSpace):
     """
     fun_list = FunctionsList(V)
     
-    assert(fun_list.fun_shape == fun_matrix.dofs)
+    assert fun_list.fun_shape == fun_matrix.dofs, "The fun_list dofs are "+str(fun_list.fun_shape)+", whereas the fun_matrix are "+str(fun_matrix.dofs)
     
     for ii in range(len(fun_matrix)):
         fun_list.append(fun_matrix(ii))
@@ -353,7 +353,7 @@ def train_test_split(params: list, fun_list: FunctionsList, test_size: float = 0
         List of the test functions.
     """
     
-    assert len(fun_list) == len(params),"Snapshots and parameters must have the same length."
+    assert len(fun_list) == len(params), "Snapshots and parameters must have the same length."
     
     res = sk_split(params, fun_list._list, test_size=test_size, random_state=random_state)
     

@@ -1,7 +1,7 @@
 # Offline Phase: Parameterised-Background Data-Weak
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 12 October 2023
-# Latest Doc  Update: 18 July 2023
+# Latest Code Update: 25 April 2024
+# Latest Doc  Update: 25 April 2024
 
 import numpy as np
 import scipy.linalg as la
@@ -32,11 +32,11 @@ class PBDW():
         List of functions spanning the reduced space
     basis_sensors : FunctionsList
         List of sensors representation spanning the update space
-    name : str
-        Name of the snapshots (e.g., temperature T)
+    is_H1 : boolean, optional (default=False)
+        If `True`, the Riesz representation in :math:`H^1` is used.
 
     """
-    def __init__(self, basis_functions: FunctionsList, basis_sensors: FunctionsList, name: str) -> None:
+    def __init__(self, basis_functions: FunctionsList, basis_sensors: FunctionsList, is_H1 : bool = False) -> None:
     
         # store basis function and basis sensors
         self.basis_functions = FunctionsList(basis_functions.fun_space)
@@ -48,33 +48,41 @@ class PBDW():
         self.V = basis_functions.fun_space
         
         # Defining the norm class to make scalar products and norms
-        self.norms = norms(self.V)
-        self.name = name
+        self.norms = norms(self.V, is_H1 = is_H1)
 
         N = len(basis_functions)
         M = len(basis_sensors)
 
-        # A_{ii,jj} = (basis_sensors[ii], basis_sensors[jj])_L2
+        # A_{ii,jj} = (basis_sensors[ii], basis_sensors[jj])_U (either L2 or H1)
         self.A = np.zeros((M,M))
         for ii in range(M):
             for jj in range(M):
                 if jj>=ii:
-                    self.A[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_sensors(jj))
+                    if is_H1:
+                        self.A[ii, jj] = self.norms.H1innerProd(basis_sensors(ii), basis_sensors(jj), semi = False)
+                    else:
+                        self.A[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_sensors(jj))
                 else:
                     self.A[ii,jj] = self.A[jj, ii]
         
-        # K_{ii,jj} = (basis_sensors[ii], basis_functions[jj])_L2
+        # K_{ii,jj} = (basis_sensors[ii], basis_functions[jj])_U (either L2 or H1)
         self.K = np.zeros((M, N))
         for ii in range(M):
             for jj in range(N):
-                self.K[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_functions(jj))
+                if is_H1:
+                    self.K[ii, jj] = self.norms.H1innerProd(basis_sensors(ii), basis_functions(jj), semi = False)
+                else:
+                    self.K[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_functions(jj))
 
         # Z_{ii, jj} = (basis_functions[ii], basis_functions[jj])_L2
         self.Z = np.zeros((N,N))
         for ii in range(N):
             for jj in range(N):
                 if jj>=ii:
-                    self.Z[ii, jj] = self.norms.L2innerProd(basis_functions(ii), basis_functions(jj))
+                    if is_H1:
+                        self.Z[ii, jj] = self.norms.H1innerProd(basis_functions(ii), basis_functions(jj), semi = False)
+                    else:
+                        self.Z[ii, jj] = self.norms.L2innerProd(basis_functions(ii), basis_functions(jj))
                 else:
                     self.Z[ii,jj] = self.Z[jj, ii]
 
