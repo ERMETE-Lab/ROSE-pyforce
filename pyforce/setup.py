@@ -16,7 +16,7 @@ requires = [
 
 setup(
     name='pyforce',
-    version='0.1.0',    
+    version='0.1.1',    
     description='Python Framework data-driven model Order Reduction for multi-physiCs problEms',
     long_description=README_MD,
     long_description_content_type="text/markdown",
