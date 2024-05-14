@@ -11,6 +11,7 @@
 - [Description](#description)
 - [How to cite *pyforce*](#how-to-cite-pyforce)
   - [Recent works with *pyforce*](#recent-works-with-pyforce)
+- [Installation](#installation)
 - [Tutorials](#tutorials)
 - [Authors](#authors)
 
@@ -75,6 +76,19 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 - Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Indirect Field Recon- struction and Sensor Positioning in Circulating Fuel Reactors using Data-Driven Model Order Reduction. In 2023 International Congress on Advances in Nuclear Power Plants, Gyeongju, Korea, April 2023.
 - Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-Physics Model Correction with Data-Driven Reduced Order Modelling. In 32nd International Conference Nuclear Energy for New Europe (NENE2023), Portoroz, Slovenia, September 2023.
 - Stefano Riva, Sophie Deanesi, Carolina Introini, Stefano Lorenzi, and Antonio Cammi. Neutron Flux Re- construction from Out-Core Sparse Measurements using Data-Driven Reduced Order Modelling. In International Conference on Physics of Reactors (PHYSOR24), San Francisco, USA, April 2024.
+
+## Installation
+The package can be installed using `pip`, make sure all the dependencies are installed (following these [steps](https://ermete-lab.github.io/ROSE-pyforce/installation.html#set-up-a-conda-environment-for-pyforce)).
+The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
+
+Clone the repository 
+```bash
+git clone https://github.com/ROSE-Polimi/pyforce.git
+```
+Change directory to *pyforce* and install using `pip`
+```bash 
+python -m pip install pyforce/
+```
 
 ## Tutorials
 The *pyforce* package is tested on some tutorials available in the [docs](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html), including fluid dynamics and neutronics problems.
