@@ -1,4 +1,4 @@
-name: pyforce
+name: pyforce-env
 channels:
   - conda-forge
 dependencies:

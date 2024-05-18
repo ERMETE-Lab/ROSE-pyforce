@@ -6,7 +6,7 @@
 
 [![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-arXiv:%202401.07300-gray?labelColor=blue&style=flat&link=https://arxiv.org/abs/2401.07300)](https://arxiv.org/abs/2401.07300) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X) [![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)
 
-**pyforce: Python Framework data-driven model Order Reduction for multi-physiCs problEms** 
+**pyforce: Python Framework data-driven model Order Reduction for multi-physiCs problEms**
 
 - [Description](#description)
 - [How to cite *pyforce*](#how-to-cite-pyforce)
@@ -33,11 +33,11 @@ At the moment, the following techniques have been implemented:
 - **Parameterised-Background Data-Weak formulation**
 - an **Indirect Reconstruction** algorithm to reconstruct non-observable fields
 
-This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted in the Nuclear Engineering world. 
+This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted in the Nuclear Engineering world.
 
 ## How to cite *pyforce*
 
-If you are going to use *pyforce* in your research work, please cite the following articles. 
+If you are going to use *pyforce* in your research work, please cite the following articles.
 The authors would be pleased if you could cite the relevant papers:
 
 1. Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order modelling techniques: Application to nuclear case studies, 2024. [arXiv:2401.07300](http://arxiv.org/abs/2401.07300).
@@ -48,7 +48,7 @@ For LaTeX users:
 ```bibtex
 
 @misc{RMP_2024,
-      title={Multi-Physics Model Bias Correction with Data-Driven Reduced Order Modelling Techniques: Application to Nuclear Case Studies}, 
+      title={Multi-Physics Model Bias Correction with Data-Driven Reduced Order Modelling Techniques: Application to Nuclear Case Studies},
       author={Stefano Riva and Carolina Introini and Antonio Cammi},
       year={2024},
       eprint={2401.07300},
@@ -78,15 +78,20 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 - Stefano Riva, Sophie Deanesi, Carolina Introini, Stefano Lorenzi, and Antonio Cammi. Neutron Flux Re- construction from Out-Core Sparse Measurements using Data-Driven Reduced Order Modelling. In International Conference on Physics of Reactors (PHYSOR24), San Francisco, USA, April 2024.
 
 ## Installation
-The package can be installed using `pip`, make sure all the dependencies are installed (following these [steps](https://ermete-lab.github.io/ROSE-pyforce/installation.html#set-up-a-conda-environment-for-pyforce)).
-The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
+The package can be installed using `pip`, make sure all the dependencies are installed (following these [steps](https://ermete-lab.github.io/ROSE-pyforce/installation.html#set-up-a-conda-environment-for-pyforce)). The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
 
-Clone the repository 
+It is suggested to create a conda environment: at first, clone the repository
 ```bash
-git clone https://github.com/ROSE-Polimi/pyforce.git
+git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
 ```
-Change directory to *pyforce* and install using `pip`
-```bash 
+create a conda environment using `environment.yml`
+```bash
+cd ROSE-pyforce
+conda env create -f pyforce/environment.yml
+```
+activate the environment and then install the package using `pip`
+```bash
+conda activate pyforce-env
 python -m pip install pyforce/
 ```
 
