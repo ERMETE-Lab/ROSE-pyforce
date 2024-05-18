@@ -31,13 +31,12 @@ jobs:
 
     - name: Create Conda environment
       run: |
-        conda env create -f environment.yml
+        conda env create -f pyforce/environment.yml
 
     - name: Activate Conda environment
       run: |
         conda activate pyforce
-        python -m pip install --upgrade pip
-        python -m pip install pyforce
+        python -m pip install pyforce/
       shell: bash -l {0}
       
     - name: Lint with flake8
