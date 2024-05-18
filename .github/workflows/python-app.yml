@@ -26,7 +26,7 @@ jobs:
         auto-update-conda: true
         python-version: "3.10"
         channels: conda-forge
-        activate-environment: base
+        activate-environment: pyforce-env
         use-mamba: true  # Optional: to speed up the environment solving
 
     - name: Create Conda environment
