@@ -36,6 +36,7 @@ jobs:
       run: |
         conda activate pyforce-env
         python -m pip install pyforce/
+        python -m pip install pytest
       shell: bash -l {0}
 
     # - name: Lint with flake8
