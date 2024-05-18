@@ -35,8 +35,8 @@ jobs:
     - name: Activate Conda environment
       run: |
         conda activate pyforce-env
-        python -m pip install pyforce/
         python -m pip install pytest
+        python -m pip install pyforce/
       shell: bash -l {0}
 
     # - name: Lint with flake8
@@ -47,4 +47,5 @@ jobs:
     #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        conda activate pyforce-env
         pytest
