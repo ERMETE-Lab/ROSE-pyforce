@@ -1,8 +1,7 @@
 name: Build and Deploy Sphinx Docs
 
 on:
-  push:
-    workflow_dispatch:
+  workflow_dispatch:
   pull_request:
     branches: [ "main" ]
 
@@ -13,27 +12,36 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
+- name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v2
       with:
-        python-version: '3.x'  # Specify the Python version you need
+        auto-update-conda: true
+        python-version: "3.10"
+        channels: conda-forge
+        use-mamba: true  # Optional: to speed up the environment solving
 
-    - name: Install dependencies
+    - name: Create Conda environment
       run: |
+        conda env create -f pyforce/environment.yml
+
+    - name: Activate Conda environment and Generate Sphinx documentation
+      run: |
+        conda activate pyforce-env
+        python -m pip install pytest
+        python -m pip install pyforce/
+      
         python -m pip install --upgrade pip
         pip install sphinx ghp-import
         python -m pip install myst_parser nbsphinx sphinx_proof sphinxcontrib.bibtex==2.5.0 IPython
         python -m pip install sphinx_rtd_theme pydata_sphinx_theme sphinx_book_theme
 
-    - name: Generate Sphinx documentation
-      run: |
         cd docs/
         sphinx-apidoc --force -o ./api/. ../pyforce/pyforce
         # Optionally modify pyforce.rst here if needed
         rm api/modules.rst
         make clean
         make html
+      shell: bash -l {0}
 
     # - name: Deploy to GitHub Pages
     #   run: |
