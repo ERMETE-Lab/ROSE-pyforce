@@ -76,7 +76,6 @@ class POD_project():
         # Variables to store the computational times
         computational_time = dict()
         computational_time['CoeffEstimation'] = np.zeros((Ns_test, maxBasis))
-        computational_time['LinearSystem']    = np.zeros((Ns_test, maxBasis))
         computational_time['Errors']          = np.zeros((Ns_test, maxBasis))
         
         timing = Timer() 

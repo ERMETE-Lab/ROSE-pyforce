@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from pyforce.tools.functions_list import FunctionsList, FunctionsMatrix, fun_list_2_fun_matrix, fun_matrix_2_fun_list, train_test_split
+from pyforce.tools.functions_list import FunctionsList, train_test_split
 from dolfinx.fem import FunctionSpace, Function
 from dolfinx import mesh
 from mpi4py import MPI

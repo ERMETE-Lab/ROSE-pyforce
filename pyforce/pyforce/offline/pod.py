@@ -1,13 +1,14 @@
 # Offline Phase: Proper Orthogonal Decomposition
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 05 March 2024
-# Latest Doc  Update: 05 March 2024
+# Latest Code Update: 24 May 2024
+# Latest Doc  Update: 24 May 2024
 
 import numpy as np
 import scipy
 import warnings
 
 from dolfinx.fem import (Function, FunctionSpace)
+from sklearn.utils.extmath import randomized_svd
 
 from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import *
@@ -317,23 +318,22 @@ class DiscretePOD():
       Name of the field.
     Nmax : int, optional (default=None)
       If `None` the full matrices are stored, else only the first `Nmax`.
+    random : bool, optional (default = False)
+      If True and if `Nmax` is provided, the randomised SVD is used.
     """
-  def __init__(self, train_snap: FunctionsMatrix, name: str, Nmax = None) -> None:
+  def __init__(self, train_snap: FunctionsList, name: str, Nmax = None, random = False) -> None:
 
     self.Ns = len(train_snap)
     self.Nh = len(train_snap(0))
     self.name = name
-
-    # Creating the snapshots matrix - check the variable type
-    if isinstance(train_snap, FunctionsList):
-      snapMatrix = fun_list_2_fun_matrix(train_snap)
-    else:
-      snapMatrix = train_snap
-      
-    self.modes = FunctionsMatrix(snapMatrix.dofs)
+    
+    self.modes = FunctionsList(dofs = train_snap.fun_shape)
 
     # Performing SVD of the snapshot matrix
-    U, Sigma, V_T = np.linalg.svd(snapMatrix.return_matrix(), full_matrices=False)
+    if random and Nmax is not None:
+      U, Sigma, V_T  = randomized_svd(train_snap.return_matrix(), n_components=Nmax, n_iter='auto')
+    else:
+      U, Sigma, V_T = np.linalg.svd(train_snap.return_matrix(), full_matrices=False)
     if sum(Sigma < 0) > 0: 
         warnings.warn("Check singular values: some of them are negative!")   
 
@@ -404,7 +404,7 @@ class DiscretePOD():
     
     return np.dot(self.modes.return_matrix()[:, :N] * self.sing_vals[:N], Vh_star)
 
-  def train_error(self, train_snap: FunctionsMatrix, maxBasis: int, verbose = False):
+  def train_error(self, train_snap: FunctionsList, maxBasis: int, verbose = False):
     r"""
     The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`l^2`-sense
 
