@@ -1,4 +1,5 @@
 import pytest
+import os
 import numpy as np
 from pathlib import Path
 
@@ -17,11 +18,15 @@ def test_store_functions_list():
         f.interpolate(lambda x: np.sin(np.pi * x[0]) * np.sin(np.pi * x[1]))
         snap.append(f.vector.getArray())
     
-    filename = Path("./test")
+    path_test = "./testIO/test"
 
-    StoreFunctionsList(domain, snap, "test_var", str(filename))
+    StoreFunctionsList(domain, snap, "u", path_test)
+
+    assert os.path.exists(path_test+".xdmf")
+    assert os.path.exists(path_test+".h5")
     
-    assert (filename.with_suffix(".xdmf")).exists()
+    os.remove(path_test+".xdmf")
+    os.remove(path_test+".h5")
 
 def test_import_h5():
     domain = create_unit_square(MPI.COMM_WORLD, 10, 10)
@@ -38,3 +43,6 @@ def test_import_h5():
     snap_loaded, _ = ImportH5(V, str(filename), "test_var")
     
     assert len(snap) == len(snap_loaded)
+    
+    os.remove(str(filename)+".xdmf")
+    os.remove(str(filename)+".h5")

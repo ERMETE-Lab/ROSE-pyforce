@@ -31,26 +31,20 @@ def test_functions_list_append(function_space: FunctionSpace, example_functions:
     fun_list.append(example_functions[1])
     assert len(fun_list) == 2
 
-def test_functions_list_call(function_space: Function, example_functions: list[Function]):
+def test_functions_list_call(function_space: FunctionSpace, example_functions: list[Function]):
     # Test calling FunctionsList to retrieve a function
     fun_list = FunctionsList(function_space)
     fun_list.append(example_functions[0])
     retrieved_fun = fun_list(0)
     assert np.array_equal(retrieved_fun, example_functions[0].x.array[:])
 
-# def test_functions_matrix_return_matrix(example_functions):
-#     # Test returning matrix from FunctionsMatrix
-#     fun_matrix = FunctionsMatrix(3)
-#     fun_matrix.append(example_functions[0].x.array)
-#     fun_matrix.append(example_functions[1].x.array)
-#     matrix = fun_matrix.return_matrix()
-#     assert np.array_equal(matrix, np.array([[1, 4], [2, 5], [3, 6]]))
-
-# def test_train_test_split(example_functions):
-#     # Test train test split function
-#     params = [1, 2]  # Mock parameters
-#     train_params, test_params, train_fun, test_fun = train_test_split(params, example_functions)
-#     assert len(train_params) == len(train_fun) == 1
-#     assert len(test_params) == len(test_fun) == 1
-
-# Additional tests can be added to cover more scenarios and edge cases
+def test_train_test_split(function_space: Function, example_functions: list[Function]):
+    
+    # Test train test split function
+    fun_list = FunctionsList(function_space) # Mock FunctionsList
+    fun_list.append(example_functions[0])
+    fun_list.append(example_functions[1])
+    params = [1, 2]  # Mock parameters
+    train_params, test_params, train_fun, test_fun = train_test_split(params, fun_list)
+    assert len(train_params) == len(train_fun) == 1
+    assert len(test_params) == len(test_fun) == 1
