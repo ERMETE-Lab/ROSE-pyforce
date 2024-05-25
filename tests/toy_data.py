@@ -169,8 +169,7 @@ def toy_neutronic_dataset(domain: mesh.Mesh, Ns: list = [10,10]):
     bilin_form = fem.form(left_side)
     lin_form   = fem.form(right_side)
 
-    matrix = fem.petsc.assemble_matrix(bilin_form, bcs)
-    matrix.assemble()
+    matrix = fem.petsc.create_matrix(bilin_form)
     vec_b  = fem.petsc.create_vector(lin_form)
 
     # Solver
@@ -179,8 +178,7 @@ def toy_neutronic_dataset(domain: mesh.Mesh, Ns: list = [10,10]):
     solver.setType(PETSc.KSP.Type.PREONLY)
     solver.getPC().setType(PETSc.PC.Type.LU)  
     
-    
-    mu = [  np.linspace(0.2, 0.5, Ns[0]),
+    mu = [  np.linspace(1, 3, Ns[0]),
             np.linspace(0.2, 0.5, Ns[1])]
     
     snapshots = FunctionsList(V)
@@ -188,11 +186,14 @@ def toy_neutronic_dataset(domain: mesh.Mesh, Ns: list = [10,10]):
     
     bar = LoopProgress('Creating Dataset', final = np.prod(Ns))
     
+    fem.petsc.assemble_matrix(matrix, bilin_form, bcs)
+    matrix.assemble()
+    
     for kk in range(Ns[0]):
-        for jj in range(Ns[1]):
-            
-            source_term.sub(0).interpolate(lambda x: np.exp( - sum([(x[ii])**2 for ii in range(gdim)]) / mu[0][kk]))
-            source_term.sub(1).interpolate(lambda x: np.exp( - sum([(x[ii]-0.25)**2 for ii in range(gdim)] / mu[1][kk])))
+        
+        for jj in range(Ns[1]):            
+            source_term.sub(0).interpolate(lambda x: np.sin(mu[0][kk] * np.pi * x[0]) * np.exp( - sum([(x[ii]-0.50)**2 for ii in range(gdim)]) / mu[1][jj]))
+            source_term.sub(1).interpolate(lambda x: np.cos(mu[0][kk] * np.pi * x[1]) * np.exp( - sum([(x[ii]-0.25)**2 for ii in range(gdim)]) / mu[1][jj]))
                         
             with vec_b.localForm() as loc_b:
                 loc_b.set(0)
