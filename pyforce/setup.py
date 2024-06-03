@@ -5,15 +5,6 @@ from os.path import abspath, dirname, join
 # This will be used for the "long_description" field.
 README_MD = open(join(dirname(abspath(__file__)), "../README.md")).read()
 
-
-requires = [
-    # 'python==3.10', 'numpy<=1.23.5',
-    'numpy', 'scipy', 'tqdm', 'matplotlib',
-    'pyvista',
-    'dolfinx', 'mpi4py', 'petsc4py', 'h5py', 'ufl',
-    'fluidfoam'
-    ]
-
 setup(
     name='pyforce',
     version='0.1.1',    
@@ -23,9 +14,17 @@ setup(
     url='https://github.com/ROSE-Polimi/pyforce',
     author='Stefano Riva, Carolina Introini, Antonio Cammi',
     author_email='stefano.riva@polimi.it, carolina.introini@polimi.it, antonio.cammi@polimi.it',
-    requires=requires,
-    # install_requires=requires,
-    # tests_require=requires,    
+    # requires=['python==3.10', 'numpy<=1.23.5',
+    # 'numpy', 'scipy', 'tqdm', 'matplotlib',
+    # 'pyvista',
+    # 'dolfinx', 'mpi4py', 'petsc4py', 'h5py', 'ufl',
+    # 'fluidfoam'],
+    # install_requires=['numpy', 'scipy', 'tqdm', 'matplotlib', 'pyvista',
+    #     'dolfinx', 'mpi4py', 'petsc4py', 'h5py', 'ufl',
+    #     'fluidfoam'],
+    # tests_require=['numpy', 'scipy', 'tqdm', 'matplotlib', 'pyvista',
+    #     'dolfinx', 'mpi4py', 'petsc4py', 'h5py', 'ufl',
+    #     'fluidfoam'],    
     license='MIT',
     packages=find_packages(exclude="./tests"),
     keywords="reduced-order-modelling, data-assimilation, dolfinx",

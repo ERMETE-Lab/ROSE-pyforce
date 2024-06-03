@@ -1,6 +1,6 @@
 # I/O tools
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 12 October 2023
+# Latest Code Update: 24 May 2024
 # Latest Doc  Update: 25 June 2023
 
 # from pyforce.tools.functions_list import FunctionsList
@@ -80,13 +80,14 @@ def ImportH5(V: FunctionSpace, filename: str, var_name: str, verbose = False):
 
     if V.num_sub_spaces == 0:
         vector_field = False
-        if verbose:
-            print('Importing scalar field')
+        bar_msg = 'Importing scalar field - '+var_name
     else:
         vector_field = True
         gdim = V.num_sub_spaces
-        if verbose:
-            print('Importing vector field')
+        bar_msg = 'Importing vectir field - '+var_name
+
+    if verbose:
+        bar = LoopProgress(bar_msg, len(dataset_list))
 
     for ii in range(len(dataset_list)):
         if vector_field == False:
@@ -96,6 +97,8 @@ def ImportH5(V: FunctionSpace, filename: str, var_name: str, verbose = False):
 
         snap.append(fun)
         param.append(dataset_list[ii])
+        if verbose:
+            bar.update(1)
 
     # Extracting keys
     params_np = []

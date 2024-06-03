@@ -369,7 +369,9 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
     if m < Mmax:
         if verbose:
             print(' ')
-            print('Starting approximation loop', end = "\r")
+            print('-----------------------------------------')
+            print('Starting approximation loop')
+            print(' ')
         self.approx_loop(Mmax, is_H1=is_H1)
         m = Mmax
 

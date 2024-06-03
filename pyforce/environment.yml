@@ -1,0 +1,21 @@
+name: pyforce-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy=1.23.5
+  - scipy=1.13.0
+  - matplotlib=3.8.0
+  - pyvista=0.42.2
+  - fenics-dolfinx=0.6.0
+  - mpi4py=3.1.4
+  - petsc4py=3.18.5
+  - h5py=3.9.0
+  - pip
+  - pip:
+    - tqdm
+    - gmsh
+    - gmsh-api
+    - fluidfoam
+    - scikit-learn
+    - setuptools==62.0.0

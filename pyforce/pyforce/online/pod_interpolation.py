@@ -1,7 +1,7 @@
 # Synthetic Online Phase: Proper Orthogonal Decomposition with Interpolation
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 06 December 2023
-# Latest Doc  Update: 06 December 2023
+# Latest Code Update: 30 April 2024
+# Latest Doc  Update: 30 April 2024
 
 import numpy as np
 import scipy.linalg as la
@@ -20,7 +20,7 @@ class PODI():
     modes : FunctionsList
         List of POD modes computed during the offline phase.
     maps : list
-        List of maps for the POD modal coefficients, they must be callable.
+        List of maps for the POD modal coefficients, they must be callable. If `None`, the reduced coefficient must be provided as input later!
     name : str
         Name of the snapshots (e.g., temperature T)
     """
@@ -56,12 +56,11 @@ class PODI():
         test_snap : FunctionsList
             List of snapshots onto which the test error of the POD basis is performed.
         mu_estimated : np.ndarray
-            Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension `[Ns, p]` in which `Ns` is the number of test snapshots and `p` the number of parameters.
+            Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension `[Ns, p]` in which `Ns` is the number of test snapshots and `p` the number of parameters. If `None`, the reduced coefficients `alpha_coeffs` must be given.
         maxBasis : int
             Integer input indicating the maximum number of modes to use.
         alpha_coeff : np.ndarray (optional, Default: None)
             Matrix with the estimated coefficients :math:`\alpha_n`, they will be used if the input `alpha_coeffs` is not `None`.
-        
         verbose : boolean, optional (Default = False) 
             If `True`, print of the progress is enabled.
 
@@ -80,6 +79,8 @@ class PODI():
         if mu_estimated is not None:
             assert (mu_estimated.shape[0] == Ns_test)
             n_feature = mu_estimated.shape[1]
+        else:
+            assert alpha_coeffs is not None, 'Both inputs mu_estimated and alpha_coeffs are None'
         
         absErr = np.zeros((Ns_test, maxBasis))
         relErr = np.zeros_like(absErr)
@@ -90,7 +91,6 @@ class PODI():
         # Variables to store the computational times
         computational_time = dict()
         computational_time['CoeffEstimation'] = np.zeros((Ns_test, maxBasis))
-        computational_time['LinearSystem']    = np.zeros((Ns_test, maxBasis))
         computational_time['Errors']          = np.zeros((Ns_test, maxBasis))
          
         timing = Timer() 
@@ -113,7 +113,6 @@ class PODI():
                     coeff[nn] = self.maps[nn](mu_estimated[mu].reshape(-1, n_feature))
                 computational_time['CoeffEstimation'][mu, nn] = timing.stop()
                 
-            # for nn in range(maxBasis):
                 # building residual field and computing the errors
                 timing.start()
                 resid.x.array[:] = test_snap(mu) - self.PODmodes.lin_combine(coeff[:nn+1])
@@ -126,9 +125,10 @@ class PODI():
 
         return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time
     
-    def reconstruct(self, snap: np.ndarray, mu_estimated: np.ndarray, maxBasis: int):
+    def reconstruct(self, snap: np.ndarray, mu_estimated: np.ndarray, maxBasis: int, 
+                          alpha_coeffs : np.ndarray = None):
         r"""
-        After the coefficients of the POD basis are obtained by interpolating using the maps, the `snap` is approximated using linear combination of the POD modes.
+        After the coefficients of the POD basis are obtained by interpolating using the maps or given as input, the `snap` is approximated using linear combination of the POD modes.
         
         Parameters
         ----------
@@ -138,6 +138,8 @@ class PODI():
             Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension `[1, p]` in which `p` the number of parameters.
         maxBasis : int
             Integer input indicating the maximum number of modes to use.
+        alpha_coeff : np.ndarray (optional, Default: None)
+            Array with the estimated coefficients :math:`\alpha_n`, they will be used if the input `alpha_coeffs` is not `None`.
         
         Returns
         -------
@@ -147,7 +149,6 @@ class PODI():
             Residual field using `maxBasis` POD modes.
         """
         
-        n_feature = mu_estimated.shape[1]
     
         # Variables to store the computational times
         computational_time = dict()
@@ -155,9 +156,16 @@ class PODI():
         
         # Estimate the coefficients
         timing.start()
-        coeff = np.zeros((maxBasis,))
-        for nn in range(maxBasis):
-            coeff[nn] = self.maps[nn](mu_estimated.reshape(-1, n_feature))
+        
+        if mu_estimated is not None:
+            n_feature = mu_estimated.shape[1]
+            coeff = np.zeros((maxBasis,))
+            for nn in range(maxBasis):
+                coeff[nn] = self.maps[nn](mu_estimated.reshape(-1, n_feature))
+        else:
+            assert alpha_coeffs is not None, 'Both inputs mu_estimated and alpha_coeffs are None'
+            coeff = alpha_coeffs.reshape(maxBasis,)
+            
         computational_time['CoeffEstimation'] = timing.stop()
             
         if isinstance(snap, Function):
