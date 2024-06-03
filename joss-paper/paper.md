@@ -34,7 +34,7 @@ bibliography: paper.bib
 # Summary
 *pyforce* is a Python library (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) implementing Data-Driven Reduced Order Modelling (DDROM) techniques [@RMP_2024] for applications to multi-physics problems, mainly set in the Nuclear Engineering world. These techniques have been implemented upon the dolfinx package [@BarattaEtal2023] (currently v0.6.0), part of the FEniCSx project, to handle mesh generation, integral calculation and functions storage. The package is part of the ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms) framework, investigated by the authors: mathematical algorithms aimed at reducing the complexity of multi-physics models (for nuclear reactors applications), at searching for optimal sensor positions and at integrating real measures to improve the knowledge on the physical systems.
 
-![General scheme of DDROM methods [@RMP_2024].\label{fig:darom}](DA_ROM.pdf){ width=80% }
+![General scheme of DDROM methods [@RMP_2024].\label{fig:darom}](../images/tie_frighter.pdf){ width=80% }
 
 The techniques implemented here follow the same underlying idea expressed in the Figure \autoref{fig:darom}: in the offline (training) phase, a dimensionality reduction process retrieves a reduced coordinate system onto which encodes the information of the mathematical model; the sensor positioning algorithm then uses this set to select the optimal location of sensors according to some optimality criterion, which depends on the adopted algorithm. In the online phase, the DA process begins, retrieving a novel set of reduced variables and then computing the reconstructed state through a decoding step.
 
