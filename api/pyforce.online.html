@@ -472,21 +472,22 @@ In particular, the following matrices are defined <span class="math notranslate 
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>modes</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of POD modes computed during the offline phase.</p></li>
-<li><p><strong>maps</strong> (<em>list</em>) – List of maps for the POD modal coefficients, they must be callable.</p></li>
+<li><p><strong>maps</strong> (<em>list</em>) – List of maps for the POD modal coefficients, they must be callable. If <cite>None</cite>, the reduced coefficient must be provided as input later!</p></li>
 <li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyforce.online.pod_interpolation.PODI.reconstruct">
-<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_estimated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_interpolation.html#PODI.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_interpolation.PODI.reconstruct" title="Permalink to this definition"></a></dt>
-<dd><p>After the coefficients of the POD basis are obtained by interpolating using the maps, the <cite>snap</cite> is approximated using linear combination of the POD modes.</p>
+<span class="sig-name descname"><span class="pre">reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_estimated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/pod_interpolation.html#PODI.reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.pod_interpolation.PODI.reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>After the coefficients of the POD basis are obtained by interpolating using the maps or given as input, the <cite>snap</cite> is approximated using linear combination of the POD modes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>snap</strong> (<em>Function as np.ndarray</em>) – Snap to reconstruct, if a function is provided, the variable is reshaped.</p></li>
 <li><p><strong>mu_estimated</strong> (<em>np.ndarray</em>) – Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension <cite>[1, p]</cite> in which <cite>p</cite> the number of parameters.</p></li>
 <li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
+<li><p><strong>alpha_coeff</strong> (<em>np.ndarray</em><em> (</em><em>optional</em><em>, </em><em>Default: None</em><em>)</em>) – Array with the estimated coefficients <span class="math notranslate nohighlight">\(\alpha_n\)</span>, they will be used if the input <cite>alpha_coeffs</cite> is not <cite>None</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -512,7 +513,7 @@ In particular, the following matrices are defined <span class="math notranslate 
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>test_snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of snapshots onto which the test error of the POD basis is performed.</p></li>
-<li><p><strong>mu_estimated</strong> (<em>np.ndarray</em>) – Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension <cite>[Ns, p]</cite> in which <cite>Ns</cite> is the number of test snapshots and <cite>p</cite> the number of parameters.</p></li>
+<li><p><strong>mu_estimated</strong> (<em>np.ndarray</em>) – Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension <cite>[Ns, p]</cite> in which <cite>Ns</cite> is the number of test snapshots and <cite>p</cite> the number of parameters. If <cite>None</cite>, the reduced coefficients <cite>alpha_coeffs</cite> must be given.</p></li>
 <li><p><strong>maxBasis</strong> (<em>int</em>) – Integer input indicating the maximum number of modes to use.</p></li>
 <li><p><strong>alpha_coeff</strong> (<em>np.ndarray</em><em> (</em><em>optional</em><em>, </em><em>Default: None</em><em>)</em>) – Matrix with the estimated coefficients <span class="math notranslate nohighlight">\(\alpha_n\)</span>, they will be used if the input <cite>alpha_coeffs</cite> is not <cite>None</cite>.</p></li>
 <li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If <cite>True</cite>, print of the progress is enabled.</p></li>

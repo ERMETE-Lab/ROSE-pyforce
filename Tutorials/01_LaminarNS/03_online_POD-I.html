@@ -141,7 +141,7 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
 <span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">mesh_factor</span> <span class="o">=</span> <span class="mf">.35</span>
+<span class="n">mesh_factor</span> <span class="o">=</span> <span class="mf">.5</span>
 
 <span class="c1"># Initialize the gmsh module</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
@@ -331,7 +331,7 @@ Computing POD test error (interpolation) - u: 40.000 / 40.00 - 0.020 s/it
 
 <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">]</span>
 <span class="n">lines_style</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">]</span>
-<span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">])</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">])</span>
 
 <span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
 
@@ -488,8 +488,8 @@ Computing POD test error (interpolation) - u: 40.000 / 40.00 - 0.020 s/it
 
 
 <span class="c1">############### PLOTTING ###############</span>
-<span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/bdforces_lv4.txt&quot;</span><span class="p">)</span>
-<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;Benchmark_Data/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
+<span class="n">turek</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;./../BenchmarkData/LaminarNS_DFG2/bdforces_lv4.txt&quot;</span><span class="p">)</span>
+<span class="n">turek_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;./../BenchmarkData/LaminarNS_DFG2/pointvalues_lv4.txt&quot;</span><span class="p">)</span>
 
 <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">reconstructions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
 <span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">turbo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>

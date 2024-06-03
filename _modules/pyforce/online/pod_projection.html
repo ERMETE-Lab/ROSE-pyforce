@@ -154,7 +154,6 @@
         <span class="c1"># Variables to store the computational times</span>
         <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;CoeffEstimation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
-        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;LinearSystem&#39;</span><span class="p">]</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
         <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span>          <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
         
         <span class="n">timing</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span> 

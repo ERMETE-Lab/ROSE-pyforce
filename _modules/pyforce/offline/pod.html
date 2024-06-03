@@ -78,14 +78,15 @@
   <h1>Source code for pyforce.offline.pod</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Offline Phase: Proper Orthogonal Decomposition</span>
 <span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 05 March 2024</span>
-<span class="c1"># Latest Doc  Update: 05 March 2024</span>
+<span class="c1"># Latest Code Update: 24 May 2024</span>
+<span class="c1"># Latest Doc  Update: 24 May 2024</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.extmath</span> <span class="kn">import</span> <span class="n">randomized_svd</span>
 
 <span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="o">*</span>
@@ -395,23 +396,22 @@
 <span class="sd">      Name of the field.</span>
 <span class="sd">    Nmax : int, optional (default=None)</span>
 <span class="sd">      If `None` the full matrices are stored, else only the first `Nmax`.</span>
+<span class="sd">    random : bool, optional (default = False)</span>
+<span class="sd">      If True and if `Nmax` is provided, the randomised SVD is used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsMatrix</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Nmax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Nmax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-
-    <span class="c1"># Creating the snapshots matrix - check the variable type</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_snap</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
-      <span class="n">snapMatrix</span> <span class="o">=</span> <span class="n">fun_list_2_fun_matrix</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">snapMatrix</span> <span class="o">=</span> <span class="n">train_snap</span>
-      
-    <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">FunctionsMatrix</span><span class="p">(</span><span class="n">snapMatrix</span><span class="o">.</span><span class="n">dofs</span><span class="p">)</span>
+    
+    <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
 
     <span class="c1"># Performing SVD of the snapshot matrix</span>
-    <span class="n">U</span><span class="p">,</span> <span class="n">Sigma</span><span class="p">,</span> <span class="n">V_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">snapMatrix</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">random</span> <span class="ow">and</span> <span class="n">Nmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">U</span><span class="p">,</span> <span class="n">Sigma</span><span class="p">,</span> <span class="n">V_T</span>  <span class="o">=</span> <span class="n">randomized_svd</span><span class="p">(</span><span class="n">train_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">n_components</span><span class="o">=</span><span class="n">Nmax</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">U</span><span class="p">,</span> <span class="n">Sigma</span><span class="p">,</span> <span class="n">V_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">train_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">Sigma</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> 
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Check singular values: some of them are negative!&quot;</span><span class="p">)</span>   
 
@@ -482,7 +482,7 @@
     
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()[:,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sing_vals</span><span class="p">[:</span><span class="n">N</span><span class="p">],</span> <span class="n">Vh_star</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DiscretePOD.train_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.train_error">[docs]</a>  <span class="k">def</span> <span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsMatrix</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DiscretePOD.train_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.train_error">[docs]</a>  <span class="k">def</span> <span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`l^2`-sense</span>
 

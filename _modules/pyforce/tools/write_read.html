@@ -78,7 +78,7 @@
   <h1>Source code for pyforce.tools.write_read</h1><div class="highlight"><pre>
 <span></span><span class="c1"># I/O tools</span>
 <span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 12 October 2023</span>
+<span class="c1"># Latest Code Update: 24 May 2024</span>
 <span class="c1"># Latest Doc  Update: 25 June 2023</span>
 
 <span class="c1"># from pyforce.tools.functions_list import FunctionsList</span>
@@ -158,13 +158,14 @@
 
     <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">vector_field</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Importing scalar field&#39;</span><span class="p">)</span>
+        <span class="n">bar_msg</span> <span class="o">=</span> <span class="s1">&#39;Importing scalar field - &#39;</span><span class="o">+</span><span class="n">var_name</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">vector_field</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">gdim</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Importing vector field&#39;</span><span class="p">)</span>
+        <span class="n">bar_msg</span> <span class="o">=</span> <span class="s1">&#39;Importing vectir field - &#39;</span><span class="o">+</span><span class="n">var_name</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">bar_msg</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">vector_field</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
@@ -174,6 +175,8 @@
 
         <span class="n">snap</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
         <span class="n">param</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Extracting keys</span>
     <span class="n">params_np</span> <span class="o">=</span> <span class="p">[]</span>

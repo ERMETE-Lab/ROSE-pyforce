@@ -302,12 +302,15 @@
 <span id="pyforce-tools-functions-list-module"></span><h2>pyforce.tools.functions_list module<a class="headerlink" href="#module-pyforce.tools.functions_list" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">FunctionsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">FunctionsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dolfinx.fem.FunctionSpace</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dofs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class wrapping a list of functions. They are stored as a <cite>list</cite> of <cite>np.ndarray</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>function_space</strong> (<em>FunctionSpace</em>) – Functional Space onto which the Function are defined.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function_space</strong> (<em>FunctionSpace</em><em>, </em><em>optional</em>) – Functional Space onto which the Function are defined. If not provided, <cite>dofs</cite> must be specified.</p></li>
+<li><p><strong>dofs</strong> (<em>int</em><em>, </em><em>optional</em>) – Degrees of freedom of the functions <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span>. Required if <cite>function_space</cite> is not provided.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -348,7 +351,7 @@ The input can be either a <cite>np.ndarray</cite> or a <cite>dolfinx.fem.Functio
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.lin_combine">
-<span class="sig-name descname"><span class="pre">lin_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.lin_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.lin_combine" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lin_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.lin_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.lin_combine" title="Permalink to this definition"></a></dt>
 <dd><p>Linearly combine functions (<cite>a_i = vec[i]</cite>) in the list <span class="math notranslate nohighlight">\(\{\phi_i\}_{i=0}^N\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[\sum_{i=0}^N a_i\cdot \phi_i\]</div>
@@ -364,7 +367,7 @@ The input can be either a <cite>np.ndarray</cite> or a <cite>dolfinx.fem.Functio
 <dd class="field-even"><p><strong>combination</strong> – Function object storing the result of the linear combination</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Function</p>
+<dd class="field-odd"><p>np.ndarray or Function</p>
 </dd>
 </dl>
 </dd></dl>
@@ -387,6 +390,12 @@ The input can be either a <cite>np.ndarray</cite> or a <cite>dolfinx.fem.Functio
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.return_matrix">
+<span class="sig-name descname"><span class="pre">return_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.return_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.return_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the list of arrays as a matrix <span class="math notranslate nohighlight">\(S\in\mathbb{R}^{\mathcal{N}_h\times N_s}\)</span>.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsList.sort">
 <span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsList.sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsList.sort" title="Permalink to this definition"></a></dt>
 <dd><p>Sorting the list according to order - iterable of indices.</p>
@@ -397,126 +406,6 @@ The input can be either a <cite>np.ndarray</cite> or a <cite>dolfinx.fem.Functio
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">FunctionsMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dofs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A class wrapping a list of functions without relying on <em>dolfinx</em> capabilities. They are stored as a <cite>list</cite> of <cite>np.ndarray</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dofs</strong> (<em>int</em>) – Degrees of freedom of the functions <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span>.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.append">
-<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dofs_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.append" title="Permalink to this definition"></a></dt>
-<dd><p>Extend the current list by adding a new function. The input must be a <cite>np.ndarray</cite> object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dofs_fun</strong> (<em>np.ndarray</em>) – Functions to be appended.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.clear">
-<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.clear" title="Permalink to this definition"></a></dt>
-<dd><p>Clear the storage.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.copy" title="Permalink to this definition"></a></dt>
-<dd><p>Defining the copy of the <cite>_list</cite> of elements</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.delete">
-<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.delete" title="Permalink to this definition"></a></dt>
-<dd><p>Delete a single element in position <cite>idx</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Integers indicating the position inside the <cite>_list</cite> to delete.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.lin_combine">
-<span class="sig-name descname"><span class="pre">lin_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dolfinx.fem.Function</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.lin_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.lin_combine" title="Permalink to this definition"></a></dt>
-<dd><p>Linearly combine functions (<cite>a_i = vec[i]</cite>) in the list <span class="math notranslate nohighlight">\(\{\phi_i\}_{i=0}^N\)</span>:</p>
-<div class="math notranslate nohighlight">
-\[\sum_{i=0}^N a_i\cdot \phi_i\]</div>
-<p>given <cite>N = len(vec)</cite> and <span class="math notranslate nohighlight">\(\mathbf{a}\in\mathbb{R}^N\)</span>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vec</strong> (<em>np.ndarray</em>) – Iterable containing the coefficients of the linear combination.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>combination</strong> – Function object storing the result of the linear combination</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Function</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.return_matrix">
-<span class="sig-name descname"><span class="pre">return_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.return_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.return_matrix" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the list of arrays as a matrix <span class="math notranslate nohighlight">\(S\in\mathbb{R}^{\mathcal{N}_h\times N_s}\)</span>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.FunctionsMatrix.sort">
-<span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#FunctionsMatrix.sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.FunctionsMatrix.sort" title="Permalink to this definition"></a></dt>
-<dd><p>Sorting the list according to order - iterable of indices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>order</strong> (<em>list</em>) – List of indices for the sorting.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.fun_list_2_fun_matrix">
-<span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">fun_list_2_fun_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#fun_list_2_fun_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.fun_list_2_fun_matrix" title="Permalink to this definition"></a></dt>
-<dd><p>This function can be used to convert a <cite>FunctionsList</cite> object to a <cite>FunctionsMatrix</cite> one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fun_list</strong> (<a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Object with the list of functions to convert.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>fun_matrix</strong> – Object containing the functions list converted to a list of arrays, not relying on <em>dolfinx</em>.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix">FunctionsMatrix</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyforce.tools.functions_list.fun_matrix_2_fun_list">
-<span class="sig-prename descclassname"><span class="pre">pyforce.tools.functions_list.</span></span><span class="sig-name descname"><span class="pre">fun_matrix_2_fun_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><span class="pre">FunctionsMatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.FunctionSpace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/tools/functions_list.html#fun_matrix_2_fun_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.tools.functions_list.fun_matrix_2_fun_list" title="Permalink to this definition"></a></dt>
-<dd><p>This function can be used to convert a <cite>FunctionsMatrix</cite> object to a <cite>FunctionsList</cite> one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fun_matrix</strong> (<a class="reference internal" href="#pyforce.tools.functions_list.FunctionsMatrix" title="pyforce.tools.functions_list.FunctionsMatrix"><em>FunctionsMatrix</em></a>) – Object containing the functions as a list of arrays to convert.</p></li>
-<li><p><strong>V</strong> (<em>FunctionSpace</em>) – Functional space of the functions (the dofs should be compliant).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>fun_list</strong> – Object with the list of functions converted.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList">FunctionsList</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">

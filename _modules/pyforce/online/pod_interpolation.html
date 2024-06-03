@@ -78,8 +78,8 @@
   <h1>Source code for pyforce.online.pod_interpolation</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Synthetic Online Phase: Proper Orthogonal Decomposition with Interpolation</span>
 <span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 06 December 2023</span>
-<span class="c1"># Latest Doc  Update: 06 December 2023</span>
+<span class="c1"># Latest Code Update: 30 April 2024</span>
+<span class="c1"># Latest Doc  Update: 30 April 2024</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
@@ -98,7 +98,7 @@
 <span class="sd">    modes : FunctionsList</span>
 <span class="sd">        List of POD modes computed during the offline phase.</span>
 <span class="sd">    maps : list</span>
-<span class="sd">        List of maps for the POD modal coefficients, they must be callable.</span>
+<span class="sd">        List of maps for the POD modal coefficients, they must be callable. If `None`, the reduced coefficient must be provided as input later!</span>
 <span class="sd">    name : str</span>
 <span class="sd">        Name of the snapshots (e.g., temperature T)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -134,12 +134,11 @@
 <span class="sd">        test_snap : FunctionsList</span>
 <span class="sd">            List of snapshots onto which the test error of the POD basis is performed.</span>
 <span class="sd">        mu_estimated : np.ndarray</span>
-<span class="sd">            Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension `[Ns, p]` in which `Ns` is the number of test snapshots and `p` the number of parameters.</span>
+<span class="sd">            Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension `[Ns, p]` in which `Ns` is the number of test snapshots and `p` the number of parameters. If `None`, the reduced coefficients `alpha_coeffs` must be given.</span>
 <span class="sd">        maxBasis : int</span>
 <span class="sd">            Integer input indicating the maximum number of modes to use.</span>
 <span class="sd">        alpha_coeff : np.ndarray (optional, Default: None)</span>
 <span class="sd">            Matrix with the estimated coefficients :math:`\alpha_n`, they will be used if the input `alpha_coeffs` is not `None`.</span>
-<span class="sd">        </span>
 <span class="sd">        verbose : boolean, optional (Default = False) </span>
 <span class="sd">            If `True`, print of the progress is enabled.</span>
 
@@ -158,6 +157,8 @@
         <span class="k">if</span> <span class="n">mu_estimated</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="p">(</span><span class="n">mu_estimated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Ns_test</span><span class="p">)</span>
             <span class="n">n_feature</span> <span class="o">=</span> <span class="n">mu_estimated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">alpha_coeffs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Both inputs mu_estimated and alpha_coeffs are None&#39;</span>
         
         <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
         <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
@@ -168,7 +169,6 @@
         <span class="c1"># Variables to store the computational times</span>
         <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;CoeffEstimation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
-        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;LinearSystem&#39;</span><span class="p">]</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
         <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span>          <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
          
         <span class="n">timing</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span> 
@@ -204,9 +204,10 @@
 
         <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">computational_time</span></div>
     
-<div class="viewcode-block" id="PODI.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_interpolation.PODI.reconstruct">[docs]</a>    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mu_estimated</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="PODI.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_interpolation.PODI.reconstruct">[docs]</a>    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mu_estimated</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                          <span class="n">alpha_coeffs</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        After the coefficients of the POD basis are obtained by interpolating using the maps, the `snap` is approximated using linear combination of the POD modes.</span>
+<span class="sd">        After the coefficients of the POD basis are obtained by interpolating using the maps or given as input, the `snap` is approximated using linear combination of the POD modes.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -216,6 +217,8 @@
 <span class="sd">            Arrays with the estimated parameters from the Parameter Estimation phase, it must have dimension `[1, p]` in which `p` the number of parameters.</span>
 <span class="sd">        maxBasis : int</span>
 <span class="sd">            Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">        alpha_coeff : np.ndarray (optional, Default: None)</span>
+<span class="sd">            Array with the estimated coefficients :math:`\alpha_n`, they will be used if the input `alpha_coeffs` is not `None`.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -225,7 +228,6 @@
 <span class="sd">            Residual field using `maxBasis` POD modes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="n">n_feature</span> <span class="o">=</span> <span class="n">mu_estimated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     
         <span class="c1"># Variables to store the computational times</span>
         <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -233,9 +235,16 @@
         
         <span class="c1"># Estimate the coefficients</span>
         <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">maxBasis</span><span class="p">,))</span>
-        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
-            <span class="n">coeff</span><span class="p">[</span><span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maps</span><span class="p">[</span><span class="n">nn</span><span class="p">](</span><span class="n">mu_estimated</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_feature</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">mu_estimated</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_feature</span> <span class="o">=</span> <span class="n">mu_estimated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">maxBasis</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+                <span class="n">coeff</span><span class="p">[</span><span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maps</span><span class="p">[</span><span class="n">nn</span><span class="p">](</span><span class="n">mu_estimated</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_feature</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">alpha_coeffs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Both inputs mu_estimated and alpha_coeffs are None&#39;</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">alpha_coeffs</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">,)</span>
+            
         <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;CoeffEstimation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
             
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>

@@ -142,7 +142,7 @@
 <span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
 
-<span class="n">use_msh</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">use_msh</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="c1"># If the snapshots are generated from a different computer than the one used for the offline/online simulation, there may be issues in the number of dofs</span>
 <span class="k">if</span> <span class="p">(</span><span class="n">use_msh</span><span class="p">):</span>
@@ -683,8 +683,11 @@ Reconstructing phi_2
 <span class="n">extracted</span> <span class="o">=</span> <span class="p">[</span><span class="n">extract_cells</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span>
 
 <span class="c1">## Uploading data from benchmark</span>
-<span class="n">bench_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;anl11a2_data.xlsx&#39;</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;x-axis&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span>
-              <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;anl11a2_data.xlsx&#39;</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Diagonal&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">/</span><span class="mi">1000</span><span class="p">]</span>
+
+<span class="n">bench_path</span> <span class="o">=</span> <span class="s1">&#39;..//BenchmarkData/MGDiffusion_ANL11A2/anl11a2_data.xlsx&#39;</span>
+
+<span class="n">bench_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">bench_path</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;x-axis&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span>
+              <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">bench_path</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Diagonal&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">/</span><span class="mi">1000</span><span class="p">]</span>
 
 <span class="n">bench_labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$y=x$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$y=0$&#39;</span><span class="p">]</span>
 
