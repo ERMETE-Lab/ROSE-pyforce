@@ -7,7 +7,7 @@ README_MD = open(join(dirname(abspath(__file__)), "../README.md")).read()
 
 setup(
     name='pyforce',
-    version='0.1.1',    
+    version='0.1.2',    
     description='Python Framework data-driven model Order Reduction for multi-physiCs problEms',
     long_description=README_MD,
     long_description_content_type="text/markdown",
