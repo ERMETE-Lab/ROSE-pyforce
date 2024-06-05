@@ -72,6 +72,9 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# Joss-Paper Compiler
+joss-paper/joss-compiler/
+
 # Sphinx documentation
 docs/_build/
 
