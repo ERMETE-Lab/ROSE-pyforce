@@ -20,18 +20,17 @@ authors:
     corresponding: true # (This is how to denote the corresponding author)
     affiliation: 1
 affiliations:
- - name: Energy Department - Nuclear Engineering Division, Nuclear Reactors Group - ERMETE Lab, Politecnico di Milano
+ - name: Energy Department - Nuclear Engineering Division, Nuclear Reactors Group - ERMETE Lab, Politecnico di Milano, Milan, Italy
    index: 1
 date: 21 May 2024
 bibliography: paper.bib
 
-# # Optional fields if submitting to a AAS journal too, see this blog post:
-# # https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-# aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-# aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
+Innovative reactor technologies in the framework of Generation IV are usually characterised by harsher and more hostile environments compared to standard nuclear systems, for instance, due to the liquid nature of the fuel or the adoption of liquid salt and molten as coolant. This framework poses more challenges in the monitoring of the system itself; since placing sensors inside the reactor itself is a nearly impossible task, it is crucial to study innovative methods able to combine together different sources of information, namely mathematical models and real data (i.e., measurements) in a quick, reliable and efficient way. These methods fall into the Data-Driven Reduced Order Modelling framework, they can be very useful to learn the missing physics or the dynamics of the problem, in particular, they can be adapted to generate surrogate models able to map the out-core measurements of a simple field (e.g., neutron flux and temperature) to the dynamics of un-observable complex fields (precursors concentration and velocity). 
+
+# Statement of need
 *pyforce* is a Python library (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) implementing Data-Driven Reduced Order Modelling (DDROM) techniques [@RMP_2024] for applications to multi-physics problems, mainly for the Nuclear Engineering world. These techniques have been implemented upon the dolfinx package [@BarattaEtal2023] (currently v0.6.0), part of the FEniCSx project, to handle mesh generation, integral calculation and functions storage. The package is part of the ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms) framework, which investigates mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, at searching for optimal sensor positions and at integrating experimental data to improve the knowledge on the physical systems.
 
 ![General scheme of DDROM methods [@RMP_2024].\label{fig:darom}](../images/tie_frighter.pdf){ width=80% }
@@ -40,7 +39,7 @@ The techniques implemented here follow the same underlying idea expressed in Fig
 
 Up to now, the following techniques have been implemented [@DDMOR_CFR;@RMP_2024]:
 
-1. Proper Orthogonal Decomposition (POD) [@quarteroni2015reduced] with Projection and Interpolation [@demo_complete_2019] for the Online Phase
+1. Proper Orthogonal Decomposition (POD) [@rozza_model_2020] with Projection and Interpolation [@demo_complete_2019] for the Online Phase
 2. Generalised Empirical Interpolation Method (GEIM) [@maday_generalized_2015], either regularised with Tikhonov [@introini_stabilization_2023] or not
 3. Parameterised-Background Data-Weak (PBDW) [@maday_parameterized-background_2014]
 4. an Indirect Reconstruction [@introini_non-intrusive_2023] algorithm to reconstruct non-observable fields
