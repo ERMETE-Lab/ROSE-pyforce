@@ -1,4 +1,4 @@
-name: Draft PDF
+name: JOSS Draft Paper
 on:
   workflow_dispatch:
   push:
