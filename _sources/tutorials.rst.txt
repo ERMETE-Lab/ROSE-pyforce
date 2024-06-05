@@ -26,6 +26,10 @@ The following case studies are discussed:
     - *Offline*: Creation of the reduced space using the POD and GEIM.
     - *Online*:  Indirect Reconstruction (PE+POD-I), considering noisy data.
 
+*Coming Soon: multiphysics (neutronics+thermal-hydraulics) with dolfinx and OpenFOAM.*
+
+Each tutorial requires a dataset to be generated: the notebooks generating the dataset are available in the tutorials, alternatevely the data can be download from `Zenodo <https://doi.org/10.5281/zenodo.11483677>`_.
+
 .. toctree::
     :maxdepth: 1
     :caption: List of Tutorials:
