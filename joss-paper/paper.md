@@ -32,13 +32,13 @@ bibliography: paper.bib
 ---
 
 # Summary
-*pyforce* is a Python library (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) implementing Data-Driven Reduced Order Modelling (DDROM) techniques [@RMP_2024] for applications to multi-physics problems, mainly for the Nuclear Engineering world. These techniques have been implemented upon the dolfinx package [@BarattaEtal2023] (currently v0.6.0), part of the FEniCSx project, to handle mesh generation, integral calculation and functions storage. The package is part of the ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms) framework also developed by the authors, which investigates mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, at searching for optimal sensor positions and at integrating experimental data to improve the knowledge on the physical systems.
+*pyforce* is a Python library (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) implementing Data-Driven Reduced Order Modelling (DDROM) techniques [@RMP_2024] for applications to multi-physics problems, mainly for the Nuclear Engineering world. These techniques have been implemented upon the dolfinx package [@BarattaEtal2023] (currently v0.6.0), part of the FEniCSx project, to handle mesh generation, integral calculation and functions storage. The package is part of the ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms) framework, which investigates mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, at searching for optimal sensor positions and at integrating experimental data to improve the knowledge on the physical systems.
 
-![General scheme of DDROM methods [@RMP_2024].\label{fig:darom}](DA_ROM.pdf){ width=80% }
+![General scheme of DDROM methods [@RMP_2024].\label{fig:darom}](../images/tie_frighter.pdf){ width=80% }
 
 The techniques implemented here follow the same underlying idea expressed in Figure \autoref{fig:darom}: in the offline (training) phase, a dimensionality reduction process retrieves a reduced coordinate system onto which the information of the mathematical model is encoded; the sensor positioning algorithm then uses this reduced set to select the optimal location of sensors according to some optimality criterion, which depends on the adopted algorithm. In the online phase, the data assimilation process begins, retrieving a novel set of reduced variables and then computing the reconstructed state through a decoding step.
 
-At the moment, the following techniques have been implemented [@DDMOR_CFR;@RMP_2024]:
+Up to now, the following techniques have been implemented [@DDMOR_CFR;@RMP_2024]:
 
 1. Proper Orthogonal Decomposition (POD) [@quarteroni2015reduced] with Projection and Interpolation [@demo_complete_2019] for the Online Phase
 2. Generalised Empirical Interpolation Method (GEIM) [@maday_generalized_2015], either regularised with Tikhonov [@introini_stabilization_2023] or not
