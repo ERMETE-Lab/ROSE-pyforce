@@ -53,7 +53,9 @@ class GEIM():
             User-defined available positions for the sensors, if `None` the positions are taken from the mesh elements.
         sampleEvery : int, optional (default = 5)
             If `xm` is not `None`, sampling rate for the selection of points from the mesh
-        
+        verbose : boolean, optional (Default = False) 
+            If `True`, print of the progress is enabled.
+            
         Returns
         ----------
         maxAbsErr : np.ndarray
