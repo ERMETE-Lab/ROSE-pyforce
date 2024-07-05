@@ -1,14 +1,10 @@
 # Offline Phase: Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 14 June 2024
+# Latest Code Update: 18 June 2024
 # Latest Doc  Update: 14 June 2024
 
 import numpy as np
 from scipy import linalg
-
-from dolfinx.fem import (Function, FunctionSpace)
-
-from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
     
 # EIM: offline
@@ -104,7 +100,10 @@ class EIM():
             self.generating_fun.append( int(np.argmax(np.max(abs(residual_matrix[xm]), axis=0))) )
             maxAbsErr.append( np.max(abs(residual_matrix[xm, self.generating_fun[mm]])) )
             maxRelErr.append( maxAbsErr[mm-1] / np.max(snap_matrix[:, self.generating_fun[mm]]) )
-            
+
+            if verbose:
+                print(f'  Iteration {iter+0:03} | Abs Err: {maxAbsErr[mm-1]:.2e} | Rel Err: {maxRelErr[mm-1]:.2e}', end="\r")
+
             # Find the next magic point
             self.magic_points['idx'].append( xm[np.argmax(abs( residual_matrix[xm, self.generating_fun[mm]]))] )
             self.magic_points['points'].append( self.mesh[self.magic_points['idx'][mm]] )
@@ -132,6 +131,9 @@ class EIM():
         maxAbsErr.append( np.max(residual_matrix[:, last_gen_fun]) )
         maxRelErr.append( maxAbsErr[mm-1] / np.max(snap_matrix[:, last_gen_fun]) )
         
+        if verbose:
+            print(f'  Iteration {iter+0:03} | Abs Err: {maxAbsErr[-1]:.2e} | Rel Err: {maxRelErr[-1]:.2e}', end="\r")
+
         return maxAbsErr, maxRelErr, beta_coeff
 
     def reconstruct(self, snap: np.ndarray, Mmax: int):
