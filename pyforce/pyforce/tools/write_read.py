@@ -1,7 +1,7 @@
 # I/O tools
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 24 May 2024
-# Latest Doc  Update: 25 June 2023
+# Latest Code Update: 05 July 2024
+# Latest Doc  Update: 05 July 2024
 
 # from pyforce.tools.functions_list import FunctionsList
 from .functions_list import FunctionsList
@@ -13,6 +13,7 @@ from dolfinx.fem import Function, FunctionSpace
 import os
 import numpy as np
 import fluidfoam as of
+import pandas as pd
 from scipy.interpolate import NearestNDInterpolator, LinearNDInterpolator
 
 def StoreFunctionsList(domain, snap: FunctionsList, var_name: str, filename: str, order = None):
@@ -291,3 +292,68 @@ class import_OF():
                     progressBar.update(1, percentage=False)
             
         return snap_dolfinx
+    
+    
+# These functions can be used to I/O h5 files, useful for plotting when data are not coming from dolfinx - must be tested!
+def save_h5(path: str, mesh: np.ndarray, snaps: list[FunctionsList], dataset_name = 'Snapshots', var_names : list[str] = ['u']):
+    r"""
+    A function used to export data in `.h5` format.
+
+    Parameters
+    ----------
+    path : str
+        Path of the `.h5` file.
+    mesh : np.ndarray
+        The degrees of freedom of the spatial mesh.
+    snaps : list[FunctionsList]
+        List of the FunctionsList with the snapshots to save.
+    dataset_name : str, optional (default = `'Snapshots'`)
+        Name of the dataset to store.
+    var_names : list[str], optional (default = `['u']`)
+        Names of the variables to store.
+    """
+    
+    file = h5py.File(path+'.h5', 'w')
+    
+    _mesh = file.create_dataset('mesh', data=mesh)
+    
+    _snap_data = file.create_dataset(dataset_name)
+    
+    for field_i, field in enumerate(var_names):
+        df = pd.DataFrame(snaps[field_i].return_matrix())
+        _snap_data.create_dataset(field, df)
+        
+    file.close()
+    
+def read_h5(path: str, dataset_name: str, var_names : list[str]):
+    r"""
+    A function used to read data in `.h5` format.
+
+    Parameters
+    ----------
+    path : str
+        Path of the `.h5` file.
+    dataset_name : str
+        Name of the dataset to read.
+    var_names : list[str]
+        Names of the variables to read.
+    """
+    
+    file = h5py.File(path+'.h5', 'r')
+    
+    mesh = np.asarray(file['mesh'])
+    snaps = dict()
+    
+    for field_i, field in enumerate(var_names):
+        Ns = np.asarray(file[dataset_name+field]).shape[0]
+        dofs = np.asarray(file[dataset_name+field]).shape[1]
+        
+        snaps[field] = FunctionsList(dofs = dofs)
+        
+        _u = np.asarray(file[dataset_name+field])
+        for mu in range(Ns):
+            snaps[field].append(_u[mu])
+            
+    file.close()
+    
+    return mesh, snaps
