@@ -4,7 +4,7 @@
   </a>
 </p>
 
-[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-arXiv:%202401.07300-gray?labelColor=blue&style=flat&link=https://arxiv.org/abs/2401.07300)](https://arxiv.org/abs/2401.07300) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X) [![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)
+[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-https://doi.org/10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X) [![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)
 
 
 [![Testing pyforce](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg)](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml) [![JOSS draft paper](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml)
@@ -43,23 +43,27 @@ This package is aimed to be a valuable tool for other researchers, engineers, an
 If you are going to use *pyforce* in your research work, please cite the following articles.
 The authors would be pleased if you could cite the relevant papers:
 
-1. Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order modelling techniques: Application to nuclear case studies, 2024. [arXiv:2401.07300](http://arxiv.org/abs/2401.07300).
+1. Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040).
 2. Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:[https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105).
 
 For LaTeX users:
 
 ```bibtex
 
-@misc{RMP_2024,
-      title={Multi-Physics Model Bias Correction with Data-Driven Reduced Order Modelling Techniques: Application to Nuclear Case Studies},
-      author={Stefano Riva and Carolina Introini and Antonio Cammi},
-      year={2024},
-      eprint={2401.07300},
-      archivePrefix={arXiv},
-      primaryClass={math.NA}
+@article{RIVA2024_AMM,
+title = {Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies},
+journal = {Applied Mathematical Modelling},
+volume = {135},
+pages = {243-268},
+year = {2024},
+issn = {0307-904X},
+doi = {https://doi.org/10.1016/j.apm.2024.06.040},
+url = {https://www.sciencedirect.com/science/article/pii/S0307904X24003196},
+author = {Stefano Riva and Carolina Introini and Antonio Cammi},
+keywords = {Reduced order modelling, Data driven, Nuclear reactors, Multi-physics, Model correction},
 }
 
-@article{DDMOR_CFR,
+@article{CAMMI2024_NED,
 title = {Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a Circulating Fuel Reactor},
 journal = {Nuclear Engineering and Design},
 volume = {421},

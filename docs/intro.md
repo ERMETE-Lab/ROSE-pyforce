@@ -4,7 +4,7 @@
 
 ![pyforce](images/immy_pyforce2.png)
 
-[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-arXiv:%202401.07300-gray?labelColor=blue&style=flat&link=https://arxiv.org/abs/2401.07300)](https://arxiv.org/abs/2401.07300) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X)
+[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-https://doi.org/10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X)
 
 
 ## Description
@@ -26,26 +26,30 @@ This work has been carried out at the [Nuclear Reactors Group - ERMETE Lab](http
 
 ## How to cite pyforce
 
-If you are going to use *pyforce* in your research work, please cite the following articles. 
+If you are going to use *pyforce* in your research work, please cite the following articles.
 The authors would be pleased if you could cite the relevant papers:
 
-1. Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order modelling techniques: Application to nuclear case studies, 2024. [arXiv:2401.07300](http://arxiv.org/abs/2401.07300).
+1. Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040).
 2. Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:[https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105).
 
 For LaTeX users:
 
 ```bibtex
 
-@misc{RMP_2024,
-      title={Multi-Physics Model Bias Correction with Data-Driven Reduced Order Modelling Techniques: Application to Nuclear Case Studies}, 
-      author={Stefano Riva and Carolina Introini and Antonio Cammi},
-      year={2024},
-      eprint={2401.07300},
-      archivePrefix={arXiv},
-      primaryClass={math.NA}
+@article{RIVA2024_AMM,
+title = {Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies},
+journal = {Applied Mathematical Modelling},
+volume = {135},
+pages = {243-268},
+year = {2024},
+issn = {0307-904X},
+doi = {https://doi.org/10.1016/j.apm.2024.06.040},
+url = {https://www.sciencedirect.com/science/article/pii/S0307904X24003196},
+author = {Stefano Riva and Carolina Introini and Antonio Cammi},
+keywords = {Reduced order modelling, Data driven, Nuclear reactors, Multi-physics, Model correction},
 }
 
-@article{DDMOR_CFR,
+@article{CAMMI2024_NED,
 title = {Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a Circulating Fuel Reactor},
 journal = {Nuclear Engineering and Design},
 volume = {421},
@@ -63,7 +67,7 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 ---
 
 ## What is Reduced Order Modelling?
-In scientific literature the expression Reduced Order Modelling (ROM) {cite:p}`Quarteroni2016, MadayChapter2020, Degen2020_conference` is related to a set of techniques devoted to the search for an optimal coordinate system onto which some parametric solutions of Partial Differential Equations (PDEs) -typically called High-Fidelity (HF) or Full Order (FOM) Model - can be represented. These methods are very useful in multi-query and real-time scenarios, when quick and efficient solutions of models are required, e.g. optimization, uncertainty quantification and inverse problems {cite:p}`Guo_Veroy2021, Degen2022`. Recently, with the developments in data-driven modelling a lot of interest in the combination of data and models have been raised. ROM offers new opportunities both to integrate the model with experimental data in real-time and to define methods of sensor positioning, by providing efficient tools to compress the prior knowledge about the system coming from the parametrized mathematical model into low-dimensional forms. 
+In scientific literature the expression Reduced Order Modelling (ROM) {cite:p}`Quarteroni2016, MadayChapter2020, Degen2020_conference` is related to a set of techniques devoted to the search for an optimal coordinate system onto which some parametric solutions of Partial Differential Equations (PDEs) -typically called High-Fidelity (HF) or Full Order (FOM) Model - can be represented. These methods are very useful in multi-query and real-time scenarios, when quick and efficient solutions of models are required, e.g. optimization, uncertainty quantification and inverse problems {cite:p}`Guo_Veroy2021, Degen2022`. Recently, with the developments in data-driven modelling a lot of interest in the combination of data and models have been raised. ROM offers new opportunities both to integrate the model with experimental data in real-time and to define methods of sensor positioning, by providing efficient tools to compress the prior knowledge about the system coming from the parametrized mathematical model into low-dimensional forms.
 
 ### Reduced Basis Methods
 Among all ROM methods, Reduced Basis (RB) {cite:p}`Quarteroni2014, Hesthaven2016, Degen2020_certifiedRB` are a well-established and widely used class of ROM techniques, which are based on an offline-online paradigm. In the offline stage, a set of RB functions {math}`\phi_n(\mathbf{x})` are derived from an ensemble of high-fidelity solutions, called *snapshots*, yielding a low dimensional space that retains the main features of the full-order model. Different approaches can be used to construct the reduced basis, such as the **greedy** algorithms {cite:p}`Maday2006` and the **POD** {cite:p}`Berkooz1993`. Regardless of the construction strategy, an approximation of the high-fidelity solution is sought during the online stage as a linear combination of the RB functions, i.e.
