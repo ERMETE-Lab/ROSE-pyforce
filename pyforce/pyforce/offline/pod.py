@@ -1,6 +1,6 @@
 # Offline Phase: Proper Orthogonal Decomposition
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 24 May 2024
+# Latest Code Update: 12 July 2024
 # Latest Doc  Update: 24 May 2024
 
 import numpy as np
@@ -374,10 +374,13 @@ class DiscretePOD():
     if N is None:
       N = self.Nmax
     
-    # Vh_star = scipy.linalg.solve(np.diag(self.sing_vals), np.dot(self.modes.return_matrix().T, snap),
-    #                              assume_a='sym')
-    Vh_star = np.dot(np.linalg.inv(np.diag(self.sing_vals)), 
-                     np.dot(self.modes.return_matrix().T, snap))
+    if isinstance(snap, FunctionsList):
+      _snap = snap.return_matrix()
+    else:
+      _snap = snap
+    
+    Vh_star = np.dot(np.linalg.inv(np.diag(self.sing_vals[:N])), 
+                     np.dot(self.modes.return_matrix().T[:N], _snap))
     
     return Vh_star
   
