@@ -1,4 +1,4 @@
-# Synthetic Online Phase: Generalised Empirical Interpolation Method
+# Online Phase: Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
 # Latest Code Update: 05 March 2024
 # Latest Doc  Update: 05 March 2024
@@ -11,15 +11,15 @@ from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
 from pyforce.tools.timer import Timer
 
-# GEIM online (synthetic measures)
+# GEIM online (synthetic and real measures)
 class GEIM():
     r"""
-    This class can be used to perform the online phase of the GEIM algorihtm for synthetic measures :math:`\mathbf{y}\in\mathbb{R}^M` obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as
+    This class can be used to perform the online phase of the GEIM algorihtm for synthetic and real measures :math:`\mathbf{y}\in\mathbb{R}^M` either obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as
     
     .. math::
         y_m = v_m(u)+\varepsilon_m \qquad \qquad m = 1, \dots, M
 
-    given :math:`\varepsilon_m` random noise (either present or not).
+    given :math:`\varepsilon_m` random noise (either present or not), or by real experimental data on the physical system.
 
     Parameters
     ----------
@@ -270,3 +270,58 @@ class GEIM():
         resid = np.abs(snap - interp)
         
         return interp, resid, computational_time
+    
+    def real_reconstruct(self, measure: np.ndarray):
+        r"""
+        The interpolant given the `measure` vector :math:`\mathbf{y}` input is computed, by solving the GEIM linear system
+        
+        .. math::
+            \mathbb{B}\boldsymbol{\beta} = \mathbf{y}
+        
+        then the interpolant is computed and returned
+        
+        .. math::
+            \mathcal{I}_M(\mathbf{x}) = \sum_{m=1}^M \beta_m[u] \cdot q_m(\mathbf{x})
+        
+        Parameters
+        ----------
+        measure : np.ndarray
+            Measurement vector, shaped as :math:`M \times N_s`, given :math:`M` the number of sensors used and :math:`N_s` the number of parametric realisation.
+        
+        Returns
+        ----------
+        interp : np.ndarray
+            Interpolant Field :math:`\mathcal{I}_M` of GEIM
+        computational_time : dict
+            Dictionary with the CPU time of the most relevant operations during the online phase.
+            
+        """
+        
+        M, Ns = measure.shape
+        
+        if M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+        
+        # Variables to store the computational times
+        computational_time = dict()
+        timing = Timer() 
+        
+        interps = FunctionsList(self.V)
+        
+        for mu in range(Ns):
+            
+            y = measure[:, mu]
+            
+            # Solving the linear system
+            timing.start()
+            coeff = la.solve(self.B[:M, :M], y, lower = True)
+            computational_time['LinearSystem'] = timing.stop()
+
+            # Compute the interpolant and residual
+            timing.start()
+            interps.append(self.mf.lin_combine(coeff))
+            
+            computational_time['Reconstruction'] = timing.stop()
+        
+        return interps, computational_time
