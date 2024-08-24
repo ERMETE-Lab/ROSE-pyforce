@@ -1,4 +1,4 @@
-# Synthetic Online Phase: Tikhonov-Regularisation Generalised Empirical Interpolation Method
+# Online Phase: Tikhonov-Regularisation Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
 # Latest Code Update: 06 March 2024
 # Latest Doc  Update: 06 March 2024
@@ -13,15 +13,15 @@ from pyforce.tools.timer import Timer
 
 from typing import Tuple
 
-# TR-GEIM online (synthetic measures)
+# TR-GEIM online (synthetic and real measures)
 class TRGEIM():
     r"""
-    This class can be used to perform the online phase of the TR-GEIM algorihtm for synthetic measures :math:`\mathbf{y}\in\mathbb{R}^M` obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as
+    This class can be used to perform the online phase of the TR-GEIM algorihtm for synthetic and real measures :math:`\mathbf{y}\in\mathbb{R}^M` obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as
     
     .. math::
         y_m = v_m(u)+\varepsilon_m \qquad \qquad m = 1, \dots, M
 
-    given :math:`\varepsilon_m` random noise.
+    given :math:`\varepsilon_m` random noise, or by real experimental data on the physical system.
 
     Parameters
     ----------
@@ -383,3 +383,63 @@ class TRGEIM():
         lambda_opt = lambda_star_samples[np.argmin(abs_err.mean(axis=0))]
         
         return lambda_opt, lambda_star_samples, abs_err.mean(axis = 0)
+    
+    def real_reconstruct(self, measure: np.ndarray, reg_param: float):
+        r"""
+        The interpolant given the `measure` vector :math:`\mathbf{y}` input is computed, by solving the GEIM linear system
+        
+        .. math::
+            \left(\mathbb{B}^T\mathbb{B}+\lambda \mathbb{T}^T\mathbb{T}\right)\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y}+\lambda \mathbb{T}^T\mathbb{T} \langle{\boldsymbol{\beta}}\rangle
+       
+        then the interpolant is computed and returned
+        
+        .. math::
+            \mathcal{I}_M(\mathbf{x}) = \sum_{m=1}^M \beta_m[u] \cdot q_m(\mathbf{x})
+        
+        Parameters
+        ----------
+        measure : np.ndarray
+            Measurement vector, shaped as :math:`M \times N_s`, given :math:`M` the number of sensors used and :math:`N_s` the number of parametric realisation.
+        reg_param : float
+            Regularising parameter :math:`\lambda`
+        
+        Returns
+        ----------
+        interp : np.ndarray
+            Interpolant Field :math:`\mathcal{I}_M` of GEIM
+        computational_time : dict
+            Dictionary with the CPU time of the most relevant operations during the online phase.
+            
+        """
+        
+        M, Ns = measure.shape
+        
+        if M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+        
+        # Variables to store the computational times
+        computational_time = dict()
+        timing = Timer() 
+        
+        interps = FunctionsList(self.V)
+        
+        for mu in range(Ns):
+            
+            y = measure[:, mu]
+            
+            # Solving the linear system
+            timing.start()
+            sys_matrix = (self.B[:M, :M].T @ self.B[:M, :M]) + reg_param * (self.T[:M, :M].T @ self.T[:M, :M])
+            rhs = np.dot(self.B[:M, :M].T, y) + reg_param * np.dot((self.T[:M, :M].T @ self.T[:M, :M]), self.mean_beta[:M])
+
+            coeff = la.solve(sys_matrix, rhs)
+            computational_time['LinearSystem'] = timing.stop()
+
+            # Compute the interpolant and residual
+            timing.start()
+            interps.append(self.mf.lin_combine(coeff))
+            
+            computational_time['Reconstruction'] = timing.stop()
+        
+        return interps, computational_time
