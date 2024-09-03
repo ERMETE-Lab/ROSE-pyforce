@@ -54,81 +54,21 @@ Up to now, the techniques, reported in the following tables, have been implement
 4. an Indirect Reconstruction [@introini_non-intrusive_2023] algorithm to reconstruct non-observable fields
 -->
 
-<table>
-  <tr>
-    <th colspan="3">Offline</th>
-  </tr>
-
-  <tr>
-    <td> Algorithm </td>
-    <td>Basis Generation</td>
-    <td>Sensor Placement</td>
-  </tr>
-
-  <tr>
-    <td>Proper Orthogonal Decomposition (POD) [@rozza_model_2020] </td>
-    <td> X </td>
-    <td> </td>
-  </tr>
-
-  <tr>
-    <td>SGreedy [@maday_parameterized-background_2014] </td>
-    <td> </td>
-    <td> X </td>
-  </tr>
-
-  <tr>
-    <td>Generalised Empirical Interpolation Method (GEIM) [@maday_generalized_2015]</td>
-    <td> X </td>
-    <td> X </td>
-  </tr>
-
-</table>
+| Offline algorithm                                                           | Basis Generation | Sensor Placement |
+| --------------------------------------------------------------------------- | ---------------- | ---------------- |
+| Proper Orthogonal Decomposition (POD) [@rozza_model_2020]                   | X                |                  |
+| SGreedy [@maday_parameterized-background_2014]                              |                  | X                |
+| Generalised Empirical Interpolation Method (GEIM) [@maday_generalized_2015] | X                | X                |
 
 
-<table>
-  <tr>
-    <th colspan="3">Online</th>
-  </tr>
-
-  <tr>
-    <td> Algorithm </td>
-    <td> Input is parameter $\boldsymbol{\mu}$ </td>
-    <td> Input is measurement vector $\mathbf{y}$ </td>
-  </tr>
-
-  <tr>
-    <td>POD Projection [@rozza_model_2020] </td>
-    <td> X </td>
-    <td> </td>
-  </tr>
-
-  <tr>
-    <td>POD with Interpolation (PODI) [@demo_complete_2019] </td>
-    <td> X </td>
-    <td> </td>
-  </tr>
-
-  <tr>
-    <td>GEIM [@maday_generalized_2015] </td>
-    <td> </td>
-    <td> X </td>
-  </tr>
-
-  <tr>
-    <td>Tikhonov-Regularised (TR)-GEIM [@introini_stabilization_2023] </td>
-    <td> </td>
-    <td> X </td>
-  </tr>
-
-  <tr>
-    <td>Indirect Reconstruction: parameter estimation [@introini_non-intrusive_2023]</td>
-    <td>  </td>
-    <td> X </td>
-  </tr>
-
-</table>
-
+| Online algorithm                                                                 | Input is parameter $\boldsymbol{\mu}$ | Input is measurement vector $\mathbf{y}$ |
+| -------------------------------------------------------------------------------- | ------------------------------------- | ---------------------------------------- |
+| POD Projection [@rozza_model_2020]                                               | X                                     |                                          |
+| POD with Interpolation (PODI) [@demo_complete_2019]                              | X                                     |                                          |
+| GEIM [@maday_generalized_2015]                                                   |                                       | X                                        |
+| Tikhonov-Regularised (TR)-GEIM [@introini_stabilization_2023]                    |                                       | X                                        |
+| Parameterised-Background Data-Weak (PBDW) [@maday_parameterized-background_2014] |                                       | X                                        |
+| Indirect Reconstruction: parameter estimation [@introini_non-intrusive_2023]     |                                       | X                                        |
 
 
 This package aims to become a valuable tool for other researchers, engineers, and data scientists working in various fields where multi-physics problems play an important role, and its scope of application is not only restricted to the Nuclear Engineering world. The package also includes tutorials showing how to use the library and its main features, ranging from snapshot generation in dolfinx, import and mapping from OpenFOAM [@weller_tensorial_1998], to the offline and online phase of each of the aforementioned DDROM algorithms. The case studies are taken from the fluid dynamics and neutronics world, being the most important physics involved in nuclear reactor physics, although the methodologies can be extended to any physics of interest.
