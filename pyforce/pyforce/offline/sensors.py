@@ -17,7 +17,7 @@ from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
 
 # Class to define gaussian sensors with a Riesz representation in L2
-class gaussian_sensors():
+class GaussianSensors():
   r"""
     A class to define normalised gaussian sensors in terms of functional to mimic measurements of scalar fields.
     The measurement procedure is described through a linear functional with gaussian kernel, i.e.
@@ -239,7 +239,7 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
     self.domain = domain
 
     # Generate sensor library
-    self.sens_class = gaussian_sensors(domain, self.V, s, assemble_riesz = True)
+    self.sens_class = GaussianSensors(domain, self.V, s, assemble_riesz = True)
 
   def generate(self, N: int, Mmax: int, tol: float = 0.2,
                xm : list = None, sampleEvery : int = 10, is_H1 : bool = False, verbose = False):

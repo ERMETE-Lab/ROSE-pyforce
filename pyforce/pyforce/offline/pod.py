@@ -1,6 +1,6 @@
 # Offline Phase: Proper Orthogonal Decomposition
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 12 July 2024
+# Latest Code Update: 09 September 2024
 # Latest Doc  Update: 24 May 2024
 
 import numpy as np

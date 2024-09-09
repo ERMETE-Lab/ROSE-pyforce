@@ -1,6 +1,6 @@
 # Synthetic Online Phase: Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 25 June 2023
+# Latest Code Update: 09 September 2024
 # Latest Doc  Update: 18 July 2023
 
 import numpy as np
@@ -11,7 +11,7 @@ from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
 from pyforce.tools.timer import Timer
 
-class POD_project():
+class PODproject():
     r"""
     A class to perform the online phase of the POD with projection from true field, in which the modal coefficients are found from the projection of the snapshot onto the reduced space.
     

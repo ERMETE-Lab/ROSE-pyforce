@@ -8,7 +8,6 @@ import scipy.linalg as la
 
 from pyforce.tools.backends import norms
 from pyforce.tools.functions_list import FunctionsList
-from .sensors import gaussian_sensors
     
 # PBDW: computing inf-sup
 class PBDW():
