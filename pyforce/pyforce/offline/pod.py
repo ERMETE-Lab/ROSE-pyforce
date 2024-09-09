@@ -74,7 +74,7 @@ class POD():
     self.eigenvalues  = eigenvalues
     self.eigenvectors = eigenvectors
 
-  def GrahmSchmidt(self, fun: Function) -> np.ndarray:
+  def GramSchmidt(self, fun: Function) -> np.ndarray:
     r"""
     Perform a step of the Gram-Schmidt process on POD modes :math:`\{\psi_k\}_{k=1}^r` adding `fun` :math:`=f` to enforce the orthonormality in :math:`L^2`
 
@@ -132,7 +132,7 @@ class POD():
     r"""
     Computes the POD modes.
     
-    To enforce the orthonormality in :math:`L^2`, the Grahm-Schmidt procedure can be used, if the number of modes to be used is high the numerical error in the eigendecomposition may be too large and the orthonormality is lost.
+    To enforce the orthonormality in :math:`L^2`, the Gram-Schmidt procedure can be used, if the number of modes to be used is high the numerical error in the eigendecomposition may be too large and the orthonormality is lost.
 
     Parameters
     ----------
@@ -141,14 +141,14 @@ class POD():
     maxBasis : int
       Integer input indicating the number of modes to define.
     normalise : boolean, optional (Default = False)
-      If True, the Grahm-Schmidt procedure is used to normalise the POD modes.
+      If True, the Gram-Schmidt procedure is used to normalise the POD modes.
 
     """
     self.PODmodes = FunctionsList(self.V)
 
     for rankII in range(maxBasis):
       if normalise:
-        self.PODmodes.append(self.GrahmSchmidt(self.mode(train_snap, rankII)))
+        self.PODmodes.append(self.GramSchmidt(self.mode(train_snap, rankII)))
       else:
        self.PODmodes.append(self.mode(train_snap, rankII))
        
