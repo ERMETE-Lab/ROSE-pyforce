@@ -1,6 +1,6 @@
 # Installation notes
 
-The package has been tested on MacOS and Linux machines with **Python3.10**.
+**pyforce** has been tested on MacOS and Linux machines with **Python3.10**.
 
 ## Dependencies
 The *pyforce* package requires the following dependencies:
@@ -20,9 +20,26 @@ import fluidfoam
 
 Be sure to install *gmsh* and *gmsh-api* before *dolfinx* (the package has been tested with real mode of the PETSc library). The instructions to install *dolfinx* are available at [https://github.com/FEniCS/dolfinx#binary](https://github.com/FEniCS/dolfinx#binary).
 
-### Set up a conda environment for *pyforce*
+## Set up a conda environment for *pyforce*
 
-At first create a new conda environment
+**Currently *pyforce* can only be obtained by directly cloning the repository (not in PyPI or conda repository).**
+
+It is suggested to create a conda environment: at first, clone the repository
+```bash
+git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
+```
+create a conda environment using `environment.yml`
+```bash
+cd ROSE-pyforce
+conda env create -f pyforce/environment.yml
+```
+activate the environment and then install the package using `pip`
+```bash
+conda activate pyforce-env
+python -m pip install pyforce/
+```
+
+If the previous procedure encounters any issues, you can adopt a step-by-step approach: start by creating a new conda environment
 ```bash
 conda create --name <env_name>
 ```
@@ -30,7 +47,7 @@ If not already done, add conda-forge to the channels
 ```bash
 conda config --add channels conda-forge
 ```
-After having activate it, install 
+After having activate it, install
 ```bash
 conda install python=3.10
 ```
@@ -63,33 +80,11 @@ In the end, the *fluidfoam* ([https://github.com/fluiddyn/fluidfoam](https://git
 ```bash
 python -m pip install fluidfoam scikit-learn
 ```
-
-## How to install *pyforce*?
-
-Once all the dependencies have been installed, *pyforce* can be installed using *pip*.
-
-Clone the repository 
+Once all the dependencies have been installed, *pyforce* can be installed using *pip*: clone the repository
 ```bash
 git clone https://github.com/ROSE-Polimi/pyforce.git
 ```
 Change directory to *pyforce* and install using pip
-```bash 
+```bash
 python -m pip install pyforce/
-```
-
-## Generation of the documentation
-
-*docs/* folder can be generate with
-```bash
-cd docs/
-sphinx-apidoc -force -o ./api/. ../pyforce/pyforce
-rm api/modules.rst
-make clean
-make html
-```
-These commands have been written in the *generate_docs.sh* script.
-
-The following packages are needed:
-```bash
-python -m pip install sphinx==2.7.6 sphinxcontrib.bibtex==2.5.0 docutils==0.18.1 sphinx-rtd-theme==1.3.0 myst_parser IPython
 ```
