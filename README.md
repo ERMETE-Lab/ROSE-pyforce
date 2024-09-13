@@ -4,7 +4,9 @@
   </a>
 </p>
 
-[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-https://doi.org/10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X) [![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)
+[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X)
+
+[![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)
 
 
 [![Testing pyforce](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg)](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml) [![JOSS draft paper](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml)
@@ -82,7 +84,7 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 
 - Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Indirect Field Recon- struction and Sensor Positioning in Circulating Fuel Reactors using Data-Driven Model Order Reduction. In 2023 International Congress on Advances in Nuclear Power Plants, Gyeongju, Korea, April 2023.
 - Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-Physics Model Correction with Data-Driven Reduced Order Modelling. In 32nd International Conference Nuclear Energy for New Europe (NENE2023), Portoroz, Slovenia, September 2023.
-- Stefano Riva, Sophie Deanesi, Carolina Introini, Stefano Lorenzi, and Antonio Cammi. Neutron Flux Re- construction from Out-Core Sparse Measurements using Data-Driven Reduced Order Modelling. In International Conference on Physics of Reactors (PHYSOR24), San Francisco, USA, April 2024.
+- Stefano Riva, Sophie Deanesi, Carolina Introini, Stefano Lorenzi, and Antonio Cammi. Neutron Flux Reconstruction from Out-Core Sparse Measurements using Data-Driven Reduced Order Modelling. In International Conference on Physics of Reactors (PHYSOR24), San Francisco, USA, April 2024.
 
 ## Installation
 The package can be installed using `pip`, make sure all the dependencies are installed (following these [steps](https://ermete-lab.github.io/ROSE-pyforce/installation.html#set-up-a-conda-environment-for-pyforce)). The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
