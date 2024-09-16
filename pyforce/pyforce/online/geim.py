@@ -147,40 +147,6 @@ class GEIM():
         synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
 
         return synt_res
-
-    def compute_measure(self, snap: Function, M = None) -> np.ndarray:
-        r"""
-        Computes the measurement vector :math:`\mathbf{y}\in\mathbb{R}^M` from the `snap` :math:`u` input, using the magic sensors stored.
-        
-        .. math::
-            y_m = v_m(u) \qquad \qquad m = 1, \dots, M
-        
-        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
-        
-        Parameters
-        ----------
-        snap : Function
-            Function from which measurements are to be extracted
-        M : int, optional (default = None)
-            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
-
-        Returns
-        ----------
-        measure : np.ndarray
-            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
-        """
-        # Check on the input M, maximum number of sensors to use
-        if M is None:
-            M = self.Mmax
-        elif M > self.Mmax:
-            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
-            M = self.Mmax
-
-        measure = np.zeros((M,))
-        for mm in range(M):
-            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
-
-        return measure
     
     def reconstruct(self, snap: np.ndarray, M, noise_value = None):
         r"""
@@ -249,6 +215,41 @@ class GEIM():
         resid = np.abs(snap - interp)
         
         return interp, resid, computational_time
+    
+
+    def compute_measure(self, snap: Function, M = None) -> np.ndarray:
+        r"""
+        Computes the measurement vector :math:`\mathbf{y}\in\mathbb{R}^M` from the `snap` :math:`u` input, using the magic sensors stored.
+        
+        .. math::
+            y_m = v_m(u) \qquad \qquad m = 1, \dots, M
+        
+        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
+        
+        Parameters
+        ----------
+        snap : Function
+            Function from which measurements are to be extracted
+        M : int, optional (default = None)
+            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
+
+        Returns
+        ----------
+        measure : np.ndarray
+            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
+        """
+        # Check on the input M, maximum number of sensors to use
+        if M is None:
+            M = self.Mmax
+        elif M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+
+        measure = np.zeros((M,))
+        for mm in range(M):
+            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
+
+        return measure
     
     def real_reconstruct(self, measure: np.ndarray):
         r"""

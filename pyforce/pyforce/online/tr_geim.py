@@ -162,46 +162,6 @@ class TRGEIM():
         synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
 
         return synt_res
-
-    def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
-        r"""
-        Computes the measurement vector from the `snap` input, using the magic sensors stored to which synthetic random noise is added.
-        If the dimension `M` is not given, the whole set of magic sensors is used.
-        
-        .. math::
-            y_m = v_m(u) +\varepsilon_m \qquad \qquad m = 1, \dots, M
-        
-        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
-        
-        Parameters
-        ----------
-        snap : Function
-            Function from which measurements are to be extracted
-        noise_value : float
-            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
-        M : int, optional (default = None)
-            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
-
-        Returns
-        ----------
-        measure : np.ndarray
-            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
-        """
-        # Check on the input M, maximum number of sensors to use
-        if M is None:
-            M = self.Mmax
-        elif M > self.Mmax:
-            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
-            M = self.Mmax
-
-        measure = np.zeros((M,))
-        for mm in range(M):
-            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
-
-        # Adding synthetic noise
-        measure += np.random.normal(0, noise_value, len(measure))
-
-        return measure
     
     def reconstruct(self, snap: np.ndarray, M: int, noise_value: float, reg_param: float) -> Tuple[Function, Function]:
         r"""
@@ -359,7 +319,47 @@ class TRGEIM():
                 
         lambda_opt = lambda_star_samples[np.argmin(abs_err.mean(axis=0))]
         
-        return lambda_opt, lambda_star_samples, abs_err.mean(axis = 0)
+        return lambda_opt, lambda_star_samples, abs_err.mean(axis = 0)    
+    
+    def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
+        r"""
+        Computes the measurement vector from the `snap` input, using the magic sensors stored to which synthetic random noise is added.
+        If the dimension `M` is not given, the whole set of magic sensors is used.
+        
+        .. math::
+            y_m = v_m(u) +\varepsilon_m \qquad \qquad m = 1, \dots, M
+        
+        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
+        
+        Parameters
+        ----------
+        snap : Function
+            Function from which measurements are to be extracted
+        noise_value : float
+            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
+        M : int, optional (default = None)
+            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
+
+        Returns
+        ----------
+        measure : np.ndarray
+            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
+        """
+        # Check on the input M, maximum number of sensors to use
+        if M is None:
+            M = self.Mmax
+        elif M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+
+        measure = np.zeros((M,))
+        for mm in range(M):
+            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
+
+        # Adding synthetic noise
+        measure += np.random.normal(0, noise_value, len(measure))
+
+        return measure
     
     def real_reconstruct(self, measure: np.ndarray, reg_param: float):
         r"""

@@ -417,3 +417,138 @@ class PBDW():
             xi_opts.append(xi_samples[np.argmin(abs_errs[exp].mean(axis=0))])
         
         return xi_opts, xi_samples, abs_errs, rel_errs
+    
+    def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
+        r"""
+        Computes the measurement vector from the `snap` input, using the basis sensors stored to which synthetic random noise is added.
+        If the dimension `M` is not given, the whole set of basis sensors is used.
+        
+        .. math::
+            y_m = v_m(u) +\varepsilon_m \qquad \qquad m = 1, \dots, M
+        
+        If the dimension :math:`M` is not given, the whole set of basis sensors is used.
+        
+        Parameters
+        ----------
+        snap : Function
+            Function from which measurements are to be extracted
+        noise_value : float
+            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
+        M : int, optional (default = None)
+            Maximum number of sensor to use (if None is set to the number of basis sensors)
+
+        Returns
+        ----------
+        measure : np.ndarray
+            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
+        """
+        # Check on the input M, maximum number of sensors to use
+        if M is None:
+            M = self.Mmax
+        elif M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+
+        y_clean = np.zeros((M,))
+        for mm in range(M):
+            if self.is_H1:
+                y_clean[mm] = self.norms.H1innerProd(snap, self.basis_sensors(mm), semi=False)
+            else:
+                y_clean[mm] = self.norms.L2innerProd(snap, self.basis_sensors(mm))
+    
+        if noise_value is not None:
+            measure = y_clean + np.random.normal(scale = noise_value, size = (M,))
+        else:
+            measure = y_clean
+
+        return measure
+    
+    def real_reconstruct(self, measure: np.ndarray, 
+                         N : int = None, reg_param : float = 0.):
+        r"""
+        The state estimation given the `measure` vector :math:`\mathbf{y}` input is computed, by solving the PBDW linear system
+        
+        .. math::
+            \left[ 
+                \begin{array}{ccc}
+                    \xi \cdot M \cdot \mathbb{I} + \mathbb{A} & & \mathbb{K}  \\  & & \\
+                    \mathbb{K}^T & & 0
+                \end{array}
+                \right] \cdot
+                \left[ 
+                \begin{array}{c}
+                    \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}
+                \end{array}
+                \right]   =
+                \left[ 
+                \begin{array}{c}
+                    \mathbf{y} \\ \\ \mathbf{0}
+                \end{array}
+            \right]
+
+        given :math:`\mathbf{y}\in\mathbb{R}^M`. Then, the full can state for the snapshot :math:`u` can be written as
+        
+        .. math::
+            u(\mathbf{x};\boldsymbol{\mu}) \simeq z_N(\mathbf{x};\boldsymbol{\mu})+\eta_M(\mathbf{x};\boldsymbol{\mu})
+                                        = \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \zeta_n(\mathbf{x})+
+                                          \sum_{m=1}^M \theta_m(\boldsymbol{\mu})\cdot g_m(\mathbf{x})
+ 
+        Parameters
+        ----------
+        measure : np.ndarray
+            Measurement vector, shaped as :math:`M \times N_s`, given :math:`M` the number of sensors used and :math:`N_s` the number of parametric realisation.
+        N : int, optional (default = None)
+            Maximum number of basis functions :math:`\zeta_n` to use (if None is set to the number of basis functions)
+        reg_param : float, optional (default = 0.)
+            Hyperparameter :math:`\xi` weighting the importance of the model with respect to the measurements.
+        
+        Returns
+        ----------
+        interp : np.ndarray
+            Interpolant Field :math:`\mathcal{I}_M` of GEIM
+        computational_time : dict
+            Dictionary with the CPU time of the most relevant operations during the online phase.
+            
+        """
+        
+        M, Ns = measure.shape
+        
+        if M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+            
+        if N is None:
+            N = self.Nmax
+        elif N > self.Nmax:
+            print('The maximum number of basis functions must not be higher than '+str(self.Nmax)+' --> set equal to '+str(self.Nmax))
+            N = self.Nmax
+        
+        assert M >= self.N
+        
+        # Variables to store the computational times
+        computational_time = dict()
+        timing = Timer() 
+        
+        interps = FunctionsList(self.V)
+        
+        for mu in range(Ns):
+            
+            y = measure[:, mu]
+            
+            # Solving the linear system
+            timing.start()
+            rhs = np.hstack([y, np.zeros((N,))]).flatten()
+            sys_matr1 = np.hstack([reg_param * (M * np.eye(M, M)) + self.A[:M, :M], self.K[:M, :N]])
+            sys_matr2 = np.hstack([self.K[:M, :N].T, np.zeros((N, N))])
+            sys_matr = np.vstack([sys_matr1, sys_matr2])
+
+            coeff = la.solve(sys_matr, rhs)
+            computational_time['LinearSystem'] = timing.stop()
+
+            # Compute the interpolant and residual
+            timing.start()
+            interps.append(self.basis_sensors.lin_combine(coeff[:M]) + self.basis_functions.lin_combine(coeff[M:]))
+            
+            computational_time['Reconstruction'] = timing.stop()
+        
+        return interps, computational_time
