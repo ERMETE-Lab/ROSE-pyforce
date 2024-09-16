@@ -20,10 +20,10 @@ pyforce.online.indirect\_recon module
    :undoc-members:
    :show-inheritance:
 
-pyforce.online.pbdw\_synthetic module
--------------------------------------
+pyforce.online.pbdw module
+--------------------------
 
-.. automodule:: pyforce.online.pbdw_synthetic
+.. automodule:: pyforce.online.pbdw
    :members:
    :undoc-members:
    :show-inheritance:

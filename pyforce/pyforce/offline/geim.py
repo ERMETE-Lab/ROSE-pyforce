@@ -10,7 +10,7 @@ from dolfinx.fem import (Function, FunctionSpace)
 
 from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
-from .sensors import gaussian_sensors
+from .sensors import GaussianSensors
     
 # GEIM: offline
 class GEIM():
@@ -36,7 +36,7 @@ class GEIM():
         self.name = name
         
         # Generate a sensor library class - assuming gaussian kernel and scalar fields
-        self.sens_class = gaussian_sensors(domain, self.V, s)
+        self.sens_class = GaussianSensors(domain, self.V, s)
 
     def offline(self, train_snap: FunctionsList, Mmax: int, 
                 xm = None, sampleEvery = 5, verbose = False):

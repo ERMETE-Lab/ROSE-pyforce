@@ -1,17 +1,18 @@
 # Synthetic Online Phase: Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 25 June 2023
-# Latest Doc  Update: 18 July 2023
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 import scipy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
 from pyforce.tools.timer import Timer
 
-class POD_project():
+class PODproject():
     r"""
     A class to perform the online phase of the POD with projection from true field, in which the modal coefficients are found from the projection of the snapshot onto the reduced space.
     
@@ -35,7 +36,7 @@ class POD_project():
         self.norm = norms(self.V)
     
     def synt_test_error(self, test_snap: FunctionsList, maxBasis: int, 
-                              verbose = False):
+                              return_int = False, verbose = False) -> namedtuple:
         r"""
         The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2`
 
@@ -56,19 +57,20 @@ class POD_project():
             If `True`, print of the progress is enabled.
 
         Returns
-        -------
-        ave_absErr : np.ndarray
-            Average absolute errors as a function of the dimension of the reduced space.
-        ave_relErr : np.ndarray
-            Average absolute errors as a function of the dimension of the reduced space.
+        ----------
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
+            
         """
         
         Ns_test = len(test_snap)
         
-        absErr = np.zeros((Ns_test, maxBasis))
-        relErr = np.zeros_like(absErr)
+        abs_err = np.zeros((Ns_test, maxBasis))
+        rel_err = np.zeros_like(abs_err)
 
         if verbose:
             progressBar = LoopProgress(msg = "Computing POD test error (projection) - " + self.name, final = Ns_test)
@@ -97,15 +99,18 @@ class POD_project():
                 # building residual field
                 timing.start()
                 resid.x.array[:] = test_snap(mu) - self.PODmodes.lin_combine(coeff[:nn+1])
-                absErr[mu, nn] = self.norm.L2norm(resid)
-                relErr[mu, nn] = absErr[mu, nn] / norma_snap
+                abs_err[mu, nn] = self.norm.L2norm(resid)
+                rel_err[mu, nn] = abs_err[mu, nn] / norma_snap
                 computational_time['Errors'][mu, nn] += timing.stop()
 
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time
-        
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
+
+        return synt_res
+
     def project(self, snap: Function, maxBasis: int):
         r"""
         Project `snap` onto the reduced space of dimension `maxBasis`, by computing the modal coefficients :math:`\{\alpha_i\}`

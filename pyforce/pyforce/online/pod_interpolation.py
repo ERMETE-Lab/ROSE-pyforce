@@ -1,10 +1,12 @@
 # Synthetic Online Phase: Proper Orthogonal Decomposition with Interpolation
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 30 April 2024
-# Latest Doc  Update: 30 April 2024
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
+from collections import namedtuple
 import numpy as np
 import scipy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
@@ -40,7 +42,7 @@ class PODI():
         self.norm = norms(self.V)
 
     def synt_test_error(self, test_snap: FunctionsList, mu_estimated: np.ndarray, maxBasis: int, 
-                              alpha_coeffs : np.ndarray = None, verbose = False):
+                              alpha_coeffs : np.ndarray = None, verbose = False) -> namedtuple:
         r"""
         The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2` with the coefficients estimated through callable maps or given as input.
 
@@ -65,13 +67,14 @@ class PODI():
             If `True`, print of the progress is enabled.
 
         Returns
-        -------
-        ave_absErr : np.ndarray
-            Average absolute errors as a function of the dimension of the reduced space.
-        ave_relErr : np.ndarray
-            Average absolute errors as a function of the dimension of the reduced space.
+        ----------
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
+            
         """
         
         Ns_test = len(test_snap)
@@ -82,8 +85,8 @@ class PODI():
         else:
             assert alpha_coeffs is not None, 'Both inputs mu_estimated and alpha_coeffs are None'
         
-        absErr = np.zeros((Ns_test, maxBasis))
-        relErr = np.zeros_like(absErr)
+        abs_err = np.zeros((Ns_test, maxBasis))
+        rel_err = np.zeros_like(abs_err)
 
         if verbose:
             progressBar = LoopProgress(msg = "Computing POD test error (interpolation) - " + self.name, final = Ns_test)
@@ -116,14 +119,17 @@ class PODI():
                 # building residual field and computing the errors
                 timing.start()
                 resid.x.array[:] = test_snap(mu) - self.PODmodes.lin_combine(coeff[:nn+1])
-                absErr[mu, nn] = self.norm.L2norm(resid)
-                relErr[mu, nn] = absErr[mu, nn] / norma_snap
+                abs_err[mu, nn] = self.norm.L2norm(resid)
+                rel_err[mu, nn] = abs_err[mu, nn] / norma_snap
                 computational_time['Errors'][mu, nn] += timing.stop()
 
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
+
+        return synt_res
     
     def reconstruct(self, snap: np.ndarray, mu_estimated: np.ndarray, maxBasis: int, 
                           alpha_coeffs : np.ndarray = None):

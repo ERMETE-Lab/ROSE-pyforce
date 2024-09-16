@@ -17,7 +17,7 @@ from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
 
 # Class to define gaussian sensors with a Riesz representation in L2
-class gaussian_sensors():
+class GaussianSensors():
   r"""
     A class to define normalised gaussian sensors in terms of functional to mimic measurements of scalar fields.
     The measurement procedure is described through a linear functional with gaussian kernel, i.e.
@@ -47,7 +47,7 @@ class gaussian_sensors():
     self.V = V
     self.s = s # standard deviation of the guassian
 
-    self.norms = norms(self.V)
+    self.norm = norms(self.V)
     self.g = Function(self.V).copy()
 
     if assemble_riesz:
@@ -89,9 +89,9 @@ class gaussian_sensors():
     
     Gaussian.interpolate(    lambda x:  np.exp( - ((x[0]-x_m[0])**2+(x[1]-x_m[1])**2+(x[2]-x_m[2])**2) / 2 / self.s**2)  )
     # normGaussian.interpolate(lambda x: (np.exp( - ((x[0]-x_m[0])**2+(x[1]-x_m[1])**2+(x[2]-x_m[2])**2) / 2 / self.s**2) ) 
-    #                                     / self.norms.integral(Gaussian) )
+    #                                     / self.norm.integral(Gaussian) )
     
-    normGaussian = Gaussian.x.array[:] / self.norms.integral(Gaussian)
+    normGaussian = Gaussian.x.array[:] / self.norm.integral(Gaussian)
     
     return normGaussian
 
@@ -183,7 +183,7 @@ class gaussian_sensors():
         Scalar :math:`y_m` with the measure of the function with respect to the sensor :math:`v_m`.
     """
         
-    measure = self.norms.L2innerProd(fun, sensor)
+    measure = self.norm.L2innerProd(fun, sensor)
 
     return measure
 
@@ -208,7 +208,7 @@ class gaussian_sensors():
     """
     measure = np.zeros((len(sens),))
     for sensI in range(len(sens)):
-      measure[sensI] = self.norms.L2innerProd(fun, sens(sensI))
+      measure[sensI] = self.norm.L2innerProd(fun, sens(sensI))
 
     return measure
   
@@ -239,7 +239,7 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
     self.domain = domain
 
     # Generate sensor library
-    self.sens_class = gaussian_sensors(domain, self.V, s, assemble_riesz = True)
+    self.sens_class = GaussianSensors(domain, self.V, s, assemble_riesz = True)
 
   def generate(self, N: int, Mmax: int, tol: float = 0.2,
                xm : list = None, sampleEvery : int = 10, is_H1 : bool = False, verbose = False):

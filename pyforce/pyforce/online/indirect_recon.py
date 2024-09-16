@@ -1,10 +1,11 @@
 # Indirect Reconstruction algorithm tools
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 13 April 2024
-# Latest Doc  Update: 13 April 2024
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 from scipy.optimize import brute, shgo, differential_evolution, minimize, least_squares, Bounds
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
@@ -146,16 +147,17 @@ class PE():
 
         Returns
         ----------
-        ave_absErr : np.ndarray
+        mean_abs_err : np.ndarray
             Average absolute error of the parameter estimation
-        ave_relErr : np.ndarray
+        mean_rel_err : np.ndarray
             Average relative error of the parameter estimation
+        computational_time : dict
+            Dictionary with the CPU time of the most relevant operations during the online phase.
         mu_PE : list
             List containing the estimated parameters after least squares at varying number of measurements
         mu_PE_guess : list
             List containing the estimated parameters before least squares at varying number of measurements
-        computational_time : dict
-            Dictionary with the CPU time of the most relevant operations during the online phase.
+        
         """
         
         Ns = len(test_snaps)
@@ -208,7 +210,11 @@ class PE():
             abs_errPE.append(abs(mu_PE[idx_mu] - test_param[idx_mu]))
             rel_errPE.append(abs_errPE[idx_mu] / test_param[idx_mu])
 
-        ave_absErr = sum(abs_errPE) / len(test_snaps)
-        ave_relErr = sum(rel_errPE) / len(test_snaps)
+        mean_abs_err = sum(abs_errPE) / len(test_snaps)
+        mean_rel_err = sum(rel_errPE) / len(test_snaps)
 
-        return ave_absErr, ave_relErr, mu_PE, mu_PE_guess, computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time', 'mu_PE', 'mu_PE_guess'])
+        synt_res = Results(mean_abs_err = mean_abs_err, mean_rel_err = mean_rel_err, computational_time = computational_time,
+                           mu_PE = mu_PE, mu_PE_guess = mu_PE_guess)
+
+        return synt_res
