@@ -1,6 +1,6 @@
 # I/O tools
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 05 July 2024
+# Latest Code Update: 09 September 2024
 # Latest Doc  Update: 05 July 2024
 
 # from pyforce.tools.functions_list import FunctionsList
@@ -124,7 +124,7 @@ def ImportH5(V: FunctionSpace, filename: str, var_name: str, verbose = False):
 
 
 ## Routine for importing from OpenFOAM using fluidfoam
-class import_OF():
+class ImportOF():
     r"""
     A class used to import data from OpenFOAM and interpolate them onto *dolfinx* mesh.
 

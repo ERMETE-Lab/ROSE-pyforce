@@ -1,10 +1,11 @@
 # Online Phase: Tikhonov-Regularisation Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 06 March 2024
-# Latest Doc  Update: 06 March 2024
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 import numpy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
@@ -46,7 +47,7 @@ class TRGEIM():
         self.name = name
 
         # Defining the norm class to make scalar products and norms
-        self.norms = norms(self.V)
+        self.norm = norms(self.V)
 
         # Computing the matrix B
         assert (len(self.ms) == len(self.mf)), "Number of magic sensors must be equal to number of magic functions"
@@ -55,7 +56,7 @@ class TRGEIM():
     
         for nn in range(self.Mmax):
             for mm in range(self.Mmax):
-                self.B[nn, mm] = self.norms.L2innerProd(self.ms(nn), self.mf(mm))
+                self.B[nn, mm] = self.norm.L2innerProd(self.ms(nn), self.mf(mm))
 
         # Compute matrix T for the regularisation
         assert (mean_beta.shape[0] == self.Mmax), "The size of the mean values of beta must be equal to the number of magic sensors/functions"
@@ -65,7 +66,7 @@ class TRGEIM():
         self.T = np.diag(1 / std_beta)
 
     def synt_test_error(self, snaps: FunctionsList, noise_value: float, reg_param: float, 
-                        M = None, return_int = False, verbose = False):
+                        M = None, verbose = False) -> namedtuple:
         r"""
         The absolute and relative error on the test set is computed using the reconstruction obtained by solving the TR-GEIM linear system
         
@@ -82,23 +83,18 @@ class TRGEIM():
             Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
         reg_param : float
             Regularising parameter :math:`\lambda`
-        return_int : boolean, optional (default = False)
-            Logic variable for the return of the interpolant and the residual fields
         verbose : boolean, optional (default = False)
             If true, output is printed.
 
         Returns
         ----------
-        meanAbsErr : np.ndarray
-            Average absolute error measured in :math:`L^2`
-        meanRelErr : np.ndarray
-            Average relative error measured in :math:`L^2`
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
-        interps : FunctionsList
-            FunctionsList containing the interpolants using :math:`M_{max}` sensors
-        resids : FunctionsList
-            FunctionsList containing the residual field (absolute difference between interpolant and true field) using :math:`M_{max}` sensors
+        
         """
         # Check on the input M, maximum number of sensors to use
         if M is None:
@@ -112,12 +108,6 @@ class TRGEIM():
         abs_err = np.zeros((Ns, M))
         rel_err = np.zeros_like(abs_err)
 
-        if return_int == True:
-            interps = FunctionsList(self.V)
-            resids  = FunctionsList(self.V)
-            interpolant = Function(snaps.fun_space).copy()
-            residual = Function(snaps.fun_space).copy()
-
         if verbose:
             progressBar = LoopProgress(msg = "Computing TR-GEIM test error (synthetic) - " + self.name, final = Ns )
     
@@ -126,8 +116,6 @@ class TRGEIM():
         computational_time['Measure']      = np.zeros((Ns, M))
         computational_time['LinearSystem'] = np.zeros((Ns, M))
         computational_time['Errors']       = np.zeros((Ns, M))
-        if return_int == True:
-            computational_time['Reconstruction'] = np.zeros((Ns,))
          
         timing = Timer() 
     
@@ -135,7 +123,7 @@ class TRGEIM():
         for mu in range(Ns):
             
             timing.start()
-            norma_snap = self.norms.L2norm(snaps(mu))
+            norma_snap = self.norm.L2norm(snaps(mu))
             computational_time['Errors'][mu, :] = timing.stop()
 
             for mm in range(M):
@@ -143,9 +131,9 @@ class TRGEIM():
                 # Generating the rhs
                 timing.start()
                 if mm == 0:
-                    y_clean = np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])
+                    y_clean = np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])
                 else:
-                    y_clean = np.hstack([y_clean, np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])])
+                    y_clean = np.hstack([y_clean, np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])])
                 
                 # Adding synthetic noise
                 y = y_clean + np.random.normal(0, noise_value, len(y_clean))
@@ -163,68 +151,17 @@ class TRGEIM():
                 # Compute errors
                 timing.start()
                 resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, mm] = self.norms.L2norm(resid)
+                abs_err[mu, mm] = self.norm.L2norm(resid)
                 rel_err[mu, mm] = abs_err[mu, mm] / norma_snap
                 computational_time['Errors'][mu, mm] += timing.stop()
 
-                # Check if storing interpolant and residual
-                if return_int == True and mm + 1 == M:
-                    
-                    timing.start()
-                    interpolant = self.mf.lin_combine(coeff)
-                    residual = np.abs(snaps(mu) - interpolant)
-
-                    interps.append(interpolant)
-                    resids.append(residual)
-                    computational_time['Reconstruction'][mu] = timing.stop()
-            
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        if return_int == True:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time, interps, resids
-        else:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
 
-    def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
-        r"""
-        Computes the measurement vector from the `snap` input, using the magic sensors stored to which synthetic random noise is added.
-        If the dimension `M` is not given, the whole set of magic sensors is used.
-        
-        .. math::
-            y_m = v_m(u) +\varepsilon_m \qquad \qquad m = 1, \dots, M
-        
-        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
-        
-        Parameters
-        ----------
-        snap : Function
-            Function from which measurements are to be extracted
-        noise_value : float
-            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
-        M : int, optional (default = None)
-            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
-
-        Returns
-        ----------
-        measure : np.ndarray
-            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
-        """
-        # Check on the input M, maximum number of sensors to use
-        if M is None:
-            M = self.Mmax
-        elif M > self.Mmax:
-            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
-            M = self.Mmax
-
-        measure = np.zeros((M,))
-        for mm in range(M):
-            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
-
-        # Adding synthetic noise
-        measure += np.random.normal(0, noise_value, len(measure))
-
-        return measure
+        return synt_res
     
     def reconstruct(self, snap: np.ndarray, M: int, noise_value: float, reg_param: float) -> Tuple[Function, Function]:
         r"""
@@ -375,14 +312,54 @@ class TRGEIM():
                 
                 # Computing absolute error
                 resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, ii] = self.norms.L2norm(resid)
+                abs_err[mu, ii] = self.norm.L2norm(resid)
             
             if verbose:
                 progressBar.update(1, percentage = False)
                 
         lambda_opt = lambda_star_samples[np.argmin(abs_err.mean(axis=0))]
         
-        return lambda_opt, lambda_star_samples, abs_err.mean(axis = 0)
+        return lambda_opt, lambda_star_samples, abs_err.mean(axis = 0)    
+    
+    def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
+        r"""
+        Computes the measurement vector from the `snap` input, using the magic sensors stored to which synthetic random noise is added.
+        If the dimension `M` is not given, the whole set of magic sensors is used.
+        
+        .. math::
+            y_m = v_m(u) +\varepsilon_m \qquad \qquad m = 1, \dots, M
+        
+        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
+        
+        Parameters
+        ----------
+        snap : Function
+            Function from which measurements are to be extracted
+        noise_value : float
+            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
+        M : int, optional (default = None)
+            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
+
+        Returns
+        ----------
+        measure : np.ndarray
+            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
+        """
+        # Check on the input M, maximum number of sensors to use
+        if M is None:
+            M = self.Mmax
+        elif M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+
+        measure = np.zeros((M,))
+        for mm in range(M):
+            measure[mm] = self.norm.L2innerProd(snap, self.ms(mm))
+
+        # Adding synthetic noise
+        measure += np.random.normal(0, noise_value, len(measure))
+
+        return measure
     
     def real_reconstruct(self, measure: np.ndarray, reg_param: float):
         r"""

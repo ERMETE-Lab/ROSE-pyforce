@@ -1,10 +1,11 @@
 # Online Phase: Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 05 March 2024
-# Latest Doc  Update: 05 March 2024
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 import scipy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
@@ -40,7 +41,7 @@ class GEIM():
         self.name = name
 
         # Defining the norm class to make scalar products and norms
-        self.norms = norms(self.V)
+        self.norm = norms(self.V)
 
         # Computing the matrix B
         assert (len(self.ms) == len(self.mf)), "Number of magic sensors must be equal to number of magic functions"
@@ -49,9 +50,10 @@ class GEIM():
     
         for nn in range(self.Mmax):
             for mm in range(self.Mmax):
-                self.B[nn, mm] = self.norms.L2innerProd(self.ms(nn), self.mf(mm))
+                self.B[nn, mm] = self.norm.L2innerProd(self.ms(nn), self.mf(mm))
 
-    def synt_test_error(self, snaps: FunctionsList, M = None, noise_value = None, return_int = False, verbose = False):
+    def synt_test_error(self, snaps: FunctionsList, M = None, noise_value = None, 
+                        verbose = False) -> namedtuple:
         r"""
         The absolute and relative error on the test set is computed, by solving the GEIM linear system
         
@@ -66,23 +68,18 @@ class GEIM():
             Maximum number of magic functions to use (if None is set to the number of magic functions/sensors)
         noise_value : float, optional (default = None)
             Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
-        return_int : boolean, optional (default = False)
-            Logic variable for the return of the interpolant and the residual fields
         verbose : boolean, optional (default = False)
             If true, output is printed.
 
         Returns
         ----------
-        meanAbsErr : np.ndarray
-            Average absolute error measured in :math:`L^2`
-        meanRelErr : np.ndarray
-            Average relative error measured in :math:`L^2`
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
-        interps : FunctionsList, optional
-            FunctionsList containing the interpolants using :math:`M_{max}` sensors
-        resids : FunctionsList, optional
-            FunctionsList containing the residual field (absolute difference between interpolant and true field) using :math:`M_{max}` sensors
+            
         """
         # Check on the input M, maximum number of sensors to use
         if M is None:
@@ -96,10 +93,6 @@ class GEIM():
         abs_err = np.zeros((Ns, M))
         rel_err = np.zeros_like(abs_err)
 
-        if return_int == True:
-            interps = FunctionsList(self.V)
-            resids  = FunctionsList(self.V)
-
         if verbose:
             progressBar = LoopProgress(msg = "Computing GEIM test error (synthetic) - " + self.name, final = Ns )
     
@@ -108,8 +101,6 @@ class GEIM():
         computational_time['Measure']      = np.zeros((Ns, M))
         computational_time['LinearSystem'] = np.zeros((Ns, M))
         computational_time['Errors']       = np.zeros((Ns, M))
-        if return_int == True:
-            computational_time['Reconstruction'] = np.zeros((Ns,))
          
         timing = Timer() 
         
@@ -117,7 +108,7 @@ class GEIM():
         for mu in range(Ns):
             
             timing.start()
-            norma_snap = self.norms.L2norm(snaps(mu))
+            norma_snap = self.norm.L2norm(snaps(mu))
             computational_time['Errors'][mu, :] = timing.stop()
 
             for mm in range(M):
@@ -125,9 +116,9 @@ class GEIM():
                 # Generating the rhs
                 timing.start()
                 if mm == 0:
-                    y_clean = np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])
+                    y_clean = np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])
                 else:
-                    y_clean = np.hstack([y_clean, np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])])
+                    y_clean = np.hstack([y_clean, np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])])
                 
                 # Adding random noise (synthetic)
                 if noise_value is not None:
@@ -144,64 +135,18 @@ class GEIM():
                 # Compute the error
                 timing.start()
                 resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, mm] = self.norms.L2norm(resid)
+                abs_err[mu, mm] = self.norm.L2norm(resid)
                 rel_err[mu, mm] = abs_err[mu, mm] / norma_snap
                 computational_time['Errors'][mu, mm] += timing.stop()
 
-                if return_int == True and mm + 1 == M:
-                    
-                    timing.start()
-                    interpolant = Function(snaps.fun_space).copy()
-                    residual = Function(snaps.fun_space).copy()
-
-                    interpolant.x.array[:] = self.mf.lin_combine(coeff)
-                    residual.x.array[:] = np.abs(snaps(mu) - interpolant.x.array[:])
-
-                    interps.append(interpolant)
-                    resids.append(residual)            
-                    computational_time['Reconstruction'][mu] = timing.stop()
-            
+                
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        if return_int == True:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time, interps, resids
-        else:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
 
-    def compute_measure(self, snap: Function, M = None) -> np.ndarray:
-        r"""
-        Computes the measurement vector :math:`\mathbf{y}\in\mathbb{R}^M` from the `snap` :math:`u` input, using the magic sensors stored.
-        
-        .. math::
-            y_m = v_m(u) \qquad \qquad m = 1, \dots, M
-        
-        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
-        
-        Parameters
-        ----------
-        snap : Function
-            Function from which measurements are to be extracted
-        M : int, optional (default = None)
-            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
-
-        Returns
-        ----------
-        measure : np.ndarray
-            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
-        """
-        # Check on the input M, maximum number of sensors to use
-        if M is None:
-            M = self.Mmax
-        elif M > self.Mmax:
-            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
-            M = self.Mmax
-
-        measure = np.zeros((M,))
-        for mm in range(M):
-            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
-
-        return measure
+        return synt_res
     
     def reconstruct(self, snap: np.ndarray, M, noise_value = None):
         r"""
@@ -270,6 +215,41 @@ class GEIM():
         resid = np.abs(snap - interp)
         
         return interp, resid, computational_time
+    
+
+    def compute_measure(self, snap: Function, M = None) -> np.ndarray:
+        r"""
+        Computes the measurement vector :math:`\mathbf{y}\in\mathbb{R}^M` from the `snap` :math:`u` input, using the magic sensors stored.
+        
+        .. math::
+            y_m = v_m(u) \qquad \qquad m = 1, \dots, M
+        
+        If the dimension :math:`M` is not given, the whole set of magic sensors is used.
+        
+        Parameters
+        ----------
+        snap : Function
+            Function from which measurements are to be extracted
+        M : int, optional (default = None)
+            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)
+
+        Returns
+        ----------
+        measure : np.ndarray
+            Measurement vector :math:\mathbf{y}\in\mathbb{R}^M`
+        """
+        # Check on the input M, maximum number of sensors to use
+        if M is None:
+            M = self.Mmax
+        elif M > self.Mmax:
+            print('The maximum number of measures must not be higher than '+str(self.Mmax)+' --> set equal to '+str(self.Mmax))
+            M = self.Mmax
+
+        measure = np.zeros((M,))
+        for mm in range(M):
+            measure[mm] = self.norm.L2innerProd(snap, self.ms(mm))
+
+        return measure
     
     def real_reconstruct(self, measure: np.ndarray):
         r"""
