@@ -7,7 +7,7 @@ from dolfinx.fem import FunctionSpace, Function
 from mpi4py import MPI
 from dolfinx.mesh import create_unit_square
 from pyforce.tools.functions_list import FunctionsList
-from pyforce.tools.write_read import StoreFunctionsList, ImportH5, import_OF
+from pyforce.tools.write_read import StoreFunctionsList, test_import_h5
 
 def test_store_functions_list():
     domain = create_unit_square(MPI.COMM_WORLD, 10, 10)
