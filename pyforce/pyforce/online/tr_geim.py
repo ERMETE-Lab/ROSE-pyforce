@@ -47,7 +47,7 @@ class TRGEIM():
         self.name = name
 
         # Defining the norm class to make scalar products and norms
-        self.norms = norms(self.V)
+        self.norm = norms(self.V)
 
         # Computing the matrix B
         assert (len(self.ms) == len(self.mf)), "Number of magic sensors must be equal to number of magic functions"
@@ -56,7 +56,7 @@ class TRGEIM():
     
         for nn in range(self.Mmax):
             for mm in range(self.Mmax):
-                self.B[nn, mm] = self.norms.L2innerProd(self.ms(nn), self.mf(mm))
+                self.B[nn, mm] = self.norm.L2innerProd(self.ms(nn), self.mf(mm))
 
         # Compute matrix T for the regularisation
         assert (mean_beta.shape[0] == self.Mmax), "The size of the mean values of beta must be equal to the number of magic sensors/functions"
@@ -123,7 +123,7 @@ class TRGEIM():
         for mu in range(Ns):
             
             timing.start()
-            norma_snap = self.norms.L2norm(snaps(mu))
+            norma_snap = self.norm.L2norm(snaps(mu))
             computational_time['Errors'][mu, :] = timing.stop()
 
             for mm in range(M):
@@ -131,9 +131,9 @@ class TRGEIM():
                 # Generating the rhs
                 timing.start()
                 if mm == 0:
-                    y_clean = np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])
+                    y_clean = np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])
                 else:
-                    y_clean = np.hstack([y_clean, np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])])
+                    y_clean = np.hstack([y_clean, np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])])
                 
                 # Adding synthetic noise
                 y = y_clean + np.random.normal(0, noise_value, len(y_clean))
@@ -151,7 +151,7 @@ class TRGEIM():
                 # Compute errors
                 timing.start()
                 resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, mm] = self.norms.L2norm(resid)
+                abs_err[mu, mm] = self.norm.L2norm(resid)
                 rel_err[mu, mm] = abs_err[mu, mm] / norma_snap
                 computational_time['Errors'][mu, mm] += timing.stop()
 
@@ -312,7 +312,7 @@ class TRGEIM():
                 
                 # Computing absolute error
                 resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, ii] = self.norms.L2norm(resid)
+                abs_err[mu, ii] = self.norm.L2norm(resid)
             
             if verbose:
                 progressBar.update(1, percentage = False)
@@ -354,7 +354,7 @@ class TRGEIM():
 
         measure = np.zeros((M,))
         for mm in range(M):
-            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
+            measure[mm] = self.norm.L2innerProd(snap, self.ms(mm))
 
         # Adding synthetic noise
         measure += np.random.normal(0, noise_value, len(measure))

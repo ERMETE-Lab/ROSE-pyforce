@@ -47,7 +47,7 @@ class PBDW():
         self.V = basis_functions.fun_space
         
         # Defining the norm class to make scalar products and norms
-        self.norms = norms(self.V, is_H1 = is_H1)
+        self.norm = norms(self.V, is_H1 = is_H1)
 
         N = len(basis_functions)
         M = len(basis_sensors)
@@ -58,9 +58,9 @@ class PBDW():
             for jj in range(M):
                 if jj>=ii:
                     if is_H1:
-                        self.A[ii, jj] = self.norms.H1innerProd(basis_sensors(ii), basis_sensors(jj), semi = False)
+                        self.A[ii, jj] = self.norm.H1innerProd(basis_sensors(ii), basis_sensors(jj), semi = False)
                     else:
-                        self.A[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_sensors(jj))
+                        self.A[ii, jj] = self.norm.L2innerProd(basis_sensors(ii), basis_sensors(jj))
                 else:
                     self.A[ii,jj] = self.A[jj, ii]
         
@@ -69,9 +69,9 @@ class PBDW():
         for ii in range(M):
             for jj in range(N):
                 if is_H1:
-                    self.K[ii, jj] = self.norms.H1innerProd(basis_sensors(ii), basis_functions(jj), semi = False)
+                    self.K[ii, jj] = self.norm.H1innerProd(basis_sensors(ii), basis_functions(jj), semi = False)
                 else:
-                    self.K[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_functions(jj))
+                    self.K[ii, jj] = self.norm.L2innerProd(basis_sensors(ii), basis_functions(jj))
 
         # Z_{ii, jj} = (basis_functions[ii], basis_functions[jj])_L2
         self.Z = np.zeros((N,N))
@@ -79,9 +79,9 @@ class PBDW():
             for jj in range(N):
                 if jj>=ii:
                     if is_H1:
-                        self.Z[ii, jj] = self.norms.H1innerProd(basis_functions(ii), basis_functions(jj), semi = False)
+                        self.Z[ii, jj] = self.norm.H1innerProd(basis_functions(ii), basis_functions(jj), semi = False)
                     else:
-                        self.Z[ii, jj] = self.norms.L2innerProd(basis_functions(ii), basis_functions(jj))
+                        self.Z[ii, jj] = self.norm.L2innerProd(basis_functions(ii), basis_functions(jj))
                 else:
                     self.Z[ii,jj] = self.Z[jj, ii]
 

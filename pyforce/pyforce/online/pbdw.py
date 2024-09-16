@@ -50,7 +50,7 @@ class PBDW():
         
         # Defining the norm class to make scalar products and norms
         self.is_H1 = is_H1
-        self.norms = norms(self.V, is_H1=is_H1)
+        self.norm = norms(self.V, is_H1=is_H1)
         self.name = name
 
         N = len(basis_functions)
@@ -62,9 +62,9 @@ class PBDW():
             for jj in range(M):
                 if jj>=ii:
                     if self.is_H1:
-                        self.A[ii,jj] = self.norms.H1innerProd(basis_sensors(ii), basis_sensors(jj), semi = False)
+                        self.A[ii,jj] = self.norm.H1innerProd(basis_sensors(ii), basis_sensors(jj), semi = False)
                     else:
-                        self.A[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_sensors(jj))
+                        self.A[ii, jj] = self.norm.L2innerProd(basis_sensors(ii), basis_sensors(jj))
                 else:
                     self.A[ii,jj] = self.A[jj, ii]
         
@@ -73,9 +73,9 @@ class PBDW():
         for ii in range(M):
             for jj in range(N):
                 if self.is_H1:
-                    self.K[ii,jj] = self.norms.H1innerProd(basis_sensors(ii), basis_functions(jj), semi = False)
+                    self.K[ii,jj] = self.norm.H1innerProd(basis_sensors(ii), basis_functions(jj), semi = False)
                 else:
-                    self.K[ii, jj] = self.norms.L2innerProd(basis_sensors(ii), basis_functions(jj))
+                    self.K[ii, jj] = self.norm.L2innerProd(basis_sensors(ii), basis_functions(jj))
 
         self.Nmax = N
         self.Mmax = M
@@ -169,7 +169,7 @@ class PBDW():
             
             # Compute snapshot norm
             timing.start()
-            norma_snap = self.norms.L2norm(test_snap(mu))
+            norma_snap = self.norm.L2norm(test_snap(mu))
             computational_time['Errors'][mu, :] = timing.stop()
 
             # Compute measures
@@ -177,9 +177,9 @@ class PBDW():
             for mm in range(M):
                 timing.start()
                 if self.is_H1:
-                    y_clean[mm] = self.norms.H1innerProd(test_snap(mu), self.basis_sensors(mm), semi=False)
+                    y_clean[mm] = self.norm.H1innerProd(test_snap(mu), self.basis_sensors(mm), semi=False)
                 else:
-                    y_clean[mm] = self.norms.L2innerProd(test_snap(mu), self.basis_sensors(mm))
+                    y_clean[mm] = self.norm.L2innerProd(test_snap(mu), self.basis_sensors(mm))
                 computational_time['Measure'][mu, mm] = timing.stop()
             
             timing.start()
@@ -204,7 +204,7 @@ class PBDW():
                 # Compute the error
                 timing.start()
                 resid.x.array[:] = test_snap(mu) - (self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:]))
-                abs_err[mu,mm - N] = self.norms.L2norm(resid)
+                abs_err[mu,mm - N] = self.norm.L2norm(resid)
                 rel_err[mu,mm - N] = abs_err[mu,mm - N] / norma_snap
                 computational_time['Errors'][mu, mm - N] += timing.stop()
 
@@ -283,9 +283,9 @@ class PBDW():
         y_clean = np.zeros((M,))
         for mm in range(M):
             if self.is_H1:
-                y_clean[mm] = self.norms.H1innerProd(snap, self.basis_sensors(mm), semi=False)
+                y_clean[mm] = self.norm.H1innerProd(snap, self.basis_sensors(mm), semi=False)
             else:
-                y_clean[mm] = self.norms.L2innerProd(snap, self.basis_sensors(mm))
+                y_clean[mm] = self.norm.L2innerProd(snap, self.basis_sensors(mm))
     
         if noise_value is not None:
             y = y_clean + np.random.normal(scale = noise_value, size = (M,))
@@ -374,13 +374,13 @@ class PBDW():
         snap_norm = np.zeros((Ns,))
         
         for mu in range(Ns):
-            # snap_norm[mu] = self.norms.L2norm(snaps(mu))
-            snap_norm[mu] = self.norms.integral(np.abs(snaps(mu)))
+            # snap_norm[mu] = self.norm.L2norm(snaps(mu))
+            snap_norm[mu] = self.norm.integral(np.abs(snaps(mu)))
             for mm in range(M):
                 if self.is_H1:
-                    clean_measures[mu, mm] = self.norms.H1innerProd(snaps(mu), self.basis_sensors(mm), semi=False)
+                    clean_measures[mu, mm] = self.norm.H1innerProd(snaps(mu), self.basis_sensors(mm), semi=False)
                 else:
-                    clean_measures[mu, mm] = self.norms.L2innerProd(snaps(mu), self.basis_sensors(mm))
+                    clean_measures[mu, mm] = self.norm.L2innerProd(snaps(mu), self.basis_sensors(mm))
         
        # The numerical experiment is repeated to ensure statistical robustness 
         abs_errs = list()
@@ -408,7 +408,7 @@ class PBDW():
                     
                     # Computing absolute error
                     resid.x.array[:] = np.abs(snaps(mu) - (self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:])))
-                    abs_errs[exp][mu, ii] = self.norms.average(resid)
+                    abs_errs[exp][mu, ii] = self.norm.average(resid)
                     rel_errs[exp][mu, ii] = abs_errs[exp][mu, ii] / snap_norm[mu]
                 
             if verbose:
@@ -452,9 +452,9 @@ class PBDW():
         y_clean = np.zeros((M,))
         for mm in range(M):
             if self.is_H1:
-                y_clean[mm] = self.norms.H1innerProd(snap, self.basis_sensors(mm), semi=False)
+                y_clean[mm] = self.norm.H1innerProd(snap, self.basis_sensors(mm), semi=False)
             else:
-                y_clean[mm] = self.norms.L2innerProd(snap, self.basis_sensors(mm))
+                y_clean[mm] = self.norm.L2innerProd(snap, self.basis_sensors(mm))
     
         if noise_value is not None:
             measure = y_clean + np.random.normal(scale = noise_value, size = (M,))

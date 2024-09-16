@@ -47,7 +47,7 @@ class GaussianSensors():
     self.V = V
     self.s = s # standard deviation of the guassian
 
-    self.norms = norms(self.V)
+    self.norm = norms(self.V)
     self.g = Function(self.V).copy()
 
     if assemble_riesz:
@@ -89,9 +89,9 @@ class GaussianSensors():
     
     Gaussian.interpolate(    lambda x:  np.exp( - ((x[0]-x_m[0])**2+(x[1]-x_m[1])**2+(x[2]-x_m[2])**2) / 2 / self.s**2)  )
     # normGaussian.interpolate(lambda x: (np.exp( - ((x[0]-x_m[0])**2+(x[1]-x_m[1])**2+(x[2]-x_m[2])**2) / 2 / self.s**2) ) 
-    #                                     / self.norms.integral(Gaussian) )
+    #                                     / self.norm.integral(Gaussian) )
     
-    normGaussian = Gaussian.x.array[:] / self.norms.integral(Gaussian)
+    normGaussian = Gaussian.x.array[:] / self.norm.integral(Gaussian)
     
     return normGaussian
 
@@ -183,7 +183,7 @@ class GaussianSensors():
         Scalar :math:`y_m` with the measure of the function with respect to the sensor :math:`v_m`.
     """
         
-    measure = self.norms.L2innerProd(fun, sensor)
+    measure = self.norm.L2innerProd(fun, sensor)
 
     return measure
 
@@ -208,7 +208,7 @@ class GaussianSensors():
     """
     measure = np.zeros((len(sens),))
     for sensI in range(len(sens)):
-      measure[sensI] = self.norms.L2innerProd(fun, sens(sensI))
+      measure[sensI] = self.norm.L2innerProd(fun, sens(sensI))
 
     return measure
   

@@ -41,7 +41,7 @@ class GEIM():
         self.name = name
 
         # Defining the norm class to make scalar products and norms
-        self.norms = norms(self.V)
+        self.norm = norms(self.V)
 
         # Computing the matrix B
         assert (len(self.ms) == len(self.mf)), "Number of magic sensors must be equal to number of magic functions"
@@ -50,7 +50,7 @@ class GEIM():
     
         for nn in range(self.Mmax):
             for mm in range(self.Mmax):
-                self.B[nn, mm] = self.norms.L2innerProd(self.ms(nn), self.mf(mm))
+                self.B[nn, mm] = self.norm.L2innerProd(self.ms(nn), self.mf(mm))
 
     def synt_test_error(self, snaps: FunctionsList, M = None, noise_value = None, 
                         verbose = False) -> namedtuple:
@@ -108,7 +108,7 @@ class GEIM():
         for mu in range(Ns):
             
             timing.start()
-            norma_snap = self.norms.L2norm(snaps(mu))
+            norma_snap = self.norm.L2norm(snaps(mu))
             computational_time['Errors'][mu, :] = timing.stop()
 
             for mm in range(M):
@@ -116,9 +116,9 @@ class GEIM():
                 # Generating the rhs
                 timing.start()
                 if mm == 0:
-                    y_clean = np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])
+                    y_clean = np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])
                 else:
-                    y_clean = np.hstack([y_clean, np.array([self.norms.L2innerProd(snaps(mu), self.ms(mm))])])
+                    y_clean = np.hstack([y_clean, np.array([self.norm.L2innerProd(snaps(mu), self.ms(mm))])])
                 
                 # Adding random noise (synthetic)
                 if noise_value is not None:
@@ -135,7 +135,7 @@ class GEIM():
                 # Compute the error
                 timing.start()
                 resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, mm] = self.norms.L2norm(resid)
+                abs_err[mu, mm] = self.norm.L2norm(resid)
                 rel_err[mu, mm] = abs_err[mu, mm] / norma_snap
                 computational_time['Errors'][mu, mm] += timing.stop()
 
@@ -247,7 +247,7 @@ class GEIM():
 
         measure = np.zeros((M,))
         for mm in range(M):
-            measure[mm] = self.norms.L2innerProd(snap, self.ms(mm))
+            measure[mm] = self.norm.L2innerProd(snap, self.ms(mm))
 
         return measure
     
