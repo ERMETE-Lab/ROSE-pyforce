@@ -1,16 +1,18 @@
 # Synthetic Online Phase: Parameterised-Background Data-Weak formulation
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 12 December 2023
-# Latest Doc  Update: 12 December 2023
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 import scipy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
 from pyforce.tools.functions_list import FunctionsList
 from pyforce.tools.timer import Timer
 
+# PBDW online (synthetic and real measures)
 class PBDW():
     r"""
     A class implementing the online phase of the Parameterised-Background Data-Weak (PBDW) formulation, given a list of sensors' Riesz representation :math:`\{g_m\}_{m=1}^M` for the update space and basis functions :math:`\{\zeta_n\}_{n=1}^N` for the reduced one.
@@ -80,7 +82,7 @@ class PBDW():
 
     def synt_test_error(self, test_snap: FunctionsList, N : int = None, M : int = None, 
                         noise_value : float = None, reg_param : float = 0.,
-                        return_int : bool = False, verbose : bool = False):
+                        verbose : bool = False) -> namedtuple:
         r"""
         The absolute and relative error on the test set is computed, by solving the PBDW system
         
@@ -121,24 +123,19 @@ class PBDW():
             Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
         reg_param : float, optional (default = 0.)
             Hyperparameter :math:`\xi` weighting the importance of the model with respect to the measurements.
-        return_int : boolean, optional (default = False)
-            Logic variable for the return of the interpolant and the residual fields
         verbose : boolean, optional (default = False)
             If true, output is printed.
 
         Returns
         ----------
-        meanAbsErr : np.ndarray
-            Average absolute error measured in :math:`L^2`
-        meanRelErr : np.ndarray
-            Average relative error measured in :math:`L^2`
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
-        recons : FunctionsList
-            FunctionsList containing the reconstruction using :math:`M_{max}` sensors
-        resids : FunctionsList
-            FunctionsList containing the residual field (absolute difference between interpolant and true field) using :math:`M_{max}` sensors
-       """
+        
+        """
 
         if M is None:
             M = self.Mmax
@@ -153,23 +150,17 @@ class PBDW():
             N = self.Nmax
 
         Ns_test = len(test_snap)
-        absErr = np.zeros((Ns_test, M - N + 1))
-        relErr = np.zeros_like(absErr)
+        abs_err = np.zeros((Ns_test, M - N + 1))
+        rel_err = np.zeros_like(abs_err)
 
         if verbose:
             progressBar = LoopProgress(msg = "Computing PBDW test error (synthetic) with N = "+str(N)+" - " + self.name, final = Ns_test )
 
-        if return_int == True:
-            recons = FunctionsList(self.V)
-            resids  = FunctionsList(self.V)
-            
         # Variables to store the computational times
         computational_time = dict()
         computational_time['Measure']      = np.zeros((Ns_test, M))
         computational_time['LinearSystem'] = np.zeros((Ns_test, M - N + 1))
         computational_time['Errors']       = np.zeros((Ns_test, M - N + 1))
-        if return_int == True:
-            computational_time['Reconstruction'] = np.zeros((Ns_test,))
          
         timing = Timer()    
         
@@ -213,28 +204,17 @@ class PBDW():
                 # Compute the error
                 timing.start()
                 resid.x.array[:] = test_snap(mu) - (self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:]))
-                absErr[mu,mm - N] = self.norms.L2norm(resid)
-                relErr[mu,mm - N] = absErr[mu,mm - N] / norma_snap
+                abs_err[mu,mm - N] = self.norms.L2norm(resid)
+                rel_err[mu,mm - N] = abs_err[mu,mm - N] / norma_snap
                 computational_time['Errors'][mu, mm - N] += timing.stop()
-
-                if return_int == True and mm + 1 == M:
-                    
-                        timing.start()
-
-                        reconstr = self.basis_sensors.lin_combine(coeff[:mm]) + self.basis_functions.lin_combine(coeff[mm:])
-                        residual = np.abs(test_snap(mu) - reconstr)
-
-                        recons.append(reconstr)
-                        resids.append(residual)
-                        computational_time['Reconstruction'][mu] = timing.stop()
 
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        if return_int == True:
-            return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time, recons, resids
-        else:
-            return absErr.mean(axis = 0), relErr.mean(axis = 0), computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
+
+        return synt_res
         
     def reconstruct(self, snap: np.ndarray, N : int, M : int, 
                           noise_value : float = None, reg_param : float = 0.):
