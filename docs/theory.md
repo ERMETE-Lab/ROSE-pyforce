@@ -22,8 +22,9 @@ According to the methodology for calculating the expansion coefficients {math}`\
 
 Data-Driven Reduced Order Modelling (DDROM) {cite:p}`RMP_2024, DDMOR_CFR` is a set of techniques, combining theoretical modelling with real data collecting from a physical system. In particular, ROM is seen in a Data Assimilation (DA) framework {cite:p}`DataDrivenScience_book`, so that the theoretical prediction, approximated by ROM, is corrected or updated by experimental evaluations of some fields (e.g., the local measurements of the temperature in a pipe or the neutron flux in a nuclear reactor).
 
-The techniques implemented here follow the same underlying idea expressed in \autoref{fig:darom}. They all share the typical offline/online paradigm of ROM techniques: the former is computationally expensive and it is performed only once, whereas the latter is cheap from the computational point of view and allows to have quick and reliable evaluations of the state of the system by merging background model knowledge and real evaluations of quantities of interest [@maday_parameterized-background_2014].
-During the offline (also called training) phase, a *high-fidelity* or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collections of snapshots $\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}$, given $\mathcal{N}_h$ the dimension of the spatial mesh, which are dependent on some parameters $\boldsymbol{\mu}_n$; then, these snapshots are used to generate a reduced representation through a set of basis functions $\{\psi_n(\mathbf{x})\}$, in this way the degrees of freedom are decresed from $\mathcal{N}_h$ to $N$, provided that $\mathcal{N}_h>>N$. This allows to approximate any solution of the FOM as follows
+The techniques implemented here follow the same underlying idea expressed in \autoref{fig:darom}. They all share the typical offline/online paradigm of ROM techniques: the former is computationally expensive and it is performed only once, whereas the latter is cheap from the computational point of view and allows to have quick and reliable evaluations of the state of the system by merging background model knowledge and real evaluations of quantities of interest {cite:p}`maday_parameterized-background_2014`.
+
+During the offline (also called training) phase, a *high-fidelity* or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collections of snapshots $\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}$, given $\mathcal{N}_h$ the dimension of the spatial mesh, which are dependent on some parameters $\boldsymbol{\mu}_n$; then, these snapshots are used to generate a reduced representation through a set of basis functions $\{\psi_n(\mathbf{x})\}$ of size $N$, in this way the degrees of freedom are decreased from $\mathcal{N}_h$ to $N$, provided that $\mathcal{N}_h>>N$. This allows for an approximation of any solution of the FOM as follows
 
 ```{math}
 u_{FOM}(\mathbf{x};\boldsymbol{\mu}) \simeq \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})
@@ -33,8 +34,7 @@ with $\alpha_n(\boldsymbol{\mu})$ as the reduced coefficients, embedding the par
 
 ![General scheme of DDROM methods [@RMP_2024].\label{fig:darom}](../images/tie_frighter.svg)
 
-All these steps are performed during the offline phase, the online phase aim consists in obtaining in a quick and reliable way a solution of the FOM for an unseen parameter $\boldsymbol{\mu}^\star$, using as input a set of measurements $\mathbf{y}\in\mathbb{R}^M$. The DDROM online takes place which produces a novel set of reduced variables, $\boldsymbol{\alpha}^\star$, and then computing an improved reconstructed state $\hat{u}_{DDROM}$ through a decoding step from the low dimensional state to the high dimensional one.
-
+The online phase aims to obtain a quick and reliable way a solution of the FOM for an unseen parameter $\boldsymbol{\mu}^\star$, using as input a set of measurements $\mathbf{y}\in\mathbb{R}^M$. The DDROM online phase produces a novel set of reduced coordinates, $\boldsymbol{\alpha}^\star$, and then computes an improved reconstructed state $\hat{u}_{DDROM}$ through a decoding step that transforms the low-dimensional representation to the high-dimensional one.
 
 ## Package structure
 
