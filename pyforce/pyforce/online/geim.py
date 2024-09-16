@@ -1,10 +1,11 @@
 # Online Phase: Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 05 March 2024
-# Latest Doc  Update: 05 March 2024
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 import scipy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
@@ -51,7 +52,8 @@ class GEIM():
             for mm in range(self.Mmax):
                 self.B[nn, mm] = self.norms.L2innerProd(self.ms(nn), self.mf(mm))
 
-    def synt_test_error(self, snaps: FunctionsList, M = None, noise_value = None, return_int = False, verbose = False):
+    def synt_test_error(self, snaps: FunctionsList, M = None, noise_value = None, 
+                        verbose = False) -> namedtuple:
         r"""
         The absolute and relative error on the test set is computed, by solving the GEIM linear system
         
@@ -66,23 +68,18 @@ class GEIM():
             Maximum number of magic functions to use (if None is set to the number of magic functions/sensors)
         noise_value : float, optional (default = None)
             Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
-        return_int : boolean, optional (default = False)
-            Logic variable for the return of the interpolant and the residual fields
         verbose : boolean, optional (default = False)
             If true, output is printed.
 
         Returns
         ----------
-        meanAbsErr : np.ndarray
-            Average absolute error measured in :math:`L^2`
-        meanRelErr : np.ndarray
-            Average relative error measured in :math:`L^2`
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
-        interps : FunctionsList, optional
-            FunctionsList containing the interpolants using :math:`M_{max}` sensors
-        resids : FunctionsList, optional
-            FunctionsList containing the residual field (absolute difference between interpolant and true field) using :math:`M_{max}` sensors
+            
         """
         # Check on the input M, maximum number of sensors to use
         if M is None:
@@ -96,10 +93,6 @@ class GEIM():
         abs_err = np.zeros((Ns, M))
         rel_err = np.zeros_like(abs_err)
 
-        if return_int == True:
-            interps = FunctionsList(self.V)
-            resids  = FunctionsList(self.V)
-
         if verbose:
             progressBar = LoopProgress(msg = "Computing GEIM test error (synthetic) - " + self.name, final = Ns )
     
@@ -108,8 +101,6 @@ class GEIM():
         computational_time['Measure']      = np.zeros((Ns, M))
         computational_time['LinearSystem'] = np.zeros((Ns, M))
         computational_time['Errors']       = np.zeros((Ns, M))
-        if return_int == True:
-            computational_time['Reconstruction'] = np.zeros((Ns,))
          
         timing = Timer() 
         
@@ -148,26 +139,14 @@ class GEIM():
                 rel_err[mu, mm] = abs_err[mu, mm] / norma_snap
                 computational_time['Errors'][mu, mm] += timing.stop()
 
-                if return_int == True and mm + 1 == M:
-                    
-                    timing.start()
-                    interpolant = Function(snaps.fun_space).copy()
-                    residual = Function(snaps.fun_space).copy()
-
-                    interpolant.x.array[:] = self.mf.lin_combine(coeff)
-                    residual.x.array[:] = np.abs(snaps(mu) - interpolant.x.array[:])
-
-                    interps.append(interpolant)
-                    resids.append(residual)            
-                    computational_time['Reconstruction'][mu] = timing.stop()
-            
+                
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        if return_int == True:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time, interps, resids
-        else:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
+
+        return synt_res
 
     def compute_measure(self, snap: Function, M = None) -> np.ndarray:
         r"""

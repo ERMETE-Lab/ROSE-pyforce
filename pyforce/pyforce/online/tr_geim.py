@@ -1,10 +1,11 @@
 # Online Phase: Tikhonov-Regularisation Generalised Empirical Interpolation Method
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 06 March 2024
-# Latest Doc  Update: 06 March 2024
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import numpy as np
 import numpy.linalg as la
+from collections import namedtuple
 
 from dolfinx.fem import FunctionSpace, Function
 from pyforce.tools.backends import norms, LoopProgress
@@ -65,7 +66,7 @@ class TRGEIM():
         self.T = np.diag(1 / std_beta)
 
     def synt_test_error(self, snaps: FunctionsList, noise_value: float, reg_param: float, 
-                        M = None, return_int = False, verbose = False):
+                        M = None, verbose = False) -> namedtuple:
         r"""
         The absolute and relative error on the test set is computed using the reconstruction obtained by solving the TR-GEIM linear system
         
@@ -82,23 +83,18 @@ class TRGEIM():
             Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`
         reg_param : float
             Regularising parameter :math:`\lambda`
-        return_int : boolean, optional (default = False)
-            Logic variable for the return of the interpolant and the residual fields
         verbose : boolean, optional (default = False)
             If true, output is printed.
 
         Returns
         ----------
-        meanAbsErr : np.ndarray
-            Average absolute error measured in :math:`L^2`
-        meanRelErr : np.ndarray
-            Average relative error measured in :math:`L^2`
+        mean_abs_err : np.ndarray
+            Average absolute error measured in :math:`L^2`.
+        mean_rel_err : np.ndarray
+            Average relative error measured in :math:`L^2`.
         computational_time : dict
             Dictionary with the CPU time of the most relevant operations during the online phase.
-        interps : FunctionsList
-            FunctionsList containing the interpolants using :math:`M_{max}` sensors
-        resids : FunctionsList
-            FunctionsList containing the residual field (absolute difference between interpolant and true field) using :math:`M_{max}` sensors
+        
         """
         # Check on the input M, maximum number of sensors to use
         if M is None:
@@ -112,12 +108,6 @@ class TRGEIM():
         abs_err = np.zeros((Ns, M))
         rel_err = np.zeros_like(abs_err)
 
-        if return_int == True:
-            interps = FunctionsList(self.V)
-            resids  = FunctionsList(self.V)
-            interpolant = Function(snaps.fun_space).copy()
-            residual = Function(snaps.fun_space).copy()
-
         if verbose:
             progressBar = LoopProgress(msg = "Computing TR-GEIM test error (synthetic) - " + self.name, final = Ns )
     
@@ -126,8 +116,6 @@ class TRGEIM():
         computational_time['Measure']      = np.zeros((Ns, M))
         computational_time['LinearSystem'] = np.zeros((Ns, M))
         computational_time['Errors']       = np.zeros((Ns, M))
-        if return_int == True:
-            computational_time['Reconstruction'] = np.zeros((Ns,))
          
         timing = Timer() 
     
@@ -167,24 +155,13 @@ class TRGEIM():
                 rel_err[mu, mm] = abs_err[mu, mm] / norma_snap
                 computational_time['Errors'][mu, mm] += timing.stop()
 
-                # Check if storing interpolant and residual
-                if return_int == True and mm + 1 == M:
-                    
-                    timing.start()
-                    interpolant = self.mf.lin_combine(coeff)
-                    residual = np.abs(snaps(mu) - interpolant)
-
-                    interps.append(interpolant)
-                    resids.append(residual)
-                    computational_time['Reconstruction'][mu] = timing.stop()
-            
             if verbose:
                 progressBar.update(1, percentage = False)
 
-        if return_int == True:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time, interps, resids
-        else:
-            return abs_err.mean(axis = 0), rel_err.mean(axis = 0), computational_time
+        Results = namedtuple('Results', ['mean_abs_err', 'mean_rel_err', 'computational_time'])
+        synt_res = Results(mean_abs_err = abs_err.mean(axis = 0), mean_rel_err = rel_err.mean(axis = 0), computational_time = computational_time)
+
+        return synt_res
 
     def compute_measure(self, snap: Function, noise_value: float, M = None) -> np.ndarray:
         r"""

@@ -4,10 +4,10 @@ pyforce.online package
 Submodules
 ----------
 
-pyforce.online.geim\_synthetic module
--------------------------------------
+pyforce.online.geim module
+--------------------------
 
-.. automodule:: pyforce.online.geim_synthetic
+.. automodule:: pyforce.online.geim
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,10 +44,10 @@ pyforce.online.pod\_projection module
    :undoc-members:
    :show-inheritance:
 
-pyforce.online.tr\_geim\_synthetic module
------------------------------------------
+pyforce.online.tr\_geim module
+------------------------------
 
-.. automodule:: pyforce.online.tr_geim_synthetic
+.. automodule:: pyforce.online.tr_geim
    :members:
    :undoc-members:
    :show-inheritance:
