@@ -1,19 +1,26 @@
 Tutorials
 ============
 
-In this section some tutorials on how to use pyforce will be discussed.
+In this section some tutorials on how to use `pyforce` will be discussed.
+
+In addition to the already installed packages, set by the `requirements.txt file <https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt>`_, `trame`, `ipywidgets`, `openpyxl`, `trame-vtk` and `trame-vuetify` are needed to execute the tutorials.
+They can be installed using *pip*: 
+
+.. code-block:: python
+
+    python -m pip install trame ipywidgets openpyxl trame-vtk
 
 The following case studies are discussed:
 
 1. **Flow over Cylinder** (solved with FEniCSx): DFG2 benchmark
 
-    - *Offline*: Generation of parametric snapshots.
+    - *Offline*: Generation of time-dependent snapshots.
     - *Offline*: Creation of the reduced space using POD for vector fields and plotting the modes.
     - *Online*:  POD with Interpolation adopting linear and RBF interpolation.
 
 2. **Stationary Multi-group Diffusion equation**: ANL11-A2 reactor from the Argonne Code Center - Supplement 2 at https://www.osti.gov/biblio/12030251. The following topics will be discussed:
 
-    - *Offline*: Generation of parametric snapshots using *FunctionsList* class and later export.
+    - *Offline*: Generation of parametric snapshots. *FunctionsList* class and later export.
     - *Offline*: Creation of the reduced space using the Proper Orthogonal Decomposition (POD).
     - *Offline*: Generalised Empirical Interpolation Method (GEIM) to generate basis functions and place sensors.
     - *Offline*: Sensor Placement with the SGREEDY algorithm using the POD basis.
@@ -28,7 +35,7 @@ The following case studies are discussed:
 
 *Coming Soon: multiphysics (neutronics+thermal-hydraulics) with dolfinx and OpenFOAM.*
 
-Each tutorial requires a dataset to be generated: the notebooks generating the dataset are available in the tutorials, alternatevely the data can be download from `Zenodo <https://doi.org/10.5281/zenodo.11483677>`_.
+Each tutorial requires a dataset to be generated: the notebooks generating the dataset are available in the tutorials, alternatively the data can be download from `Zenodo <https://doi.org/10.5281/zenodo.11483677>`_.
 
 .. toctree::
     :maxdepth: 1
