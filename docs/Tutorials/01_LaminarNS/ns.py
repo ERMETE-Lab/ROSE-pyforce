@@ -8,9 +8,9 @@ from ufl import dX, grad, inner, dot, nabla_grad, div
 from petsc4py import PETSc
 
 
-class tentative_velocity():
-    def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32, inlet,
-                       physical_param: dict, bound_markers: dict, time_adv = 'EI'):
+class TentativeVelocity():
+    def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32,
+                       physical_param: dict, bound_markers: dict, inlet, time_adv = 'EI'):
 
         self.domain = domain
         self.ct = ct
@@ -153,7 +153,7 @@ class tentative_velocity():
         self.u_tilde.x.scatter_forward()
         
         
-class pressure_projection():
+class PressureProjection():
     def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32,
                        physical_param: dict, bound_markers: dict, time_adv = 'EI'):
 
@@ -234,7 +234,7 @@ class pressure_projection():
         self.solver.solve(self.b, self.phi.vector)
         self.phi.x.scatter_forward()
         
-class update_velocity():
+class UpdateVelocity():
     def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32, physical_param: dict,
                  time_adv='EI'):
 
@@ -313,7 +313,7 @@ class update_velocity():
         self.u_new.x.scatter_forward()
         
         
-class drag_lift():
+class DragLift():
     def __init__(self, domain: dolfinx.mesh.Mesh, ft: dolfinx.cpp.mesh.MeshTags_int32, physical_param: dict, obstacle_mark: int,
                  points = [[0.15, 0.2, 0], [0.25, 0.2, 0]]):
         self.normal = -ufl.FacetNormal(domain)
