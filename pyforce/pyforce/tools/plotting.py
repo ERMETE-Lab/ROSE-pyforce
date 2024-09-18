@@ -1,7 +1,7 @@
 # Basic plotting tools using pyvista
 # Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 31 August 2023
-# Latest Doc  Update: 31 August 2023
+# Latest Code Update: 16 September 2024
+# Latest Doc  Update: 16 September 2024
 
 import dolfinx.plot
 from dolfinx.fem import Function
@@ -10,33 +10,67 @@ import warnings
 from matplotlib import cm
 import pyvista as pv
 
-# pv.set_jupyter_backend("trame") # deprecated
-
-def get_scalar_grid(fun: Function, varname: str, real = True):
+def grids(fun: dolfinx.fem.Function, varname='u', log_plot: bool = False, 
+          mag_plot: bool = True, **kwargs):
     """
-    This function extracts the dofs of a scalar function for the plot using pyvista.
-
+    Creates a PyVista grid from a dolfinx.fem.Function and returns the warped or glyph representation.
+    
     Parameters
     ----------
-    fun : Function 
-        Function from which the dofs are extracted.
+    fun : `dolfinx.fem.Function` 
+        The function representing the field to be visualized.
     varname : str
-        Name of the variable.
-    real : boolean, optional (Default = True) 
-        Real dofs are considered, if `False` imaginary dofs are used.
+        The name to assign to the data in the PyVista grid (default is 'u').
+    log_plot : bool
+        If True, apply a logarithmic plot to scalar data (default is False).
+    mag_plot : bool
+        If True, creates a vector warp of the grid. If False, uses glyphs (default is True).
+    **kwargs
+        Additional keyword arguments passed to the function.
+    
+    Returns
+    ----------
+    grid : `pyvista.UnstructuredGrid`
+        The resulting PyVista grid, which can be visualized using PyVista plotting functions.
+    
     """
+    
+    # Create a VTK mesh from the function's function space
     topology, cells, geometry = dolfinx.plot.create_vtk_mesh(fun.function_space)
-    u_grid = pv.UnstructuredGrid(topology, cells, geometry)
+    grid = pv.UnstructuredGrid(topology, cells, geometry)
+    
+    # Handle vector fields (multiple subspaces)
+    if fun.function_space.num_sub_spaces > 0:
+        # Initialize the values array with zeros and assign the real part of the function's array
+        values = np.zeros((geometry.shape[0], 3))
+        values[:, :len(fun)] = np.real(fun.x.array.reshape(geometry.shape[0], len(fun)))
+        grid[varname] = values
 
-    if real:
-        u_grid.point_data[varname] = fun.x.array[:].real
-    else: 
-        u_grid.point_data[varname] = fun.x.array[:].imag
+        # Choose between warping by vector or using glyphs
+        if mag_plot:
+            kwargs.pop('factor', None)  # Remove 'factor' if present, do nothing if not
+            kwargs.pop('tolerance', None)  # Remove 'tolerance' if present, do nothing if not
+            warped = grid.warp_by_vector(varname, factor=0, **kwargs)  # Apply `kwargs`
+        else:
+            warped = grid.glyph(varname, **kwargs)  # Apply `kwargs`
+        
+        return warped, values
+    
+    # Handle scalar fields (single subspace)
+    else:
+        if log_plot:
+            values = np.log10(np.real(fun.x.array[:]))    
+        else:
+            values = np.real(fun.x.array[:])
+            
+        grid.point_data[varname] = values
+        grid.set_active_scalars(varname)
+        
+        return grid, values.reshape(-1,1)
 
-    return u_grid
-
-def PlotScalar(fun: Function, filename: str, format: str = 'png', varname: str = None,
-               clim = None, colormap = cm.jet, resolution = [1080, 720]):
+def plot_function(   fun: Function, filename: str = None, format: str = 'png', varname: str = 'u',
+                    clim = None, colormap = cm.jet, resolution = [1080, 720],
+                    zoom = 1., title = None, **kwargs):
     """
     Python function to plot a scalar field.
 
@@ -44,30 +78,31 @@ def PlotScalar(fun: Function, filename: str, format: str = 'png', varname: str =
     ----------
     fun : Function 
         Field to plot.
-    varname : str
+    varname : str, optional (Default = 'u')
         Name of the variable.
-    filename : str
-        Name of the file to save.
+    filename : str (Default = None)
+        If `None`, the plot is shown; otherwise this is the name of the file to save.
     clim : optional (Default = None)
         Colorbar limit, if `None` the mininum and maximum of `fun` are computed.
     colormap : optional (Default = jet)
         Colormap for the plot
     resolution : list, optional (Default = [1080, 720])
         Resolution of the image
-
+    zoom : float (Default = 1)
+        Zoom of the plot.
+    title : str (Default = None)
+        If `None` no title is displayed.
+    **kwargs : 
+        Additional keyword arguments passed to the function.
+    
     """
 
     plotter = pv.Plotter(off_screen=True, border=False, window_size=resolution)
+    
     lab_fontsize = 20
     title_fontsize = 25
-    zoom = 1.
+    zoom = zoom
     
-    if varname is None:
-        varname = 'f'
-    
-    u_grid = get_scalar_grid(fun, varname)
-    u_grid.set_active_scalars(varname)
-
     dict_cb = dict(title = varname, width = 0.75,
                     title_font_size=title_fontsize,
                     label_font_size=lab_fontsize,
@@ -75,153 +110,32 @@ def PlotScalar(fun: Function, filename: str, format: str = 'png', varname: str =
                     position_x=0.125, position_y=0.875,
                     shadow=True) 
     
+    u_grid, values = grids(fun, varname, **kwargs)
+    
     if clim is None:
-        clim = [min(fun.x.array.real) * 0.975, max(fun.x.array.real)* 1.025]
+        normed_values = np.linalg.norm(values, axis=1)
+        clim = [min(normed_values) * 0.98, max(normed_values)* 1.02]
         
     plotter.add_mesh(u_grid, cmap = colormap, clim = clim, show_edges=False, scalar_bar_args=dict_cb)
     plotter.view_xy()
-    # plotter.add_title(varname, font_size=25, color ='k')
+    
+    if title is not None:
+        plotter.add_title(title, font_size=25, color ='k')
+    
     plotter.camera.zoom(zoom)
-
     plotter.set_background('white', top='white')
 
     ## Save figure
-    if format == 'pdf':
-        plotter.save_graphic(filename+'.pdf')
-    elif format == 'svg':
-        plotter.save_graphic(filename+'.svg')
-    elif format == 'png':
-        plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
+    if filename is not None:
+        if format == 'pdf':
+            plotter.save_graphic(filename+'.pdf')
+        elif format == 'svg':
+            plotter.save_graphic(filename+'.svg')
+        elif format == 'png':
+            plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
+        else:
+            warnings.warn("Available output format are 'pdf', 'svg' and 'png'. Saved 'png' screenshot.")
+            plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
+        plotter.close()
     else:
-        warnings.warn("Available output format are 'pdf', 'svg' and 'png'. Saved 'png' screenshot.")
-        plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
-    plotter.close()
-    
-def PlotVector(fun: dolfinx.fem.Function, filename: str, format: str = 'png', varname: str = None,
-               clim = None, mag_plot = True, colormap = cm.jet, resolution= [1080, 720]):  
-    """
-    Python function to plot a scalar field.
-
-    Parameters
-    ----------
-    fun : Function 
-        Field to plot.
-    varname : str
-        Name of the variable.
-    filename : str
-        Name of the file to save.
-    mag_plot : boolean, optional (Default = True)
-    clim : optional (Default = None)
-        Colorbar limit, if `None` the maximum of `fun` are computed (minimum is assumed 0). 
-        Magnitude plot is performed, otherwise glyphs.
-    colormap : optional (Default = jet)
-        Colormap for the plot
-    resolution : list, optional (Default = [1080, 720])
-        Resolution of the image
-
-    """
-    
-    plotter = pv.Plotter(off_screen=True,  border=False, window_size=resolution)
-    lab_fontsize = 20
-    title_fontsize = 25
-    zoom = 1.1
-
-    if varname is None:
-        varname = 'u'
-    
-    topology, cells, geometry = dolfinx.plot.create_vtk_mesh(fun.function_space)
-    grid = pv.UnstructuredGrid(topology, cells, geometry)
-
-    values = np.zeros((geometry.shape[0], 3))
-    values[:, :len(fun)] = np.real(fun.x.array.reshape(geometry.shape[0], len(fun)))
-    grid[varname] = values
-
-    if mag_plot:
-        warped = grid.warp_by_vector(varname, factor=0.0) 
-    else:
-        warped = grid.glyph(varname, factor=0.15, tolerance=0.02)
-
-    dict_cb = dict(title = varname, width = 0.75,
-                    title_font_size=title_fontsize,
-                    label_font_size=lab_fontsize,
-                    color = 'k',
-                    position_x=0.125, position_y=0.875,
-                    shadow=True) 
-    
-    if clim is None:
-        clim = [0., max(np.sqrt(values[:, 0]**2+values[:, 1]**2+values[:, 2]**2))]
-    plotter.add_mesh(warped, clim = clim, cmap = colormap, show_edges=False, scalar_bar_args=dict_cb)
-    plotter.view_xy()
-    plotter.camera.zoom(zoom)
-
-    plotter.set_background('white', top='white')
-
-    ## Save figure
-    if format == 'pdf':
-        plotter.save_graphic(filename+'.pdf')
-    elif format == 'svg':
-        plotter.save_graphic(filename+'.svg')
-    elif format == 'png':
-        plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
-    else:
-        warnings.warn("Available output format are 'pdf', 'svg' and 'png'. Saved 'png' screenshot.")
-        plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
-    plotter.close()
-        
-# # Additional function to be used as template
-# def plotScalar_FOMvsRecon(V, true_fun, no_drift, drift, varname: str, filename:str, colormap = cm.jet, 
-#                          algo='GEIM', resolution = [2560, 1600]):
-   
-#     plotter = pv.Plotter(shape=(1,3), off_screen=True, border=False, window_size=resolution)
-#     lab_fontsize = 20
-#     title_fontsize = 35
-#     zoom = 1.2
-
-#     # True field
-#     plotter.subplot(0,0)
-#     u_grid = get_scalar_grid(true_fun, varname, V)
-#     u_grid.set_active_scalars(varname)
-#     clim = [min(true_fun.real) * 0.9, max(true_fun.real)* 1.1]
-
-#     dict_cb = dict(title = varname, width = 0.75,
-#                     title_font_size=title_fontsize,
-#                     label_font_size=lab_fontsize,
-#                     color='k',
-#                     position_x=0.125, position_y=0.875,
-#                     shadow=True) 
-    
-#     plotter.add_mesh(u_grid, cmap = colormap, clim = clim, show_edges=False, scalar_bar_args=dict_cb)
-#     plotter.view_xy()
-#     # plotter.add_title(varname, font_size=25, color ='k')
-#     plotter.camera.zoom(zoom)
-
-#     # reconstruction - no drift
-#     plotter.subplot(0,1)
-#     u2_grid = get_scalar_grid(no_drift, algo+' (no drift) - '+varname, V)
-#     u2_grid.set_active_scalars( algo+' (no drift) - '+varname)
-
-#     dict_cb['title'] =  algo+' (no drift) - '+varname
-
-#     plotter.add_mesh(u2_grid, cmap = colormap, clim = clim, show_edges=False, scalar_bar_args=dict_cb)
-#     plotter.view_xy()
-#     plotter.camera.zoom(zoom)
-#     # plotter.add_title(varname, font_size=25, color ='k')
-
-#     # reconstruction - drift
-#     plotter.subplot(0,2)
-#     u3_grid = get_scalar_grid(drift, algo+' (drift) - '+varname, V)
-#     u3_grid.set_active_scalars(algo+' (drift) - '+varname)
-
-#     dict_cb['title'] = algo+' (drift) - '+varname
-
-#     plotter.add_mesh(u3_grid, cmap = colormap, clim = clim, show_edges=False, scalar_bar_args=dict_cb)
-#     plotter.view_xy()
-#     plotter.camera.zoom(zoom)
-#     # plotter.add_title(varname, font_size=25, color ='k')
-    
-#     # plotter.set_background('white', top='white')
-#     plotter.add_text(r'Drifted Sensor = '+str(sensI), color= 'k', position='lower_edge', font_size=25)
-
-#     ## Save figure
-#     # plotter.save_graphic(filename+'.pdf')
-#     plotter.screenshot(filename+'.png', transparent_background = True,  window_size=resolution)
+        return plotter

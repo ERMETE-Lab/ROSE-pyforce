@@ -4,13 +4,62 @@ import ufl
 from dolfinx import fem
 from dolfinx.fem import (Function, FunctionSpace, assemble_scalar, form, 
                         locate_dofs_topological, dirichletbc, petsc)
-from ufl import dX, grad, inner, dot, nabla_grad, div
+from ufl import grad, inner, dot, nabla_grad, div
 from petsc4py import PETSc
 
+import gmsh
+from dolfinx.io import gmshio
+from mpi4py import MPI
 
-class tentative_velocity():
-    def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32, inlet,
-                       physical_param: dict, bound_markers: dict, time_adv = 'EI'):
+def create_dfg2_mesh(mesh_factor : float = 0.5, use_msh : bool = False, save_mesh : bool = False):
+    
+    mesh_comm = MPI.COMM_WORLD
+    model_rank = 0
+    mesh_factor = mesh_factor
+    gdim = 2
+     
+    if use_msh:
+        # Import mesh from msh file
+        domain, ct, ft = gmshio.read_from_msh("cyl_dfg2D.msh", MPI.COMM_WORLD, gdim = gdim)
+    
+    else:
+
+        # Initialize the gmsh module
+        gmsh.initialize()
+
+        # Load the .geo file
+        gmsh.merge('cyl_dfg2D.geo')
+        gmsh.model.geo.synchronize()
+
+        # Set algorithm (adaptive = 1, Frontal-Delaunay = 6)
+        gmsh.option.setNumber("Mesh.Algorithm", 6)
+        gmsh.option.setNumber("Mesh.MeshSizeFactor", mesh_factor)
+
+        # Linear Finite Element
+        gmsh.model.mesh.generate(gdim)
+        gmsh.model.mesh.optimize("Netgen")
+
+        # Import into dolfinx
+        domain, ct, ft = gmshio.model_to_mesh(gmsh.model, mesh_comm, model_rank, gdim = gdim )
+
+
+        # Save the mesh
+        if save_mesh:
+            gmsh.write("cyl_dfg2D.msh")
+
+        # Finalize the gmsh module
+        gmsh.finalize()
+        
+    ft.name = "Facet markers"
+
+    domain.topology.create_connectivity(gdim, gdim)
+    domain.topology.create_connectivity(gdim-1, gdim)
+    
+    return domain, ct, ft, gdim
+
+class TentativeVelocity():
+    def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32,
+                       physical_param: dict, bound_markers: dict, inlet, time_adv = 'EI'):
 
         self.domain = domain
         self.ct = ct
@@ -153,7 +202,7 @@ class tentative_velocity():
         self.u_tilde.x.scatter_forward()
         
         
-class pressure_projection():
+class PressureProjection():
     def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32,
                        physical_param: dict, bound_markers: dict, time_adv = 'EI'):
 
@@ -234,7 +283,7 @@ class pressure_projection():
         self.solver.solve(self.b, self.phi.vector)
         self.phi.x.scatter_forward()
         
-class update_velocity():
+class UpdateVelocity():
     def __init__(self, domain: dolfinx.mesh.Mesh, ct: dolfinx.cpp.mesh.MeshTags_int32, ft: dolfinx.cpp.mesh.MeshTags_int32, physical_param: dict,
                  time_adv='EI'):
 
@@ -263,7 +312,7 @@ class update_velocity():
         self.u_tilde = Function(self.V)
         self.phi = Function(self.Q)
         self.u_new = Function(self.V)
-        self.u_new.name = "U"
+        self.u_new.name = "u"
         
         if time_adv == 'BDF2':
             self.alpha = 3 / 2
@@ -313,7 +362,7 @@ class update_velocity():
         self.u_new.x.scatter_forward()
         
         
-class drag_lift():
+class DragLift():
     def __init__(self, domain: dolfinx.mesh.Mesh, ft: dolfinx.cpp.mesh.MeshTags_int32, physical_param: dict, obstacle_mark: int,
                  points = [[0.15, 0.2, 0], [0.25, 0.2, 0]]):
         self.normal = -ufl.FacetNormal(domain)
