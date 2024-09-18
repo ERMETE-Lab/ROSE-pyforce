@@ -48,7 +48,9 @@ def grids(fun: dolfinx.fem.Function, varname='u', log_plot: bool = False,
 
         # Choose between warping by vector or using glyphs
         if mag_plot:
-            warped = grid.warp_by_vector(varname, **kwargs)  # Apply `kwargs`
+            kwargs.pop('factor', None)  # Remove 'factor' if present, do nothing if not
+            kwargs.pop('tolerance', None)  # Remove 'tolerance' if present, do nothing if not
+            warped = grid.warp_by_vector(varname, factor=0, **kwargs)  # Apply `kwargs`
         else:
             warped = grid.glyph(varname, **kwargs)  # Apply `kwargs`
         
