@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Online Phase: Indirect Reconstruction &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -52,6 +54,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
@@ -101,7 +104,7 @@
            <div itemprop="articleBody">
              
   <section id="Online-Phase:-Indirect-Reconstruction">
-<h1>Online Phase: Indirect Reconstruction<a class="headerlink" href="#Online-Phase:-Indirect-Reconstruction" title="Permalink to this heading"></a></h1>
+<h1>Online Phase: Indirect Reconstruction<a class="headerlink" href="#Online-Phase:-Indirect-Reconstruction" title="Link to this heading"></a></h1>
 <p>This notebook implements the online phase of the Indirect Reconstruction (IR), firstly proposed in <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0306454922005680">Introini et al., 2023</a>, including the following steps:</p>
 <ul class="simple">
 <li><p>Parameter Estimation (PE)</p></li>
@@ -265,7 +268,7 @@ Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
 </div>
 </div>
 <section id="Parameter-Estimation">
-<h2>Parameter Estimation<a class="headerlink" href="#Parameter-Estimation" title="Permalink to this heading"></a></h2>
+<h2>Parameter Estimation<a class="headerlink" href="#Parameter-Estimation" title="Link to this heading"></a></h2>
 <p>In this section, the measurements of the observable field (temperature in this case) are used to find the characteristic parameter <span class="math notranslate nohighlight">\(\boldsymbol{\mu}\)</span>, solution of the inverse problem <span class="math">\begin{equation*}
 \boldsymbol{\mu}^\star = \text{arg min}_{\boldsymbol{\mu}\in\mathcal{D}}
 \mathcal{L}_{PE}(\boldsymbol{\mu}) =
@@ -371,7 +374,7 @@ Solving Parameter Estimation : 84.000 / 84.00 - 4.240 s/it
 </div>
 </section>
 <section id="Proper-Orthogonal-Decomposition-with-Interpolation-(POD-I)">
-<h2>Proper Orthogonal Decomposition with Interpolation (POD-I)<a class="headerlink" href="#Proper-Orthogonal-Decomposition-with-Interpolation-(POD-I)" title="Permalink to this heading"></a></h2>
+<h2>Proper Orthogonal Decomposition with Interpolation (POD-I)<a class="headerlink" href="#Proper-Orthogonal-Decomposition-with-Interpolation-(POD-I)" title="Link to this heading"></a></h2>
 <p>In this section, we are going to use the estimated parameter (using <span class="math notranslate nohighlight">\(M_{max}\)</span> measures) to reconstruct the non-observable fields (pressure and velocity) using POD-I.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -447,7 +450,7 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 </div>
 </section>
 <section id="Post-Process">
-<h2>Post Process<a class="headerlink" href="#Post-Process" title="Permalink to this heading"></a></h2>
+<h2>Post Process<a class="headerlink" href="#Post-Process" title="Link to this heading"></a></h2>
 <p>In this last section, we are going to plot the computational times and some contour plots of the non-observable fields.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:

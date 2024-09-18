@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Offline Phase: generating reduced coefficient maps &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -52,6 +54,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
@@ -100,7 +103,7 @@
            <div itemprop="articleBody">
              
   <section id="Offline-Phase:-generating-reduced-coefficient-maps">
-<h1>Offline Phase: generating reduced coefficient maps<a class="headerlink" href="#Offline-Phase:-generating-reduced-coefficient-maps" title="Permalink to this heading"></a></h1>
+<h1>Offline Phase: generating reduced coefficient maps<a class="headerlink" href="#Offline-Phase:-generating-reduced-coefficient-maps" title="Link to this heading"></a></h1>
 <p>This notebook implements the generation of the maps of the reduced coefficients (obtained by GEIM and POD) using the following methods:</p>
 <ul class="simple">
 <li><p>Piecewise-Linear Interpolation</p></li>
@@ -158,7 +161,7 @@ Re_{train} = [15:5:150] \qquad\qquad Ri_{train} = [0.2:0.4:5]
 </div>
 </div>
 <section id="Mapping-the-coefficients-of-the-observable-fields">
-<h2>Mapping the coefficients of the observable fields<a class="headerlink" href="#Mapping-the-coefficients-of-the-observable-fields" title="Permalink to this heading"></a></h2>
+<h2>Mapping the coefficients of the observable fields<a class="headerlink" href="#Mapping-the-coefficients-of-the-observable-fields" title="Link to this heading"></a></h2>
 <p>In this section, the reduced coordinate obtained by the GEIM algorithm, i.e., <span class="math notranslate nohighlight">\(\boldsymbol{\beta}^T\)</span>, observable fields (only temperature in this case) will be mapped <span class="math">\begin{equation*}
 \mathcal{F}_T: \boldsymbol{\mu} \longrightarrow \boldsymbol{\beta}^T(\boldsymbol{\mu})
 \end{equation*}</span></p>
@@ -241,7 +244,7 @@ Re_{train} = [15:5:150] \qquad\qquad Ri_{train} = [0.2:0.4:5]
 </div>
 </section>
 <section id="Mapping-the-coefficients-of-the-non-observable-fields">
-<h2>Mapping the coefficients of the non-observable fields<a class="headerlink" href="#Mapping-the-coefficients-of-the-non-observable-fields" title="Permalink to this heading"></a></h2>
+<h2>Mapping the coefficients of the non-observable fields<a class="headerlink" href="#Mapping-the-coefficients-of-the-non-observable-fields" title="Link to this heading"></a></h2>
 <p>In this section, the reduced coordinate obtained by the POD procedure, i.e., <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}^p\)</span> and <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}^\mathbf{u}\)</span>, non-observable fields (pressure and velocity in this case) will be mapped <span class="math">\begin{equation*}
 \mathcal{F}_p: \boldsymbol{\mu} \longrightarrow \boldsymbol{\alpha}^p(\boldsymbol{\mu})\qquad
 \mathcal{F}_{\mathbf{u}}: \boldsymbol{\mu} \longrightarrow \boldsymbol{\alpha}^{\mathbf{u}}(\boldsymbol{\mu})

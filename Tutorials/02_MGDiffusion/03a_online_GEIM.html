@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Online Phase: GEIM algorithm - effect of random noise &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -52,6 +54,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a><ul class="current">
@@ -102,7 +105,7 @@
            <div itemprop="articleBody">
              
   <section id="Online-Phase:-GEIM-algorithm---effect-of-random-noise">
-<h1>Online Phase: GEIM algorithm - effect of random noise<a class="headerlink" href="#Online-Phase:-GEIM-algorithm---effect-of-random-noise" title="Permalink to this heading"></a></h1>
+<h1>Online Phase: GEIM algorithm - effect of random noise<a class="headerlink" href="#Online-Phase:-GEIM-algorithm---effect-of-random-noise" title="Link to this heading"></a></h1>
 <p>This notebook implements the online phase of the following algorithms: - Generalised Empirical Interpolation Method (GEIM) - Tikhonov Regularisation Generalised Empirical Interpolation Method (TR-GEIM)</p>
 <p>In particular, both clean and noisy data will be considered. The GEIM algorithm is unstable with respect to random noise, thus a stabilisation method is applied based on Tikhonov Regularisation.</p>
 <div class="nbinput nblast docutils container">
@@ -182,7 +185,7 @@
 </div>
 </div>
 <section id="Importing-Snapshots">
-<h2>Importing Snapshots<a class="headerlink" href="#Importing-Snapshots" title="Permalink to this heading"></a></h2>
+<h2>Importing Snapshots<a class="headerlink" href="#Importing-Snapshots" title="Link to this heading"></a></h2>
 <p>The snapshots are loaded and stored into suitable data structures.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -275,10 +278,10 @@
 </div>
 </section>
 <section id="Online-Reconstruction">
-<h2>Online Reconstruction<a class="headerlink" href="#Online-Reconstruction" title="Permalink to this heading"></a></h2>
+<h2>Online Reconstruction<a class="headerlink" href="#Online-Reconstruction" title="Link to this heading"></a></h2>
 <p>In this section, the potentialities of GEIM and its extension to deal with random noise will be analysed: in particular, the effect of the random noise on the average test error and the interpolant.</p>
 <section id="Effect-of-random-noise">
-<h3>Effect of random noise<a class="headerlink" href="#Effect-of-random-noise" title="Permalink to this heading"></a></h3>
+<h3>Effect of random noise<a class="headerlink" href="#Effect-of-random-noise" title="Link to this heading"></a></h3>
 <p>The measures are polluted by synthetic random noise (modelled as uncorrelated Gaussian noise) <span class="math">\begin{equation*}
 \{y_m = v_m(u)+\epsilon_m\}_{m=1}^M \qquad \text{ with }\epsilon_m \sim \mathcal{N}(0,\sigma^2)
 \end{equation*}</span> In this section, the test errors will be computed as <span class="math">\begin{equation*}
@@ -515,7 +518,7 @@ Reconstructing phi_2
 </div>
 </section>
 <section id="Plotting-the-interpolant-and-the-residual-fields">
-<h3>Plotting the interpolant and the residual fields<a class="headerlink" href="#Plotting-the-interpolant-and-the-residual-fields" title="Permalink to this heading"></a></h3>
+<h3>Plotting the interpolant and the residual fields<a class="headerlink" href="#Plotting-the-interpolant-and-the-residual-fields" title="Link to this heading"></a></h3>
 <p>Using <em>pyvista</em> and some additional functions the interpolant and its residual field <span class="math notranslate nohighlight">\(r[u] = | u - \mathcal{P}[u]|\)</span> is plotted.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:

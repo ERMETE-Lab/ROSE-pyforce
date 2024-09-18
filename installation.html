@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation notes &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorials" href="tutorials.html" />
+    <link rel="next" title="Theory and package structure" href="theory.html" />
     <link rel="prev" title="Welcome to pyforce’s documentation" href="intro.html" /> 
 </head>
 
@@ -49,14 +51,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation notes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#set-up-a-conda-environment-for-pyforce">Set up a conda environment for <em>pyforce</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-a-conda-environment-for-pyforce">Set up a conda environment for <em>pyforce</em></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-install-pyforce">How to install <em>pyforce</em>?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#generation-of-the-documentation">Generation of the documentation</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
@@ -87,10 +86,10 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="installation-notes">
-<h1>Installation notes<a class="headerlink" href="#installation-notes" title="Permalink to this heading"></a></h1>
-<p>The package has been tested on MacOS and Linux machines with <strong>Python3.10</strong>.</p>
+<h1>Installation notes<a class="headerlink" href="#installation-notes" title="Link to this heading"></a></h1>
+<p><strong>pyforce</strong> has been tested on MacOS and Linux machines with <strong>Python3.10</strong>.</p>
 <section id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading"></a></h2>
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
 <p>The <em>pyforce</em> package requires the following dependencies:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
@@ -105,9 +104,25 @@
 </pre></div>
 </div>
 <p>Be sure to install <em>gmsh</em> and <em>gmsh-api</em> before <em>dolfinx</em> (the package has been tested with real mode of the PETSc library). The instructions to install <em>dolfinx</em> are available at <a class="reference external" href="https://github.com/FEniCS/dolfinx#binary">https://github.com/FEniCS/dolfinx#binary</a>.</p>
+</section>
 <section id="set-up-a-conda-environment-for-pyforce">
-<h3>Set up a conda environment for <em>pyforce</em><a class="headerlink" href="#set-up-a-conda-environment-for-pyforce" title="Permalink to this heading"></a></h3>
-<p>At first create a new conda environment</p>
+<h2>Set up a conda environment for <em>pyforce</em><a class="headerlink" href="#set-up-a-conda-environment-for-pyforce" title="Link to this heading"></a></h2>
+<p><strong>Currently <em>pyforce</em> can only be obtained by directly cloning the repository (not in PyPI or conda repository).</strong></p>
+<p>It is suggested to create a conda environment: at first, clone the repository</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ERMETE-Lab/ROSE-pyforce.git
+</pre></div>
+</div>
+<p>create a conda environment using <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ROSE-pyforce
+conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>pyforce/environment.yml
+</pre></div>
+</div>
+<p>activate the environment and then install the package using <code class="docutils literal notranslate"><span class="pre">pip</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>pyforce-env
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pyforce/
+</pre></div>
+</div>
+<p>If the previous procedure encounters any issues, you can adopt a step-by-step approach: start by creating a new conda environment</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>&lt;env_name&gt;
 </pre></div>
 </div>
@@ -148,33 +163,12 @@ conda<span class="w"> </span>install<span class="w"> </span><span class="nv">num
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>fluidfoam<span class="w"> </span>scikit-learn
 </pre></div>
 </div>
-</section>
-</section>
-<section id="how-to-install-pyforce">
-<h2>How to install <em>pyforce</em>?<a class="headerlink" href="#how-to-install-pyforce" title="Permalink to this heading"></a></h2>
-<p>Once all the dependencies have been installed, <em>pyforce</em> can be installed using <em>pip</em>.</p>
-<p>Clone the repository</p>
+<p>Once all the dependencies have been installed, <em>pyforce</em> can be installed using <em>pip</em>: clone the repository</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ROSE-Polimi/pyforce.git
 </pre></div>
 </div>
 <p>Change directory to <em>pyforce</em> and install using pip</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pyforce/
-</pre></div>
-</div>
-</section>
-<section id="generation-of-the-documentation">
-<h2>Generation of the documentation<a class="headerlink" href="#generation-of-the-documentation" title="Permalink to this heading"></a></h2>
-<p><em>docs/</em> folder can be generate with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs/
-sphinx-apidoc<span class="w"> </span>-force<span class="w"> </span>-o<span class="w"> </span>./api/.<span class="w"> </span>../pyforce/pyforce
-rm<span class="w"> </span>api/modules.rst
-make<span class="w"> </span>clean
-make<span class="w"> </span>html
-</pre></div>
-</div>
-<p>These commands have been written in the <em>generate_docs.sh</em> script.</p>
-<p>The following packages are needed:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">sphinx</span><span class="o">==</span><span class="m">2</span>.7.6<span class="w"> </span>sphinxcontrib.bibtex<span class="o">==</span><span class="m">2</span>.5.0<span class="w"> </span><span class="nv">docutils</span><span class="o">==</span><span class="m">0</span>.18.1<span class="w"> </span>sphinx-rtd-theme<span class="o">==</span><span class="m">1</span>.3.0<span class="w"> </span>myst_parser<span class="w"> </span>IPython
 </pre></div>
 </div>
 </section>
@@ -185,7 +179,7 @@ make<span class="w"> </span>html
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="intro.html" class="btn btn-neutral float-left" title="Welcome to pyforce’s documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="theory.html" class="btn btn-neutral float-right" title="Theory and package structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

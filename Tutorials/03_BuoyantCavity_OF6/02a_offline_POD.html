@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Offline Phase: generation of the POD modes &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -52,6 +54,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
@@ -99,7 +102,7 @@
            <div itemprop="articleBody">
              
   <section id="Offline-Phase:-generation-of-the-POD-modes">
-<h1>Offline Phase: generation of the POD modes<a class="headerlink" href="#Offline-Phase:-generation-of-the-POD-modes" title="Permalink to this heading"></a></h1>
+<h1>Offline Phase: generation of the POD modes<a class="headerlink" href="#Offline-Phase:-generation-of-the-POD-modes" title="Link to this heading"></a></h1>
 <p>This notebook implements the offline phase of the following algorithms:</p>
 <ul class="simple">
 <li><p>Proper Orthogonal Decomposition (POD)</p></li>
@@ -236,7 +239,7 @@ Info    : Done optimizing mesh (Wall 1.4808e-06s, CPU 5e-06s)
 </div>
 </div>
 <section id="POD-algorithm">
-<h2>POD algorithm<a class="headerlink" href="#POD-algorithm" title="Permalink to this heading"></a></h2>
+<h2>POD algorithm<a class="headerlink" href="#POD-algorithm" title="Link to this heading"></a></h2>
 <p>A dict will be created with the POD class of each field.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -325,7 +328,7 @@ Computing norm_T correlation matrix: 364.000 / 364.00 - 0.269 s/it
 </div>
 </div>
 <section id="Definition-of-the-modes">
-<h3>Definition of the modes<a class="headerlink" href="#Definition-of-the-modes" title="Permalink to this heading"></a></h3>
+<h3>Definition of the modes<a class="headerlink" href="#Definition-of-the-modes" title="Link to this heading"></a></h3>
 <p>Let us define and save the POD modes.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
@@ -345,7 +348,7 @@ Computing norm_T correlation matrix: 364.000 / 364.00 - 0.269 s/it
 </div>
 </section>
 <section id="Computing-the-training-error-and-reduced-coefficient">
-<h3>Computing the training error and reduced coefficient<a class="headerlink" href="#Computing-the-training-error-and-reduced-coefficient" title="Permalink to this heading"></a></h3>
+<h3>Computing the training error and reduced coefficient<a class="headerlink" href="#Computing-the-training-error-and-reduced-coefficient" title="Link to this heading"></a></h3>
 <p>Then, let us compute the training errors and the POD basis coefficients.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
@@ -429,7 +432,7 @@ E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsy
 </div>
 </section>
 <section id="Post-process:-plotting-modes">
-<h3>Post-process: plotting modes<a class="headerlink" href="#Post-process:-plotting-modes" title="Permalink to this heading"></a></h3>
+<h3>Post-process: plotting modes<a class="headerlink" href="#Post-process:-plotting-modes" title="Link to this heading"></a></h3>
 <p>The POD modes are plotted using <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:

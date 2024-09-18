@@ -13,6 +13,7 @@ Welcome to pyforce's docs!
 
    intro.md
    installation.md
+   theory.md
    tutorials
    API Documentation <api/pyforce>
    bibliography

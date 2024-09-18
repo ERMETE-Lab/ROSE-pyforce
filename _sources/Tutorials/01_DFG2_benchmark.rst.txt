@@ -1,6 +1,8 @@
 Unsteady Laminar Navier Stokes - DFG2 benchmark
 =========================================================
 
+**Aim of this tutorial**: learn how to generate time-dependent snapshots, create the reduced space using POD and perform the online phase with POD with Interpolation (POD-I).
+
 The DFG2 benchmark is taken from the `FeatFlow Repository <https://wwwold.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking/flow/dfg_benchmark2_re100.html>`_. 
 It's 2D version of a Flow Over Cylinder Problem, able to observe Von-Karman vortex shedding.
 

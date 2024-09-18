@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANL11-A2 reactor: multigroup Neutron Diffusion &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -52,6 +54,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a><ul class="current">
@@ -102,7 +105,7 @@
            <div itemprop="articleBody">
              
   <section id="ANL11-A2-reactor:-multigroup-Neutron-Diffusion">
-<h1>ANL11-A2 reactor: multigroup Neutron Diffusion<a class="headerlink" href="#ANL11-A2-reactor:-multigroup-Neutron-Diffusion" title="Permalink to this heading"></a></h1>
+<h1>ANL11-A2 reactor: multigroup Neutron Diffusion<a class="headerlink" href="#ANL11-A2-reactor:-multigroup-Neutron-Diffusion" title="Link to this heading"></a></h1>
 <p>This notebooks implements the generation of the snapshots arising from the ANL11-A2 reactor (2D) from the <a class="reference external" href="https://www.osti.gov/biblio/12030251">Argonne Code Center - Supplement 2</a>.</p>
 <p>This notebook may took a while to run, consider converting it into a <code class="docutils literal notranslate"><span class="pre">.py</span></code> script.</p>
 <div class="nbinput nblast docutils container">
@@ -128,10 +131,10 @@
 </div>
 </div>
 <section id="Mesh-and-parameters">
-<h2>Mesh and parameters<a class="headerlink" href="#Mesh-and-parameters" title="Permalink to this heading"></a></h2>
+<h2>Mesh and parameters<a class="headerlink" href="#Mesh-and-parameters" title="Link to this heading"></a></h2>
 <p>The geometry and the main physical parameters will be assigned.</p>
 <section id="Importing-geometry-and-meshing">
-<h3>Importing geometry and meshing<a class="headerlink" href="#Importing-geometry-and-meshing" title="Permalink to this heading"></a></h3>
+<h3>Importing geometry and meshing<a class="headerlink" href="#Importing-geometry-and-meshing" title="Link to this heading"></a></h3>
 <p>The geometry and the mesh are imported from “ANL11A2_octave.msh”, generated with GMSH.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -183,7 +186,7 @@
 </div>
 </section>
 <section id="Definition-of-the-physical-parameters">
-<h3>Definition of the physical parameters<a class="headerlink" href="#Definition-of-the-physical-parameters" title="Permalink to this heading"></a></h3>
+<h3>Definition of the physical parameters<a class="headerlink" href="#Definition-of-the-physical-parameters" title="Link to this heading"></a></h3>
 <p>Since there are different subdomains in <span class="math notranslate nohighlight">\(\Omega\)</span>, the values of the parameters changes according to the region. No thermal feedback effects are considered.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -223,7 +226,7 @@
 </section>
 </section>
 <section id="Generation-of-the-snapshots">
-<h2>Generation of the snapshots<a class="headerlink" href="#Generation-of-the-snapshots" title="Permalink to this heading"></a></h2>
+<h2>Generation of the snapshots<a class="headerlink" href="#Generation-of-the-snapshots" title="Link to this heading"></a></h2>
 <p>This section generates the snapshots from the Finite Element solver, dependent on the parameters <span class="math notranslate nohighlight">\(D_1\)</span> and <span class="math notranslate nohighlight">\(\Sigma_{a,2}\)</span>, in the reflector (marker=4) and fuel+rod region (marker=3) respectively:</p>
 <p><span class="math">\begin{equation*}
 D_1^{\text{refl}} \in [0.5, 3] \qquad \qquad \Sigma_{a,2}^{\text{rod}} = [0.08, 0.15]
@@ -243,7 +246,7 @@ D_1^{\text{refl}} \in [0.5, 3] \qquad \qquad \Sigma_{a,2}^{\text{rod}} = [0.08, 
 </div>
 </div>
 <section id="Train-Set">
-<h3>Train Set<a class="headerlink" href="#Train-Set" title="Permalink to this heading"></a></h3>
+<h3>Train Set<a class="headerlink" href="#Train-Set" title="Link to this heading"></a></h3>
 <p>The train set of snapshots is computed and stored.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -316,7 +319,7 @@ Generating the training snapshots: 2.000 / 2.00 - 13.351 s/it
 </div>
 </section>
 <section id="Test-Set">
-<h3>Test Set<a class="headerlink" href="#Test-Set" title="Permalink to this heading"></a></h3>
+<h3>Test Set<a class="headerlink" href="#Test-Set" title="Link to this heading"></a></h3>
 <p>The test set of snapshots is computed and stored.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:

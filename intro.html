@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome to pyforce’s documentation &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -52,14 +52,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Welcome to <em>pyforce</em>’s documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#description">Description</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-cite-pyforce">How to cite pyforce</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#what-is-reduced-order-modelling">What is Reduced Order Modelling?</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#reduced-basis-methods">Reduced Basis Methods</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#data-driven-rom-techniques">Data-Driven ROM techniques</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
@@ -90,43 +86,46 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-pyforce-s-documentation">
-<h1>Welcome to <em>pyforce</em>’s documentation<a class="headerlink" href="#welcome-to-pyforce-s-documentation" title="Permalink to this heading"></a></h1>
+<h1>Welcome to <em>pyforce</em>’s documentation<a class="headerlink" href="#welcome-to-pyforce-s-documentation" title="Link to this heading"></a></h1>
 <p><strong>Authors</strong>: Stefano Riva, Carolina Introini, Antonio Cammi</p>
 <p><img alt="pyforce" src="_images/immy_pyforce2.png" /></p>
-<p><a class="reference external" href="https://arxiv.org/abs/2401.07300"><img alt="Reference Paper 1" src="https://img.shields.io/badge/Reference%20Paper%201-arXiv:%202401.07300-gray?labelColor=blue&amp;style=flat&amp;link=https://arxiv.org/abs/2401.07300" /></a> <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S002954932400205X"><img alt="Reference Paper 2" src="https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&amp;style=flat&amp;link=https://www.sciencedirect.com/science/article/pii/S002954932400205X" /></a></p>
+<p><a class="reference external" href="https://doi.org/10.1016/j.apm.2024.06.040"><img alt="Reference Paper 1" src="https://img.shields.io/badge/Reference%20Paper%201-10.1016/j.apm.2024.06.040-gray?labelColor=blue&amp;style=flat&amp;link=https://doi.org/10.1016/j.apm.2024.06.040" /></a> <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S002954932400205X"><img alt="Reference Paper 2" src="https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&amp;style=flat&amp;link=https://www.sciencedirect.com/science/article/pii/S002954932400205X" /></a></p>
 <section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h2>
-<p><em>pyforce</em> is a Python package implementing some Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the <strong>Nuclear Engineering</strong> world. These techniques have been implemented upon the <a class="reference external" href="https://github.com/FEniCS/dolfinx">dolfinx</a> package (currently v0.6.0), part of the <a class="reference external" href="https://fenicsproject.org/">FEniCSx</a> project, to handle mesh generation, integral calculation and functions storage. The package is part of the <strong>ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)</strong>: mathematical algorithms aimed at reducing the complexity of multi-physics models (for nuclear reactors applications), at searching for optimal sensor positions and at integrating real measures to improve the knowledge on the physical systems.</p>
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p><em>pyforce</em> (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) is a Python package implementing some Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the <strong>nuclear engineering</strong> world. These techniques have been implemented upon the <a class="reference external" href="https://github.com/FEniCS/dolfinx">dolfinx</a> package (currently v0.6.0), part of the <a class="reference external" href="https://fenicsproject.org/">FEniCSx</a> project, to handle mesh generation, integral calculation and functions storage. The package is part of the **ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)**which is one of the main research topics investigated at the <a class="reference external" href="https://github.com/ERMETE-Lab#reduced-order-modelling-with-data-driven-techniques-for-multi-physics-problems-rose-">ERMETE-Lab</a>: in particular, the focus of the research activities is on mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, searching for optimal sensor positions and integrating experimental data to improve the knowledge on the physical systems.</p>
 <p>At the moment, the following techniques have been implemented:</p>
 <ul class="simple">
 <li><p><strong>Proper Orthogonal Decomposition</strong> with Projection and Interpolation for the Online Phase</p></li>
-<li><p><strong>Generalised Empirical Interpolation Method</strong>, either regularised with Tikhonov or not</p></li>
+<li><p><strong>Generalised Empirical Interpolation Method</strong>, either with or without Tikhonov’s regularisation</p></li>
 <li><p><strong>Parameterised-Background Data-Weak formulation</strong></p></li>
 <li><p>an <strong>Indirect Reconstruction</strong> algorithm to reconstruct non-observable fields</p></li>
 </ul>
-<p>This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted in the Nuclear Engineering world. This documentation includes a brief introduction to the world of Reduced Order Modelling and dimensionality reduction, the API documentation and some examples on how to use the various modules of the package.</p>
+<p>This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted to the Nuclear Engineering world. This documentation includes a brief introduction to the world of Reduced Order Modelling and dimensionality reduction, the API documentation and some examples of how to use the various modules of the package.</p>
 <p>This work has been carried out at the <a class="reference external" href="https://github.com/ERMETE-Lab">Nuclear Reactors Group - ERMETE Lab</a> at <a class="reference external" href="https://polimi.it">Politecnico di Milano</a>, under the supervision of Prof. Antonio Cammi.</p>
 </section>
 <hr class="docutils" />
 <section id="how-to-cite-pyforce">
-<h2>How to cite pyforce<a class="headerlink" href="#how-to-cite-pyforce" title="Permalink to this heading"></a></h2>
-<p>If you are going to use <em>pyforce</em> in your research work, please cite the following articles.
-The authors would be pleased if you could cite the relevant papers:</p>
+<h2>How to cite pyforce<a class="headerlink" href="#how-to-cite-pyforce" title="Link to this heading"></a></h2>
+<p>If you are going to use <em>pyforce</em> in your research work, please cite the following articles:</p>
 <ol class="arabic simple">
-<li><p>Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order modelling techniques: Application to nuclear case studies, 2024. <a class="reference external" href="http://arxiv.org/abs/2401.07300">arXiv:2401.07300</a>.</p></li>
+<li><p>Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. <a class="reference external" href="https://doi.org/10.1016/j.apm.2024.06.040">https://doi.org/10.1016/j.apm.2024.06.040</a>.</p></li>
 <li><p>Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:<a class="reference external" href="https://doi.org/10.1016/j.nucengdes.2024.113105">https://doi.org/10.1016/j.nucengdes.2024.113105</a>.</p></li>
 </ol>
 <p>For LaTeX users:</p>
-<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@misc</span><span class="p">{</span><span class="nl">RMP_2024</span><span class="p">,</span>
-<span class="w">      </span><span class="na">title</span><span class="p">=</span><span class="s">{Multi-Physics Model Bias Correction with Data-Driven Reduced Order Modelling Techniques: Application to Nuclear Case Studies}</span><span class="p">,</span><span class="w"> </span>
-<span class="w">      </span><span class="na">author</span><span class="p">=</span><span class="s">{Stefano Riva and Carolina Introini and Antonio Cammi}</span><span class="p">,</span>
-<span class="w">      </span><span class="na">year</span><span class="p">=</span><span class="s">{2024}</span><span class="p">,</span>
-<span class="w">      </span><span class="na">eprint</span><span class="p">=</span><span class="s">{2401.07300}</span><span class="p">,</span>
-<span class="w">      </span><span class="na">archivePrefix</span><span class="p">=</span><span class="s">{arXiv}</span><span class="p">,</span>
-<span class="w">      </span><span class="na">primaryClass</span><span class="p">=</span><span class="s">{math.NA}</span>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@article</span><span class="p">{</span><span class="nl">RIVA2024_AMM</span><span class="p">,</span>
+<span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies}</span><span class="p">,</span>
+<span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Applied Mathematical Modelling}</span><span class="p">,</span>
+<span class="na">volume</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{135}</span><span class="p">,</span>
+<span class="na">pages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{243-268}</span><span class="p">,</span>
+<span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2024}</span><span class="p">,</span>
+<span class="na">issn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{0307-904X}</span><span class="p">,</span>
+<span class="na">doi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://doi.org/10.1016/j.apm.2024.06.040}</span><span class="p">,</span>
+<span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://www.sciencedirect.com/science/article/pii/S0307904X24003196}</span><span class="p">,</span>
+<span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Stefano Riva and Carolina Introini and Antonio Cammi}</span><span class="p">,</span>
+<span class="na">keywords</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Reduced order modelling, Data driven, Nuclear reactors, Multi-physics, Model correction}</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="nc">@article</span><span class="p">{</span><span class="nl">DDMOR_CFR</span><span class="p">,</span>
+<span class="nc">@article</span><span class="p">{</span><span class="nl">CAMMI2024_NED</span><span class="p">,</span>
 <span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a Circulating Fuel Reactor}</span><span class="p">,</span>
 <span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Nuclear Engineering and Design}</span><span class="p">,</span>
 <span class="na">volume</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{421}</span><span class="p">,</span>
@@ -140,31 +139,6 @@ The authors would be pleased if you could cite the relevant papers:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
-<hr class="docutils" />
-<section id="what-is-reduced-order-modelling">
-<h2>What is Reduced Order Modelling?<a class="headerlink" href="#what-is-reduced-order-modelling" title="Permalink to this heading"></a></h2>
-<p>In scientific literature the expression Reduced Order Modelling (ROM) <span id="id1">[<a class="reference internal" href="bibliography.html#id7" title="D. Degen, K. Veroy, and F. Wellmann. How Uncertainty Quantification and Reduced Order Modeling Change our Model Understanding. In AGU Fall Meeting Abstracts, volume 2020, T015-0002. December 2020. URL: https://ui.adsabs.harvard.edu/abs/2020AGUFMT015.0002D.">DVW20a</a>, <a class="reference internal" href="bibliography.html#id6" title="Yvon Maday and Anthony T Patera. 4 Reduced basis methods. In Peter Benner, Stefano Grivet-Talocia, Alfio Quarteroni, Gianluigi Rozza, Wil Schilders, and Luís Miguel Silveira, editors, Volume 2 Snapshot-Based Methods and Algorithms, pages 139–180. De Gruyter, 2020. doi:doi:10.1515/9783110671490-004.">MP20</a>, <a class="reference internal" href="bibliography.html#id5" title="Alfio Quarteroni, Andrea Manzoni, and Federico Negri. Reduced Basis Methods for Partial Differential Equations. Springer International Publishing, 2016. doi:10.1007/978-3-319-15431-2.">QMN16</a>]</span> is related to a set of techniques devoted to the search for an optimal coordinate system onto which some parametric solutions of Partial Differential Equations (PDEs) -typically called High-Fidelity (HF) or Full Order (FOM) Model - can be represented. These methods are very useful in multi-query and real-time scenarios, when quick and efficient solutions of models are required, e.g. optimization, uncertainty quantification and inverse problems <span id="id2">[<a class="reference internal" href="bibliography.html#id8" title="Denise Degen, Karen Veroy, and Florian Wellmann. Uncertainty quantification for basin-scale geothermal conduction models. Scientific Reports, 12:, 03 2022. doi:10.1038/s41598-022-08017-2.">DVW22</a>, <a class="reference internal" href="bibliography.html#id9" title="Theron Guo, Ondřej Rokoš, and Karen Veroy. Learning constitutive models from microstructural simulations via a non-intrusive reduced basis method. Computer Methods in Applied Mechanics and Engineering, 384:113924, 2021. doi:https://doi.org/10.1016/j.cma.2021.113924.">GRV21</a>]</span>. Recently, with the developments in data-driven modelling a lot of interest in the combination of data and models have been raised. ROM offers new opportunities both to integrate the model with experimental data in real-time and to define methods of sensor positioning, by providing efficient tools to compress the prior knowledge about the system coming from the parametrized mathematical model into low-dimensional forms.</p>
-<section id="reduced-basis-methods">
-<h3>Reduced Basis Methods<a class="headerlink" href="#reduced-basis-methods" title="Permalink to this heading"></a></h3>
-<p>Among all ROM methods, Reduced Basis (RB) <span id="id3">[<a class="reference internal" href="bibliography.html#id12" title="Denise Degen, Karen Veroy, and Florian Wellmann. Certified reduced basis method in geosciences. Computational Geosciences, 24:1-19, 02 2020. doi:10.1007/s10596-019-09916-6.">DVW20b</a>, <a class="reference internal" href="bibliography.html#id11" title="Jan S Hesthaven, Gianluigi Rozza, and Benjamin Stamm. Certified Reduced Basis Methods for Parametrized Partial Differential Equations. Springer International Publishing, 2016. doi:10.1007/978-3-319-22470-1.">HRS16</a>, <a class="reference internal" href="bibliography.html#id10" title="Alfio Quarteroni and Gianluigi Rozza. Reduced Order Methods for Modeling and Computational Reduction. Springer International Publishing, 2014. doi:10.1007/978-3-319-02090-7.">QR14</a>]</span> are a well-established and widely used class of ROM techniques, which are based on an offline-online paradigm. In the offline stage, a set of RB functions <span class="math notranslate nohighlight">\(\phi_n(\mathbf{x})\)</span> are derived from an ensemble of high-fidelity solutions, called <em>snapshots</em>, yielding a low dimensional space that retains the main features of the full-order model. Different approaches can be used to construct the reduced basis, such as the <strong>greedy</strong> algorithms <span id="id4">[<a class="reference internal" href="bibliography.html#id13" title="Yvon Maday. Reduced basis method for the rapid and reliable solution of partial differential equations. November 2006. Preprint. URL: https://hal.archives-ouvertes.fr/hal-00112152.">Mad06</a>]</span> and the <strong>POD</strong> <span id="id5">[<a class="reference internal" href="bibliography.html#id14" title="G Berkooz, P Holmes, and J L Lumley. The proper orthogonal decomposition in the analysis of turbulent flows. Annual Review of Fluid Mechanics, 25(1):539–575, jan 1993. doi:10.1146/annurev.fl.25.010193.002543.">BHL93</a>]</span>. Regardless of the construction strategy, an approximation of the high-fidelity solution is sought during the online stage as a linear combination of the RB functions, i.e.</p>
-<div class="math notranslate nohighlight">
-\[    u(\mathbf{x}\;\,\mu) \simeq \sum_{n=1}^N\alpha_n(\mu)\cdot \phi_n(\mathbf{x})\]</div>
-<p>According to the methodology for calculating the expansion coefficients <span class="math notranslate nohighlight">\(\alpha_n(\mu)\)</span> (also called reduced coefficients) of the approximation, RB methods are classified into two categories: <em>intrusive</em> and <em>non-intrusive</em> RB methods.</p>
-<ul class="simple">
-<li><p><em>Intrusive</em>: the governing equations of the physical system, to which the snapshots are solution, must be known and used during the online step. From a set of PDEs a rather small system of ODEs is derived, typically using a Galerkin projection.</p></li>
-<li><p><em>Non-Intrusive</em>: the governing equations knowledge is not required, a more data-driven approach is followed.</p></li>
-</ul>
-<p>This project mainly focuses on the latter since they can be easier extended to the use of real experimental data.</p>
-</section>
-</section>
-<section id="data-driven-rom-techniques">
-<h2>Data-Driven ROM techniques<a class="headerlink" href="#data-driven-rom-techniques" title="Permalink to this heading"></a></h2>
-<p>Data-Driven Reduced Order Modelling (DDROM) are a set of techniques, which combines theoretical modelling with real data collecting from a physical system. In particular, ROM is seen in a Data Assimilation (DA) framework <span id="id6">[<a class="reference internal" href="bibliography.html#id18" title="Steven L Brunton and J Nathan Kutz. Data-Driven Science and Engineering: Machine Learning, Dynamical Systems, and Control. Cambridge University Press, USA, 1st edition, 2019. ISBN 1108422098. URL: http://www.databookuw.com.">BK19</a>]</span>, so that the theoretical prediction, approximated by ROM, is corrected or updated by experimental evaluations of some fields (e.g., the measure of the temperature in a pipe or the neutron flux in a nuclear reactor).</p>
-<p>The general structure of the DDROM methods is reported in the figure below, the methods implemented in this repository can also help in finding the best locations for experimental sensors <span id="id7">[<a class="reference internal" href="bibliography.html#id26" title="Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order modelling techniques: application to nuclear case studies. 2024. arXiv:2401.07300.">RIC24</a>]</span>.</p>
-<p><img alt="pyforce" src="_images/DA_ROM.png" /></p>
-<p>The Full Order (FOM) solution is encoded into a reduced coordinate system <span id="id8">[<a class="reference internal" href="bibliography.html#id24" title="Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-Physics Model Correction with Data-Driven Reduced Order Modelling. In 32nd International Conference Nuclear Energy for New Europe (NENE2023). Portoroz, Slovenia, September 2023.">RIC23</a>, <a class="reference internal" href="bibliography.html#id26" title="Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order modelling techniques: application to nuclear case studies. 2024. arXiv:2401.07300.">RIC24</a>]</span>, ensuring a dimensionality reduction by searching for the dominant physics into the system. This process of encoding can be done through POD, GEIM or other more advanced algorithms and in general represents the heaviest part from the computational point of view. Then, the reduced coordinate system is used to select the most important locations in the domain to place experimental sensors.
-Once this is the Data Assimilation process can begin, by combining real measures and the background knowledge in the form of a reduced coordinate system so that an improved system of coordinate is found enabling us to go back to the FOM representation with a decoding process.</p>
 </section>
 </section>
 

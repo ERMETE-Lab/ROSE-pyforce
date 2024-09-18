@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.online.pod_projection &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -46,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
@@ -78,18 +81,21 @@
   <h1>Source code for pyforce.online.pod_projection</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Synthetic Online Phase: Generalised Empirical Interpolation Method</span>
 <span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 25 June 2023</span>
-<span class="c1"># Latest Doc  Update: 18 July 2023</span>
+<span class="c1"># Latest Code Update: 16 September 2024</span>
+<span class="c1"># Latest Doc  Update: 16 September 2024</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 
 <span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">Function</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
 
-<div class="viewcode-block" id="POD_project"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project">[docs]</a><span class="k">class</span> <span class="nc">POD_project</span><span class="p">():</span>
+<div class="viewcode-block" id="PODproject">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.PODproject">[docs]</a>
+<span class="k">class</span> <span class="nc">PODproject</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to perform the online phase of the POD with projection from true field, in which the modal coefficients are found from the projection of the snapshot onto the reduced space.</span>
 <span class="sd">    </span>
@@ -112,8 +118,10 @@
         <span class="c1"># Defining the norm class to make scalar products and norms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
     
-<div class="viewcode-block" id="POD_project.synt_test_error"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project.synt_test_error">[docs]</a>    <span class="k">def</span> <span class="nf">synt_test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
-                              <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PODproject.synt_test_error">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.PODproject.synt_test_error">[docs]</a>
+    <span class="k">def</span> <span class="nf">synt_test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                              <span class="n">return_int</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">namedtuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2`</span>
 
@@ -134,19 +142,20 @@
 <span class="sd">            If `True`, print of the progress is enabled.</span>
 
 <span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        ave_absErr : np.ndarray</span>
-<span class="sd">            Average absolute errors as a function of the dimension of the reduced space.</span>
-<span class="sd">        ave_relErr : np.ndarray</span>
-<span class="sd">            Average absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mean_abs_err : np.ndarray</span>
+<span class="sd">            Average absolute error measured in :math:`L^2`.</span>
+<span class="sd">        mean_rel_err : np.ndarray</span>
+<span class="sd">            Average relative error measured in :math:`L^2`.</span>
 <span class="sd">        computational_time : dict</span>
 <span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+<span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="n">Ns_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_snap</span><span class="p">)</span>
         
-        <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
-        <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+        <span class="n">abs_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+        <span class="n">rel_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">abs_err</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing POD test error (projection) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns_test</span><span class="p">)</span>
@@ -175,16 +184,22 @@
                 <span class="c1"># building residual field</span>
                 <span class="n">timing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
                 <span class="n">resid</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">nn</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
-                <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">/</span> <span class="n">norma_snap</span>
+                <span class="n">abs_err</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">resid</span><span class="p">)</span>
+                <span class="n">rel_err</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs_err</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">/</span> <span class="n">norma_snap</span>
                 <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu</span><span class="p">,</span> <span class="n">nn</span><span class="p">]</span> <span class="o">+=</span> <span class="n">timing</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">computational_time</span></div>
-        
-<div class="viewcode-block" id="POD_project.project"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project.project">[docs]</a>    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">Results</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Results&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean_abs_err&#39;</span><span class="p">,</span> <span class="s1">&#39;mean_rel_err&#39;</span><span class="p">,</span> <span class="s1">&#39;computational_time&#39;</span><span class="p">])</span>
+        <span class="n">synt_res</span> <span class="o">=</span> <span class="n">Results</span><span class="p">(</span><span class="n">mean_abs_err</span> <span class="o">=</span> <span class="n">abs_err</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">mean_rel_err</span> <span class="o">=</span> <span class="n">rel_err</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">computational_time</span> <span class="o">=</span> <span class="n">computational_time</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">synt_res</span></div>
+
+
+<div class="viewcode-block" id="PODproject.project">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.PODproject.project">[docs]</a>
+    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project `snap` onto the reduced space of dimension `maxBasis`, by computing the modal coefficients :math:`\{\alpha_i\}`</span>
 <span class="sd">        </span>
@@ -209,8 +224,11 @@
           <span class="n">coeff</span><span class="p">[</span><span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PODmodes</span><span class="p">(</span><span class="n">nn</span><span class="p">))</span> 
             
         <span class="k">return</span> <span class="n">coeff</span></div>
+
         
-<div class="viewcode-block" id="POD_project.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.POD_project.reconstruct">[docs]</a>    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="PODproject.reconstruct">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.pod_projection.PODproject.reconstruct">[docs]</a>
+    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The coefficients of the POD basis are obtained by projection, the `snap` is approximated using linear combination of the POD modes.</span>
 <span class="sd">        </span>
@@ -251,7 +269,9 @@
         
         <span class="n">resid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snap</span> <span class="o">-</span> <span class="n">recon</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">recon</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">computational_time</span></div></div>
+        <span class="k">return</span> <span class="n">recon</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">computational_time</span></div>
+</div>
+
 </pre></div>
 
            </div>

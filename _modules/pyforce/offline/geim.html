@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.offline.geim &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -46,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
@@ -88,10 +91,12 @@
 
 <span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
-<span class="kn">from</span> <span class="nn">.sensors</span> <span class="kn">import</span> <span class="n">gaussian_sensors</span>
+<span class="kn">from</span> <span class="nn">.sensors</span> <span class="kn">import</span> <span class="n">GaussianSensors</span>
     
 <span class="c1"># GEIM: offline</span>
-<div class="viewcode-block" id="GEIM"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM">[docs]</a><span class="k">class</span> <span class="nc">GEIM</span><span class="p">():</span>
+<div class="viewcode-block" id="GEIM">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM">[docs]</a>
+<span class="k">class</span> <span class="nc">GEIM</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class is used to perform the offline phase of the Generalised Empirical Interpolation Method (GEIM) to a scalar field.</span>
 <span class="sd">    Given a list of training snapshots, this class generates the magic functions and sensors through a greedy algorithm.</span>
@@ -114,9 +119,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         
         <span class="c1"># Generate a sensor library class - assuming gaussian kernel and scalar fields</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sens_class</span> <span class="o">=</span> <span class="n">gaussian_sensors</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sens_class</span> <span class="o">=</span> <span class="n">GaussianSensors</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GEIM.offline"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.offline">[docs]</a>    <span class="k">def</span> <span class="nf">offline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+<div class="viewcode-block" id="GEIM.offline">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.offline">[docs]</a>
+    <span class="k">def</span> <span class="nf">offline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
                 <span class="n">xm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sampleEvery</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The greedy algorithm chooses the magic functions and magic sensors by minimising the reconstruction error.</span>
@@ -131,7 +138,9 @@
 <span class="sd">            User-defined available positions for the sensors, if `None` the positions are taken from the mesh elements.</span>
 <span class="sd">        sampleEvery : int, optional (default = 5)</span>
 <span class="sd">            If `xm` is not `None`, sampling rate for the selection of points from the mesh</span>
-<span class="sd">        </span>
+<span class="sd">        verbose : boolean, optional (Default = False) </span>
+<span class="sd">            If `True`, print of the progress is enabled.</span>
+<span class="sd">            </span>
 <span class="sd">        Returns</span>
 <span class="sd">        ----------</span>
 <span class="sd">        maxAbsErr : np.ndarray</span>
@@ -254,7 +263,10 @@
 
         <span class="k">return</span> <span class="n">maxAbsErr</span><span class="p">,</span> <span class="n">maxRelErr</span><span class="p">,</span> <span class="n">beta_coeff</span></div>
 
-<div class="viewcode-block" id="GEIM.reconstruct"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.reconstruct">[docs]</a>    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GEIM.reconstruct">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.reconstruct">[docs]</a>
+    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the reduced coefficients :math:`\{\beta_m\}_{m=1}^{M_{max}}` with &#39;Mmax&#39; magic functions/sensors (synthetic) and returns the vector measurement from the snapshots :math:`u`</span>
 <span class="sd">        </span>
@@ -285,7 +297,10 @@
 
         <span class="k">return</span> <span class="n">beta_coeff</span><span class="p">,</span> <span class="n">measure</span></div>
 
-<div class="viewcode-block" id="GEIM.test_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.test_error">[docs]</a>    <span class="k">def</span> <span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GEIM.test_error">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.test_error">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The absolute and relative error on the test set is computed, by solving the GEIM system</span>
 <span class="sd">        </span>
@@ -343,14 +358,21 @@
 
         <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">coeff_matrix</span></div>
 
-<div class="viewcode-block" id="GEIM.assemble_penalisation_matrix"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.assemble_penalisation_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">assemble_penalisation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GEIM.assemble_penalisation_matrix">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.GEIM.assemble_penalisation_matrix">[docs]</a>
+    <span class="k">def</span> <span class="nf">assemble_penalisation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Construct penalisation matrix for the TR-GEIM</span>
 <span class="sd">        </span>
-<span class="sd">        &quot;&quot;&quot;</span></div></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
         
         
 
-<div class="viewcode-block" id="computeLebesgue"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.computeLebesgue">[docs]</a><span class="k">def</span> <span class="nf">computeLebesgue</span><span class="p">(</span><span class="n">magic_fun</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">magic_sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">):</span>
+<div class="viewcode-block" id="computeLebesgue">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.geim.computeLebesgue">[docs]</a>
+<span class="k">def</span> <span class="nf">computeLebesgue</span><span class="p">(</span><span class="n">magic_fun</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">magic_sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The Lebesgue constant :math:`\Lambda_M` is computed from the magic functions and sensors, to measure the good properties of the interpolation procedure.</span>
 <span class="sd">    This function follows the implementation reported in `https://www.sciencedirect.com/science/article/pii/S0045782515000389?via%3Dihub`.</span>
@@ -410,6 +432,7 @@
         <span class="n">eigenval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">A</span><span class="p">)</span>
         <span class="n">Lebesgue</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">eigenval</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">Lebesgue</span></div>
+
 </pre></div>
 
            </div>

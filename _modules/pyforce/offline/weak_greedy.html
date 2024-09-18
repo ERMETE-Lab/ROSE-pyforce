@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.offline.weak_greedy &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -46,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
@@ -90,7 +93,9 @@
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
 
 <span class="c1"># WeakGreedy offline + online (projection)</span>
-<div class="viewcode-block" id="WeakGreedy"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy">[docs]</a><span class="k">class</span> <span class="nc">WeakGreedy</span><span class="p">():</span>
+<div class="viewcode-block" id="WeakGreedy">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy">[docs]</a>
+<span class="k">class</span> <span class="nc">WeakGreedy</span><span class="p">():</span>
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to perform the WeakGreedy algorithm on a list of snapshots :math:`u(\mathbf{x};\,\boldsymbol{\mu})` dependent on some parameter :math:`\boldsymbol{\mu}\in\mathcal{P}\subset\mathbb{R}^p`.</span>
@@ -106,7 +111,9 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-<div class="viewcode-block" id="WeakGreedy.GrahmSchmidt"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.GrahmSchmidt">[docs]</a>  <span class="k">def</span> <span class="nf">GrahmSchmidt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<div class="viewcode-block" id="WeakGreedy.GrahmSchmidt">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.GrahmSchmidt">[docs]</a>
+  <span class="k">def</span> <span class="nf">GrahmSchmidt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform a step of the Gram-Schmidt process on basis functions :math:`\{\psi_k\}_{k=1}^r` adding `fun` :math:`=f` to enforce the orthonormality in :math:`L^2`</span>
 
@@ -134,6 +141,7 @@
     <span class="c1"># Computing the normalised function</span>
     <span class="n">normalised_fun</span> <span class="o">=</span> <span class="n">fun</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">_rescaling</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">normalised_fun</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">normalised_fun</span><span class="p">)</span></div>
+
   
     <span class="c1"># Deprecated?  </span>
     <span class="c1"># for jj in range(ii+1):</span>
@@ -143,7 +151,9 @@
             
     <span class="c1"># return fun.x.array[:]  / self.norm.L2norm(fun)</span>
     
-<div class="viewcode-block" id="WeakGreedy.projection"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.projection">[docs]</a>  <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="WeakGreedy.projection">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.projection">[docs]</a>
+  <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The reduced coefficients :math:`\{\alpha_k\}_{k=1}^N` of `u` using `N` basis functions :math:`\{\psi_k\}_{k=1}^N` are computed using projection in :math:`L_2`, i.e.</span>
 
@@ -170,7 +180,10 @@
 
     <span class="k">return</span> <span class="n">coeff</span></div>
 
-<div class="viewcode-block" id="WeakGreedy.compute_basis"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.compute_basis">[docs]</a>  <span class="k">def</span> <span class="nf">compute_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WeakGreedy.compute_basis">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.compute_basis">[docs]</a>
+  <span class="k">def</span> <span class="nf">compute_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the WeakGreedy (WG) basis functions (orthonormalised using Grahm-Schmidt), as the set of snapshots that minimises the reconstruction error.</span>
 
@@ -260,9 +273,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">basis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">GrahmSchmidt</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="n">generatingIdx</span><span class="p">))</span> <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">maxAbsErr</span><span class="p">,</span> <span class="n">maxRelErr</span><span class="p">,</span> <span class="n">alpha_coeff</span></div>
+
         
 
-<div class="viewcode-block" id="WeakGreedy.test_error"><a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.test_error">[docs]</a>  <span class="k">def</span> <span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="WeakGreedy.test_error">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.test_error">[docs]</a>
+  <span class="k">def</span> <span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2`-sense</span>
 
@@ -315,7 +331,9 @@
 
     <span class="n">meanAbsErr</span> <span class="o">=</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">meanRelErr</span> <span class="o">=</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">meanAbsErr</span><span class="p">,</span> <span class="n">meanRelErr</span><span class="p">,</span> <span class="n">coeff_matrix</span></div></div>
+    <span class="k">return</span> <span class="n">meanAbsErr</span><span class="p">,</span> <span class="n">meanRelErr</span><span class="p">,</span> <span class="n">coeff_matrix</span></div>
+</div>
+
 </pre></div>
 
            </div>

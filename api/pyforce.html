@@ -1,23 +1,27 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce package &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -49,6 +53,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
@@ -88,39 +93,199 @@
            <div itemprop="articleBody">
              
   <section id="pyforce-package">
-<h1>pyforce package<a class="headerlink" href="#pyforce-package" title="Permalink to this heading"></a></h1>
+<h1>pyforce package<a class="headerlink" href="#pyforce-package" title="Link to this heading"></a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pyforce.offline.html">pyforce.offline package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.geim">pyforce.offline.geim module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.pbdw">pyforce.offline.pbdw module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.pod">pyforce.offline.pod module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.sensors">pyforce.offline.sensors module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.weak_greedy">pyforce.offline.weak_greedy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.geim">pyforce.offline.geim module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.geim.GEIM"><code class="docutils literal notranslate"><span class="pre">GEIM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.geim.GEIM.assemble_penalisation_matrix"><code class="docutils literal notranslate"><span class="pre">GEIM.assemble_penalisation_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.geim.GEIM.offline"><code class="docutils literal notranslate"><span class="pre">GEIM.offline()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.geim.GEIM.reconstruct"><code class="docutils literal notranslate"><span class="pre">GEIM.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.geim.GEIM.test_error"><code class="docutils literal notranslate"><span class="pre">GEIM.test_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.geim.computeLebesgue"><code class="docutils literal notranslate"><span class="pre">computeLebesgue()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.pbdw">pyforce.offline.pbdw module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pbdw.PBDW"><code class="docutils literal notranslate"><span class="pre">PBDW</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pbdw.PBDW.compute_infsup"><code class="docutils literal notranslate"><span class="pre">PBDW.compute_infsup()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.pod">pyforce.offline.pod module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.DiscretePOD"><code class="docutils literal notranslate"><span class="pre">DiscretePOD</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.DiscretePOD.projection"><code class="docutils literal notranslate"><span class="pre">DiscretePOD.projection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.DiscretePOD.reconstruct"><code class="docutils literal notranslate"><span class="pre">DiscretePOD.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.DiscretePOD.train_error"><code class="docutils literal notranslate"><span class="pre">DiscretePOD.train_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD"><code class="docutils literal notranslate"><span class="pre">POD</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD.GramSchmidt"><code class="docutils literal notranslate"><span class="pre">POD.GramSchmidt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD.compute_basis"><code class="docutils literal notranslate"><span class="pre">POD.compute_basis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD.mode"><code class="docutils literal notranslate"><span class="pre">POD.mode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD.projection"><code class="docutils literal notranslate"><span class="pre">POD.projection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD.test_error"><code class="docutils literal notranslate"><span class="pre">POD.test_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.pod.POD.train_error"><code class="docutils literal notranslate"><span class="pre">POD.train_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.sensors">pyforce.offline.sensors module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.GaussianSensors"><code class="docutils literal notranslate"><span class="pre">GaussianSensors</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.action"><code class="docutils literal notranslate"><span class="pre">GaussianSensors.action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.action_single"><code class="docutils literal notranslate"><span class="pre">GaussianSensors.action_single()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.create"><code class="docutils literal notranslate"><span class="pre">GaussianSensors.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.define"><code class="docutils literal notranslate"><span class="pre">GaussianSensors.define()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.define_riesz"><code class="docutils literal notranslate"><span class="pre">GaussianSensors.define_riesz()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.SGREEDY"><code class="docutils literal notranslate"><span class="pre">SGREEDY</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.SGREEDY.approx_loop"><code class="docutils literal notranslate"><span class="pre">SGREEDY.approx_loop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.sensors.SGREEDY.generate"><code class="docutils literal notranslate"><span class="pre">SGREEDY.generate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline.weak_greedy">pyforce.offline.weak_greedy module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy"><code class="docutils literal notranslate"><span class="pre">WeakGreedy</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.GrahmSchmidt"><code class="docutils literal notranslate"><span class="pre">WeakGreedy.GrahmSchmidt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.compute_basis"><code class="docutils literal notranslate"><span class="pre">WeakGreedy.compute_basis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.projection"><code class="docutils literal notranslate"><span class="pre">WeakGreedy.projection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.test_error"><code class="docutils literal notranslate"><span class="pre">WeakGreedy.test_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pyforce.offline.html#module-pyforce.offline">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pyforce.online.html">pyforce.online package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.geim_synthetic">pyforce.online.geim_synthetic module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.indirect_recon">pyforce.online.indirect_recon module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.pbdw_synthetic">pyforce.online.pbdw_synthetic module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.pod_interpolation">pyforce.online.pod_interpolation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.pod_projection">pyforce.online.pod_projection module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.tr_geim_synthetic">pyforce.online.tr_geim_synthetic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.geim">pyforce.online.geim module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.geim.GEIM"><code class="docutils literal notranslate"><span class="pre">GEIM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.geim.GEIM.compute_measure"><code class="docutils literal notranslate"><span class="pre">GEIM.compute_measure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.geim.GEIM.real_reconstruct"><code class="docutils literal notranslate"><span class="pre">GEIM.real_reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.geim.GEIM.reconstruct"><code class="docutils literal notranslate"><span class="pre">GEIM.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.geim.GEIM.synt_test_error"><code class="docutils literal notranslate"><span class="pre">GEIM.synt_test_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.indirect_recon">pyforce.online.indirect_recon module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.indirect_recon.PE"><code class="docutils literal notranslate"><span class="pre">PE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.indirect_recon.PE.optimise"><code class="docutils literal notranslate"><span class="pre">PE.optimise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.indirect_recon.PE.synt_test_error"><code class="docutils literal notranslate"><span class="pre">PE.synt_test_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.indirect_recon.objective"><code class="docutils literal notranslate"><span class="pre">objective()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.pbdw">pyforce.online.pbdw module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.pbdw.PBDW"><code class="docutils literal notranslate"><span class="pre">PBDW</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pbdw.PBDW.compute_measure"><code class="docutils literal notranslate"><span class="pre">PBDW.compute_measure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pbdw.PBDW.hyperparameter_tuning"><code class="docutils literal notranslate"><span class="pre">PBDW.hyperparameter_tuning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pbdw.PBDW.real_reconstruct"><code class="docutils literal notranslate"><span class="pre">PBDW.real_reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pbdw.PBDW.reconstruct"><code class="docutils literal notranslate"><span class="pre">PBDW.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pbdw.PBDW.synt_test_error"><code class="docutils literal notranslate"><span class="pre">PBDW.synt_test_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.pod_interpolation">pyforce.online.pod_interpolation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_interpolation.PODI"><code class="docutils literal notranslate"><span class="pre">PODI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_interpolation.PODI.reconstruct"><code class="docutils literal notranslate"><span class="pre">PODI.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_interpolation.PODI.synt_test_error"><code class="docutils literal notranslate"><span class="pre">PODI.synt_test_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.pod_projection">pyforce.online.pod_projection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_projection.PODproject"><code class="docutils literal notranslate"><span class="pre">PODproject</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_projection.PODproject.project"><code class="docutils literal notranslate"><span class="pre">PODproject.project()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_projection.PODproject.reconstruct"><code class="docutils literal notranslate"><span class="pre">PODproject.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.pod_projection.PODproject.synt_test_error"><code class="docutils literal notranslate"><span class="pre">PODproject.synt_test_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online.tr_geim">pyforce.online.tr_geim module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.online.html#pyforce.online.tr_geim.TRGEIM"><code class="docutils literal notranslate"><span class="pre">TRGEIM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.tr_geim.TRGEIM.compute_measure"><code class="docutils literal notranslate"><span class="pre">TRGEIM.compute_measure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.tr_geim.TRGEIM.hyperparameter_tuning"><code class="docutils literal notranslate"><span class="pre">TRGEIM.hyperparameter_tuning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.tr_geim.TRGEIM.real_reconstruct"><code class="docutils literal notranslate"><span class="pre">TRGEIM.real_reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.tr_geim.TRGEIM.reconstruct"><code class="docutils literal notranslate"><span class="pre">TRGEIM.reconstruct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.online.html#pyforce.online.tr_geim.TRGEIM.synt_test_error"><code class="docutils literal notranslate"><span class="pre">TRGEIM.synt_test_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pyforce.online.html#module-pyforce.online">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pyforce.tools.html">pyforce.tools package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.backends">pyforce.tools.backends module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.functions_list">pyforce.tools.functions_list module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.plotting">pyforce.tools.plotting module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.timer">pyforce.tools.timer module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.write_read">pyforce.tools.write_read module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.backends">pyforce.tools.backends module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.LoopProgress"><code class="docutils literal notranslate"><span class="pre">LoopProgress</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.LoopProgress.update"><code class="docutils literal notranslate"><span class="pre">LoopProgress.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms"><code class="docutils literal notranslate"><span class="pre">norms</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.H1innerProd"><code class="docutils literal notranslate"><span class="pre">norms.H1innerProd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.H1norm"><code class="docutils literal notranslate"><span class="pre">norms.H1norm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.L2innerProd"><code class="docutils literal notranslate"><span class="pre">norms.L2innerProd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.L2norm"><code class="docutils literal notranslate"><span class="pre">norms.L2norm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.Linftynorm"><code class="docutils literal notranslate"><span class="pre">norms.Linftynorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.average"><code class="docutils literal notranslate"><span class="pre">norms.average()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.backends.norms.integral"><code class="docutils literal notranslate"><span class="pre">norms.integral()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.functions_list">pyforce.tools.functions_list module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList"><code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.append"><code class="docutils literal notranslate"><span class="pre">FunctionsList.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.clear"><code class="docutils literal notranslate"><span class="pre">FunctionsList.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.copy"><code class="docutils literal notranslate"><span class="pre">FunctionsList.copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.delete"><code class="docutils literal notranslate"><span class="pre">FunctionsList.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.lin_combine"><code class="docutils literal notranslate"><span class="pre">FunctionsList.lin_combine()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.map"><code class="docutils literal notranslate"><span class="pre">FunctionsList.map()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.return_matrix"><code class="docutils literal notranslate"><span class="pre">FunctionsList.return_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.sort"><code class="docutils literal notranslate"><span class="pre">FunctionsList.sort()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.train_test_split"><code class="docutils literal notranslate"><span class="pre">train_test_split()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.plotting">pyforce.tools.plotting module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.plotting.grids"><code class="docutils literal notranslate"><span class="pre">grids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.plotting.plot_function"><code class="docutils literal notranslate"><span class="pre">plot_function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.timer">pyforce.tools.timer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.timer.Timer"><code class="docutils literal notranslate"><span class="pre">Timer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.timer.Timer.start"><code class="docutils literal notranslate"><span class="pre">Timer.start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.timer.Timer.stop"><code class="docutils literal notranslate"><span class="pre">Timer.stop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.timer.TimerError"><code class="docutils literal notranslate"><span class="pre">TimerError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools.write_read">pyforce.tools.write_read module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.write_read.ImportH5"><code class="docutils literal notranslate"><span class="pre">ImportH5()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.write_read.ImportOF"><code class="docutils literal notranslate"><span class="pre">ImportOF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.write_read.ImportOF.foam_to_dolfinx"><code class="docutils literal notranslate"><span class="pre">ImportOF.foam_to_dolfinx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.write_read.ImportOF.import_field"><code class="docutils literal notranslate"><span class="pre">ImportOF.import_field()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.write_read.StoreFunctionsList"><code class="docutils literal notranslate"><span class="pre">StoreFunctionsList()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pyforce.tools.html#module-pyforce.tools">Module contents</a></li>
 </ul>
 </li>
@@ -128,7 +293,7 @@
 </div>
 </section>
 <section id="module-pyforce">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyforce" title="Permalink to this heading"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyforce" title="Link to this heading"></a></h2>
 <p>pyforce.</p>
 <p>Python Framework for data-driven model Order Reduction of multi-physiCs problEms.</p>
 </section>

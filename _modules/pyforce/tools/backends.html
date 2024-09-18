@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.tools.backends &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -46,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
@@ -93,7 +96,9 @@
 <span class="c1"># Note that dx will be deprecated in the future, is it necessary to import the mesh in addition to V?</span>
 
 <span class="c1"># Class to make progress bar</span>
-<div class="viewcode-block" id="LoopProgress"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.LoopProgress">[docs]</a><span class="k">class</span> <span class="nc">LoopProgress</span><span class="p">():</span>
+<div class="viewcode-block" id="LoopProgress">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.LoopProgress">[docs]</a>
+<span class="k">class</span> <span class="nc">LoopProgress</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to make progress bar.</span>
 
@@ -116,7 +121,9 @@
         <span class="n">out</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;: &#39;</span>
         <span class="nb">print</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LoopProgress.update"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.LoopProgress.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">percentage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="LoopProgress.update">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.LoopProgress.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">percentage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update message to display and clears the previous one.</span>
 <span class="sd">        </span>
@@ -150,10 +157,14 @@
             <span class="nb">print</span> <span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Update inital offset cpu time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_time</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_time</span>  <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+</div>
+
 
 <span class="c1"># Class to compute norms in L2, H1 and L^\infty and the inner product in L2</span>
-<div class="viewcode-block" id="norms"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms">[docs]</a><span class="k">class</span> <span class="nc">norms</span><span class="p">():</span>
+<div class="viewcode-block" id="norms">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms">[docs]</a>
+<span class="k">class</span> <span class="nc">norms</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A class to compute norms and inner products. :math:`L^2` and :math:`H^1` (semi and full are implemented for both scalar and vector fields), whereas the average and the integral are available for scalar only.</span>
 
@@ -186,7 +197,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">semiH1form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span> <span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
             
-<div class="viewcode-block" id="norms.integral"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.integral">[docs]</a>    <span class="k">def</span> <span class="nf">integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<div class="viewcode-block" id="norms.integral">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.integral">[docs]</a>
+    <span class="k">def</span> <span class="nf">integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the integral of a given scalar function `u` over the domain</span>
 
@@ -220,7 +233,10 @@
             
         <span class="k">return</span> <span class="n">val</span></div>
 
-<div class="viewcode-block" id="norms.average"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.average">[docs]</a>    <span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+
+<div class="viewcode-block" id="norms.average">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.average">[docs]</a>
+    <span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the integral average of a given **scalar** function `u` over the domain</span>
 
@@ -247,7 +263,10 @@
         <span class="n">ave_value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">domain_norm</span>
         <span class="k">return</span> <span class="n">ave_value</span></div>
 
-<div class="viewcode-block" id="norms.L2norm"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2norm">[docs]</a>    <span class="k">def</span> <span class="nf">L2norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+
+<div class="viewcode-block" id="norms.L2norm">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2norm">[docs]</a>
+    <span class="k">def</span> <span class="nf">L2norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the :math:`L^2` norm of the function `u` over the domain</span>
 
@@ -283,8 +302,11 @@
         <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span><span class="p">))</span>
             
         <span class="k">return</span> <span class="n">value</span></div>
+
                        
-<div class="viewcode-block" id="norms.H1norm"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1norm">[docs]</a>    <span class="k">def</span> <span class="nf">H1norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="norms.H1norm">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1norm">[docs]</a>
+    <span class="k">def</span> <span class="nf">H1norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the :math:`H^1` semi or full norm of the function `u` over the domain</span>
 
@@ -329,8 +351,11 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span><span class="p">))</span>
         
         <span class="k">return</span> <span class="n">value</span></div>
+
     
-<div class="viewcode-block" id="norms.Linftynorm"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.Linftynorm">[docs]</a>    <span class="k">def</span> <span class="nf">Linftynorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+<div class="viewcode-block" id="norms.Linftynorm">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.Linftynorm">[docs]</a>
+    <span class="k">def</span> <span class="nf">Linftynorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the :math:`L^\infty` norm of a given function `u` over the domain</span>
 
@@ -363,7 +388,10 @@
         <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="norms.L2innerProd"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2innerProd">[docs]</a>    <span class="k">def</span> <span class="nf">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+
+<div class="viewcode-block" id="norms.L2innerProd">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2innerProd">[docs]</a>
+    <span class="k">def</span> <span class="nf">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the :math:`L^2` inner product of the functions `u` and `v` over the domain</span>
 
@@ -409,8 +437,11 @@
 
         <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span></div>
+
                        
-<div class="viewcode-block" id="norms.H1innerProd"><a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1innerProd">[docs]</a>    <span class="k">def</span> <span class="nf">H1innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="norms.H1innerProd">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1innerProd">[docs]</a>
+    <span class="k">def</span> <span class="nf">H1innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Computes the :math:`H^1` semi or full inner product of the functions `u` and `v` over the domain</span>
 
@@ -465,7 +496,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">value</span></div></div>
+        <span class="k">return</span> <span class="n">value</span></div>
+</div>
+
     
     
 <span class="c1"># class compute_integral():</span>
