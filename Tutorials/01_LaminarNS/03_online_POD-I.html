@@ -247,7 +247,7 @@
 <p>Let us reconstruct the field using the POD projection, the coefficients are obtained by means of the following projection (scalar product in <span class="math notranslate nohighlight">\(L^2\)</span>) for an unseen parameter <span class="math notranslate nohighlight">\(\boldsymbol{\mu}^\star\)</span>: <span class="math">\begin{equation*}
 \alpha_m(\boldsymbol{\mu}^\star) = \int_{\Omega} u(\mathbf{x}; \boldsymbol{\mu}^\star)\cdot \psi_m\, d\Omega
 \end{equation*}</span></p>
-<p>This is the standard POD projection, which is used as a reference for the interpolation methods, acting as best-case scenario: it cannot be adopted for real problems because it is assumed to know the actual FOM solution. This produdure is implemented in the <code class="docutils literal notranslate"><span class="pre">PODproject</span></code> class: the initialisation requires the POD modes and the name of the variable to be reconstructed.</p>
+<p>This is the standard POD projection, which is used as a reference for the interpolation methods, acting as the best-case scenario: it cannot be adopted for real problems because it is assumed to know the actual FOM solution. This procedure is implemented in the <code class="docutils literal notranslate"><span class="pre">PODproject</span></code> class: the initialisation requires the POD modes and the name of the variable to be reconstructed.</p>
 <p>Then, the method <code class="docutils literal notranslate"><span class="pre">synt_test_error</span></code> is used to compute the error for the unseen parameters: this requires the test snapshots for comparison and the number of modes to be used.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -299,7 +299,7 @@ E_N[u] &= \left\langle \left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\c
 (&#39;mean_abs_err&#39;, &#39;mean_rel_err&#39;, &#39;computational_time&#39;)
 </pre></div></div>
 </div>
-<p>Then, let us use the POD with Interpolation in which the coefficients <span class="math notranslate nohighlight">\(\alpha_m(t)\)</span> are estimated through a suitable map (e.g., interpolation). This produdure is implemented in the <code class="docutils literal notranslate"><span class="pre">PODI</span></code> class: the initialisation requires the POD modes, the maps and the name of the variable to be reconstructed.</p>
+<p>Then, let us use the POD with Interpolation in which the coefficients <span class="math notranslate nohighlight">\(\alpha_m(t)\)</span> are estimated through a suitable map (e.g., interpolation). This procedure is implemented in the <code class="docutils literal notranslate"><span class="pre">PODI</span></code> class: the initialisation requires the POD modes, the maps and the name of the variable to be reconstructed.</p>
 <p>Then, the method <code class="docutils literal notranslate"><span class="pre">synt_test_error</span></code> is used to compute the error for the unseen parameters: this requires the test snapshots for comparison and the number of modes to be used.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -399,7 +399,7 @@ Computing POD test error (interpolation) - u: 160.000 / 160.00 - 0.026 s/it
 </div>
 </div>
 <p>Let us also plot the computational costs.</p>
-<p><strong>Note on the results structure</strong>: <code class="docutils literal notranslate"><span class="pre">test_results[key][field_i][2]</span></code> contains the computational times, this is a dictornary with different entries. We are interested in showing the time required to estimate a coefficient, i.e. <code class="docutils literal notranslate"><span class="pre">test_results[key][field_i][2]['CoeffEstimation]</span></code>.</p>
+<p><strong>Note on the results structure</strong>: <code class="docutils literal notranslate"><span class="pre">test_results[key][field_i][2]</span></code> contains the computational times, this is a dictionary with different entries. We are interested in showing the time required to estimate a coefficient, i.e. <code class="docutils literal notranslate"><span class="pre">test_results[key][field_i][2]['CoeffEstimation]</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>

@@ -233,7 +233,7 @@ c_{\text{D}} &= \frac{2}{\rho L U_{mean}^2}\int_{\Gamma_S} \nu \frac{\partial u_
 c_{\text{L}} &= -\frac{2}{\rho L U_{mean}^2}\int_{\Gamma_S} \nu \frac{\partial u_{t_S}}{\partial \mathbf{n}}n_x + p n_y~\mathrm{d} s
 \end{split}
 \end{equation*}</span> where <span class="math notranslate nohighlight">\(u_{t_S}\)</span> is the tangential velocity component at the interface of the obstacle <span class="math notranslate nohighlight">\(\partial\Omega_S\)</span>, defined as <span class="math notranslate nohighlight">\(u_{t_S}=u\cdot (n_y,-n_x)\)</span>, <span class="math notranslate nohighlight">\(U_{mean}=1\)</span> the average inflow velocity, and <span class="math notranslate nohighlight">\(L\)</span> the length of the channel.</p>
-<p>The implementation of these integrals is done in the <code class="docutils literal notranslate"><span class="pre">ns.py</span></code> file within the <code class="docutils literal notranslate"><span class="pre">drag_lift</span></code> class, following the code of the <a class="reference external" href="https://jsdokken.com/dolfinx-tutorial/chapter2/ns_code2.html#verification-of-the-implementation-compute-known-physical-quantities">FEniCSx tutorial</a>: an additional parameter is required that is <span class="math notranslate nohighlight">\(\rho L U_{mean}^2\)</span>, in particular <span class="math notranslate nohighlight">\(\rho=1\, kg/m^3\)</span> , <span class="math notranslate nohighlight">\(U_{mean}=1\, m/s\)</span> and <span class="math notranslate nohighlight">\(L=0.1 \,m^2\)</span> (diameter of the cylinder).</p>
+<p>The implementation of these integrals is done in the <code class="docutils literal notranslate"><span class="pre">ns.py</span></code> file within the <code class="docutils literal notranslate"><span class="pre">DragLift</span></code> class, following the code of the <a class="reference external" href="https://jsdokken.com/dolfinx-tutorial/chapter2/ns_code2.html#verification-of-the-implementation-compute-known-physical-quantities">FEniCSx tutorial</a>: an additional parameter is required that is <span class="math notranslate nohighlight">\(\rho L U_{mean}^2\)</span>, in particular <span class="math notranslate nohighlight">\(\rho=1\, kg/m^3\)</span> , <span class="math notranslate nohighlight">\(U_{mean}=1\, m/s\)</span> and <span class="math notranslate nohighlight">\(L=0.1 \,m^2\)</span> (diameter of the cylinder).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -322,7 +322,7 @@ c_{\text{L}} &= -\frac{2}{\rho L U_{mean}^2}\int_{\Gamma_S} \nu \frac{\partial u
 Solving NS: 8.000 / 8.00 - 0.065 s/it
 </pre></div></div>
 </div>
-<p>Store the Quantities of Interest (QoI) in a file, placed in the same directory of the benchamrk data, which is in the parent directory of the current one, i.e. <code class="docutils literal notranslate"><span class="pre">../BenchmarkData</span></code>.</p>
+<p>Store the Quantities of Interest (QoI) in a file, placed in the same directory of the benchmark data, which is in the parent directory of the current one, i.e. <code class="docutils literal notranslate"><span class="pre">../BenchmarkData</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>

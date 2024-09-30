@@ -135,7 +135,7 @@
 </div>
 <p>The geometry can be either generated directly in this notebook or loaded from a file.</p>
 <p><strong>Disclaimer</strong>: we have noticed that the degrees of freedom (dofs) of the mesh can vary according to the adopted operating system: for instance, if run on MacOS the dofs are 2356, whereas on Linux machines they are 2385. This is due to the fact that the mesh is generated through the <code class="docutils literal notranslate"><span class="pre">gmsh</span></code> library, which can produce different results on different platforms.</p>
-<p><em>If an error occurs, please check the number of dofs and adjust the code accordingly: if the snapshots have been download from</em> <a class="reference external" href="https://zenodo.org/records/11483677">Zenodo</a> <em>it is suggested to load the ``msh`` file; otherwise, if the snapshots hase been generated locally, the ``use_msh`` option must be set to ``False``.</em></p>
+<p><em>If an error occurs, please check the number of dofs and adjust the code accordingly: if the snapshots have been downloaded from</em> <a class="reference external" href="https://zenodo.org/records/11483677">Zenodo</a> <em>it is suggested to load the ``msh`` file; otherwise, if the snapshots hase been generated locally, the ``use_msh`` option must be set to ``False``.</em></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -208,12 +208,12 @@
 </section>
 <section id="POD-algorithm">
 <h2>POD algorithm<a class="headerlink" href="#POD-algorithm" title="Link to this heading"></a></h2>
-<p>A list will be created for each POD with the indeces consistent with the <code class="docutils literal notranslate"><span class="pre">var_names</span></code> variable, i.e., <span class="math notranslate nohighlight">\(0 = p,\; 1 = \mathbf{u}\)</span>.</p>
+<p>A list will be created for each POD with the indices consistent with the <code class="docutils literal notranslate"><span class="pre">var_names</span></code> variable, i.e., <span class="math notranslate nohighlight">\(0 = p,\; 1 = \mathbf{u}\)</span>.</p>
 <p><strong>How does the POD work?</strong></p>
 <p>Let <span class="math notranslate nohighlight">\(u(\mathbf{x};\boldsymbol{\mu})\)</span> be a generic field dependent on space <span class="math notranslate nohighlight">\(\mathbf{x}\in\Omega\subset\mathbb{R}^d\)</span> (<span class="math notranslate nohighlight">\(d=\{2,3\}\)</span>) and parameters <span class="math notranslate nohighlight">\(\boldsymbol{\mu}\in\mathcal{D}\subset\mathbb{R}^p\)</span> (<span class="math notranslate nohighlight">\(p\geq 1\)</span>), let <span class="math notranslate nohighlight">\(u_n\)</span> be snapshot for <span class="math notranslate nohighlight">\(\boldsymbol{\mu}_n\)</span>, i.e. <span class="math notranslate nohighlight">\(u_n=u(\mathbf{x}; \boldsymbol{\mu}_n)\)</span>.</p>
 <p>The train set <span class="math notranslate nohighlight">\(\Xi_{train}\subset\mathcal{D}\)</span> is composed by <span class="math notranslate nohighlight">\(N_s\)</span> snapshots, i.e. <span class="math notranslate nohighlight">\(\Xi_{train} = \{\boldsymbol{\mu}_1, \ldots, \boldsymbol{\mu}_{N_s}\}\)</span>.</p>
 <ol class="arabic simple">
-<li><p>At first, the correlation matrix <span class="math notranslate nohighlight">\(\mathbb{C}\in\mathbb{R}^{N_s\times N_s}\)</span> is computed through <span class="math">\begin{equation*}
+<li><p>The correlation matrix <span class="math notranslate nohighlight">\(\mathbb{C}\in\mathbb{R}^{N_s\times N_s}\)</span> is computed through <span class="math">\begin{equation*}
 \mathbb{C}_{nm} = (u_n, u_m)_{L^2(\Omega)} = \int_{\Omega} u_n\cdot u_m\,d\Omega\qquad n,m = 1, \dots, N_s
 \end{equation*}</span></p></li>
 <li><p>The eigendecomposition of the correlation matrix <span class="math notranslate nohighlight">\(\mathbb{C}\)</span> is performed, given <span class="math notranslate nohighlight">\(\boldsymbol{\eta}_m\)</span> be the eigenvector and <span class="math notranslate nohighlight">\(\lambda_m\)</span> the associated eigenvalue <span class="math">\begin{equation*}
@@ -225,8 +225,8 @@
 </ol>
 <section id="Decay-of-the-POD-eigenvalues">
 <h3>Decay of the POD eigenvalues<a class="headerlink" href="#Decay-of-the-POD-eigenvalues" title="Link to this heading"></a></h3>
-<p>Here there is the first use of the offline <code class="docutils literal notranslate"><span class="pre">POD</span></code> class, which is used to compute the POD eigenvalues and eigenvectors.</p>
-<p>The essential input of the <code class="docutils literal notranslate"><span class="pre">POD</span></code> class is the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object, which contains the train snapshots (for each field, <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>) and the name of the variable to reduce. The initialisation of the <code class="docutils literal notranslate"><span class="pre">POD</span></code> class will compute the correlation matrix and the eigendecomposition, described above in points 1 and 2. The option <code class="docutils literal notranslate"><span class="pre">verbose</span></code> can be actived to either show or not the progress bar.ù</p>
+<p>The offline <code class="docutils literal notranslate"><span class="pre">POD</span></code> class is used to compute the POD eigenvalues, eigenvectors and associated modes (i.e., basis functions).</p>
+<p>The essential input of the <code class="docutils literal notranslate"><span class="pre">POD</span></code> class is the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object, which contains the train snapshots (for each field, <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>) and the name of the variable to reduce. The initialisation of the <code class="docutils literal notranslate"><span class="pre">POD</span></code> class will compute the correlation matrix and the eigendecomposition, described above in points 1 and 2. The option <code class="docutils literal notranslate"><span class="pre">verbose</span></code> can be activated to either show or not the progress bar.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -299,9 +299,9 @@ Computing u correlation matrix: 480.000 / 480.00 - 0.121 s/it
 </section>
 <section id="Definition-of-the-modes">
 <h3>Definition of the modes<a class="headerlink" href="#Definition-of-the-modes" title="Link to this heading"></a></h3>
-<p>Let us compute the POD modes using the formula of point 3.</p>
+<p>Let us compute the POD modes using the formula of step 3.</p>
 <p><span class="math notranslate nohighlight">\(N_{max}=30\)</span> has been chosen by analysing the decay of the eigenvalues: in fact, the 99.99% of the information content is contained in the first 30 modes.</p>
-<p>The method <code class="docutils literal notranslate"><span class="pre">compute_modes</span></code> computes the POD modes, starting from already computed pairs of eigenvalues and eigenvectors and the train snapshots. The option <code class="docutils literal notranslate"><span class="pre">normalize</span></code> is used to enforce the normalization of the modes with respect to the <span class="math notranslate nohighlight">\(L^2\)</span> norm (due to some numerical errors).</p>
+<p>The method <code class="docutils literal notranslate"><span class="pre">compute_basis</span></code> computes the POD modes, starting from already computed pairs of eigenvalues and eigenvectors and the train snapshots. The option <code class="docutils literal notranslate"><span class="pre">normalise</span></code> is used to enforce the normalization of the modes with respect to the <span class="math notranslate nohighlight">\(L^2\)</span> norm (due to some numerical errors).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
