@@ -6,6 +6,47 @@ from dolfinx.fem import (Function, FunctionSpace, assemble_scalar, form,
                         locate_dofs_topological, dirichletbc)
 from ufl import grad, inner, dot
 from petsc4py import PETSc
+import gmsh
+from mpi4py import MPI
+from dolfinx.io.gmshio import read_from_msh, model_to_mesh
+
+def create_anl11a2_mesh(use_msh : bool = False, save_mesh : bool = False):
+    gdim = 2
+
+    model_rank = 0
+    mesh_comm = MPI.COMM_WORLD
+
+    # If the snapshots are generated from a different computer than the one used for the offline/online simulation, there may be issues in the number of dofs
+    if use_msh:
+        domain, ct, ft = read_from_msh("ANL11A2_octave.msh", comm = mesh_comm, rank = model_rank, gdim = gdim)
+    else:
+        # Initialize the gmsh module
+        gmsh.initialize()
+
+        # Load the .geo file
+        gmsh.merge('ANL11A2_octave.geo')
+        gmsh.model.geo.synchronize()
+
+        # Set algorithm (adaptive = 1, Frontal-Delaunay = 6)
+        gmsh.option.setNumber("Mesh.Algorithm", 6)
+
+        gmsh.model.mesh.generate(gdim)
+        gmsh.model.mesh.optimize("Netgen")
+        
+         # Save the mesh
+        if save_mesh:
+            gmsh.write("cyl_dfg2D.msh")
+        
+        # Domain
+        domain, ct, ft = model_to_mesh(gmsh.model, comm = mesh_comm, rank = model_rank, gdim = gdim )
+        gmsh.finalize()
+
+    tdim = domain.topology.dim
+    fdim = tdim - 1
+    domain.topology.create_connectivity(fdim, tdim)
+
+    return domain, ct, ft
+    
 
 class steady_neutron_diff():
     r""""
