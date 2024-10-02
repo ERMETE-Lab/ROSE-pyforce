@@ -59,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Generation of the snapshots</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Import Snapshots from OF</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02a_offline_POD.html">Offline Phase: POD</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02c_offline_maps.html">Offline Phase: generation of the maps</a></li>
@@ -100,14 +100,14 @@
              
   <section id="Importing-Snapshots-from-OpenFOAM">
 <h1>Importing Snapshots from OpenFOAM<a class="headerlink" href="#Importing-Snapshots-from-OpenFOAM" title="Link to this heading"></a></h1>
-<p>This notebook uses <em>pyforce</em> to import some parametric data generated with OpenFOAM-6, exploiting the <em>fluidfoam</em> library.</p>
+<p><strong>Aim of this notebook:</strong> learn how to import parametric snapshots from OpenFOAM (version 6 from org-version) using <em>fluidfoam</em> package.</p>
 <p>The snapshots are related to the Buoyant Cavity problem in fluid dynamics, governed by the Navier-Stokes equations, including energy, under the Boussinesq approximation. In particular, the snapshots have been generated using the case reported in <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM tutorials</a>.</p>
+<p><em>Disclaimer</em>: the OpenFOAM snapshots are not included in the Zenodo repository for storage issues, but they can be generated using the case reported in the link above. Therefore, to generate the OpenFOAM case and later execute this notebook, you need to have OpenFOAM-v6 installed in your machine. For interested readers, please contact <a class="reference external" href="mailto:stefano&#46;riva&#37;&#52;&#48;polimi&#46;it">stefano<span>&#46;</span>riva<span>&#64;</span>polimi<span>&#46;</span>it</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
@@ -118,7 +118,6 @@
 
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">import_OF</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
 
 <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/OpenFOAM/&#39;</span>
 
@@ -126,17 +125,15 @@
 
 <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
 <span class="n">is_vector</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
-<span class="c1"># var_names = [&#39;U&#39;]</span>
-<span class="c1"># is_vector = [True]</span>
 </pre></div>
 </div>
 </div>
-<p>The snapshots are dependent on two different parameters: the Reynolds and the Richardson number, split into train and test set <span class="math">\begin{equation}
+<p>The snapshots are dependent on two different parameters: the Reynolds and the Richardson number, split into train and test set <span class="math">\begin{equation*}
 \begin{array}{cc}
 Re_{train} = [15:5:150] & Ri_{train} = [0.2:0.4:5] \\
 Re_{test} = [17.5:10:147.5] & Ri_{test} = [0.4:0.8:44]
 \end{array}
-\end{equation}</span></p>
+\end{equation*}</span></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -240,16 +237,23 @@ Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">ufl_cell</span><span class="p">(),</span> <span class="mi">1</span><span class="p">))]</span>
-<span class="c1"># fun_spaces = [FunctionSpace(domain, ufl.VectorElement(&quot;CG&quot;, domain.ufl_cell(), 1))]</span>
 </pre></div>
 </div>
 </div>
 <p>Let us import the pressure <span class="math notranslate nohighlight">\(p\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span> and velocity <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> fields. The mapping between OpenFOAM and <em>dolfinx</em> is performed using <span class="math notranslate nohighlight">\(N\)</span>-dimensional interpolation implemented in <em>scipy</em>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pyforce</span></code> comes with a class called <code class="docutils literal notranslate"><span class="pre">ImportOF</span></code>: this class requires the path to the OpenFOAM case, there is also an option to specify if the centroids of the cells must be imported. The class uses two important methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">import_field</span></code>: imports the field from OpenFOAM into numpy arrays</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">foam_to_dolfinx</span></code>: interpolates the OpenFOAM field into the dolfinx mesh using <em>scipy</em></p></li>
+</ul>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">impo_i</span> <span class="o">=</span> <span class="mi">0</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportOF</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
+
+<span class="n">impo_i</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># for TrainSet</span>
+<span class="n">impo_i</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># for TestSet</span>
 
 <span class="n">dolfinx_path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span><span class="o">+</span><span class="n">importing</span><span class="p">[</span><span class="n">impo_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_&#39;</span>
 <span class="n">snaps</span> <span class="o">=</span> <span class="p">{</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]:</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">])</span> <span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">))}</span>
@@ -265,7 +269,7 @@ Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
 
             <span class="n">path_</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="n">importing</span><span class="p">[</span><span class="n">impo_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Case_</span><span class="si">{</span><span class="n">caseI</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1">_Re</span><span class="si">{</span><span class="n">Re</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">_Ri</span><span class="si">{</span><span class="n">Ri</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span>
 
-            <span class="n">oF</span> <span class="o">=</span> <span class="n">import_OF</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">oF</span> <span class="o">=</span> <span class="n">ImportOF</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">of_snaps</span> <span class="o">=</span> <span class="n">oF</span><span class="o">.</span><span class="n">import_field</span><span class="p">(</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">vector</span><span class="o">=</span><span class="n">is_vector</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="c1"># Projection in dolfinx</span>
@@ -301,7 +305,6 @@ Import U - TrainSet: 364.000 / 364.00 - 1.324 s/it
 <span class="n">field</span> <span class="o">=</span> <span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span>
 
 <span class="k">for</span> <span class="n">imp</span> <span class="ow">in</span> <span class="n">importing</span><span class="p">:</span>
-    <span class="c1"># imp = importing[0]</span>
     <span class="n">dolfinx_path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span><span class="o">+</span><span class="n">imp</span><span class="o">+</span><span class="s1">&#39;_&#39;</span>
 
     <span class="n">T_snaps</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">dolfinx_path</span><span class="o">+</span><span class="n">field</span><span class="p">,</span> <span class="n">field</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>

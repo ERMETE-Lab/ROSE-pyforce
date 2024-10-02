@@ -59,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="01_import_OFsnaps.html">Generation of the snapshots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_import_OFsnaps.html">Import Snapshots from OF</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02a_offline_POD.html">Offline Phase: POD</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02c_offline_maps.html">Offline Phase: generation of the maps</a></li>
@@ -105,44 +105,28 @@
              
   <section id="Online-Phase:-Indirect-Reconstruction">
 <h1>Online Phase: Indirect Reconstruction<a class="headerlink" href="#Online-Phase:-Indirect-Reconstruction" title="Link to this heading"></a></h1>
-<p>This notebook implements the online phase of the Indirect Reconstruction (IR), firstly proposed in <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0306454922005680">Introini et al., 2023</a>, including the following steps:</p>
-<ul class="simple">
-<li><p>Parameter Estimation (PE)</p></li>
-<li><p>Proper Orthogonal Decomposition with Interpolation (POD-I)</p></li>
-</ul>
+<p><strong>Aim of this notebook</strong>: This notebook aims to provide a simple example of the online phase of the Indirect Reconstruction (IR) method, proposed by <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0306454922005680">Introini et al., 2023</a>. In particular, the case study of buoyancy-driven flow in a square cavity is considered. This algorithm consists of two main steps: firstly, the Parameter Estimation (PE) is performed, and then the Proper Orthogonal Decomposition with Interpolation
+(POD-I) is applied.</p>
+<hr class="docutils" />
+<p><em>To execute this notebook</em>: the test snapshots should be placed in <code class="docutils literal notranslate"><span class="pre">Snapshots</span></code>, the magic functions and sensors for the temperature field are saved in <code class="docutils literal notranslate"><span class="pre">Offline_results</span></code>, the POD modes for the other fields should be saved there too and the coefficient maps must have been generated using previous notebook.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
 
 <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
 <span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">gmshio</span>
 <span class="kn">import</span> <span class="nn">gmsh</span>
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
+<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
 
 <span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
-<span class="kn">from</span> <span class="nn">pyforce.online.indirect_recon</span> <span class="kn">import</span> <span class="n">PE</span>
-<span class="kn">from</span> <span class="nn">pyforce.online.pod_interpolation</span> <span class="kn">import</span> <span class="n">PODI</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
-
-<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
-<span class="n">path_offline</span> <span class="o">=</span> <span class="s1">&#39;./Offline_results/&#39;</span>
-<span class="n">path_online</span> <span class="o">=</span> <span class="s1">&#39;./Online_results/&#39;</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_online</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_online</span><span class="p">)</span>
-
-<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
-<span class="n">tex_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\mathbf</span><span class="si">{u}</span><span class="s1">&#39;</span><span class="p">]</span>
-
-<span class="c1"># The temperature is the only one that can be measured</span>
-<span class="n">obs_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span>
 </pre></div>
 </div>
 </div>
@@ -174,8 +158,6 @@
 <span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">gmshio</span><span class="o">.</span><span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 
-<span class="c1">########################################################################################################</span>
-
 <span class="n">tdim</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span>
 <span class="n">fdim</span> <span class="o">=</span> <span class="n">tdim</span> <span class="o">-</span> <span class="mi">1</span>
 <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">fdim</span><span class="p">,</span> <span class="n">tdim</span><span class="p">)</span>
@@ -192,50 +174,64 @@ Info    : Done reading &#39;cavity.geo&#39;
 Info    : Meshing 1D...
 Info    : [  0%] Meshing curve 1 (Line)
 Info    : [ 30%] Meshing curve 2 (Line)
-Info    : [ 50%] Meshing curve 3 (Line)
+Info    : [ 60%] Meshing curve 3 (Line)
 Info    : [ 80%] Meshing curve 4 (Line)
-Info    : Done meshing 1D (Wall 0.000404627s, CPU 0.000531s)
+Info    : Done meshing 1D (Wall 0.00107815s, CPU 0.000847s)
 Info    : Meshing 2D...
 Info    : Meshing surface 1 (Transfinite)
-Info    : Done meshing 2D (Wall 0.0422277s, CPU 0.005852s)
+Info    : Done meshing 2D (Wall 0.008234s, CPU 0.006448s)
 Info    : 16384 nodes 32770 elements
 Info    : Optimizing mesh (Netgen)...
-Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
+Info    : Done optimizing mesh (Wall 2.792e-06s, CPU 3e-06s)
 </pre></div></div>
 </div>
-<p>Let us define the functional space onto which the OpenFOAM data have been projected; then, the snapshots can be imported.</p>
+<p>Let us define the variable names and the functional space onto which the OpenFOAM data have been projected</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">ufl_cell</span><span class="p">(),</span> <span class="mi">1</span><span class="p">))]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
+<span class="n">tex_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\mathbf</span><span class="si">{u}</span><span class="s1">&#39;</span><span class="p">]</span>
 
-<span class="n">train_snaps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+              <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+              <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">ufl_cell</span><span class="p">(),</span> <span class="mi">1</span><span class="p">))]</span>
+</pre></div>
+</div>
+</div>
+<p>Let us load the test snapshots</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
+
 <span class="n">test_snaps</span>  <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-<span class="n">training</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
 
-    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
-        <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TrainSet_&#39;</span><span class="o">+</span><span class="n">field</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TestSet_&#39;</span> <span class="o">+</span><span class="n">field</span>
-    <span class="n">tmp</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">path_snap</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
-        <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">test_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TestSet_&#39;</span> <span class="o">+</span><span class="n">field</span>
+    <span class="n">test_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">path_snap</span><span class="p">,</span> <span class="n">field</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The temperature is the only one that can be measured</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obs_idx</span> <span class="o">=</span> <span class="mi">0</span>
 </pre></div>
 </div>
 </div>
 <p>Let us import the GEIM magic functions and sensors and the POD modes for non-observable fields</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Magic Functions and Sensors</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path_offline</span> <span class="o">=</span> <span class="s1">&#39;./Offline_results/&#39;</span>
+
+<span class="c1"># Magic Functions and Sensors</span>
 <span class="n">mf</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">],</span> <span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;BasisFunctions/basisGEIM_&#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">],</span> <span class="s1">&#39;GEIM_&#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">ms</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">],</span> <span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;BasisSensors/sensorsGEIM_&#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">],</span> <span class="s1">&#39;GEIM_&#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -247,15 +243,24 @@ Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
 </pre></div>
 </div>
 </div>
-<p>In the end, let us load the maps of the reduced coefficients and create the test parameters</p>
+<p>In the end, let us load the maps of the reduced coefficients</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_maps</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;maps.geim&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
 <span class="n">pod_maps</span>  <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;maps.pod&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
-
-<span class="n">dRe</span> <span class="o">=</span> <span class="mf">5.</span>
+</pre></div>
+</div>
+</div>
+<p>The snapshots are dependent on two different parameters: the Reynolds and the Richardson number. The test parameters are <span class="math">\begin{equation*}
+Re_{test} = [17.5:10:147.5] \qquad \qquad Ri_{test} = [0.4:0.8:44]
+\end{equation*}</span></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dRe</span> <span class="o">=</span> <span class="mf">5.</span>
 <span class="n">dRi</span> <span class="o">=</span> <span class="mf">0.4</span>
 
 <span class="c1"># Test Parameters</span>
@@ -270,13 +275,14 @@ Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
 <section id="Parameter-Estimation">
 <h2>Parameter Estimation<a class="headerlink" href="#Parameter-Estimation" title="Link to this heading"></a></h2>
 <p>In this section, the measurements of the observable field (temperature in this case) are used to find the characteristic parameter <span class="math notranslate nohighlight">\(\boldsymbol{\mu}\)</span>, solution of the inverse problem <span class="math">\begin{equation*}
-\boldsymbol{\mu}^\star = \text{arg min}_{\boldsymbol{\mu}\in\mathcal{D}}
+\boldsymbol{\mu}^\star = \text{arg }\min\limits_{\boldsymbol{\mu}\in\mathcal{D}}
 \mathcal{L}_{PE}(\boldsymbol{\mu}) =
-\text{arg min}_{\boldsymbol{\mu}\in\mathcal{D}}\|\mathbb{B}\boldsymbol{\beta}(\boldsymbol{\mu}) - \mathbf{y}\|_2^2 \qquad\qquad
+\text{arg }\min\limits_{\boldsymbol{\mu}\in\mathcal{D}}\|\mathbb{B}\boldsymbol{\beta}(\boldsymbol{\mu}) - \mathbf{y}\|_2^2 \qquad\qquad
 \text{ given }\mathcal{F}_m(\boldsymbol{\mu}) = \beta_m(\boldsymbol{\mu})
 \end{equation*}</span> with <span class="math notranslate nohighlight">\(\mathbb{B}\in\mathbb{R}^{M\times M}\)</span> a lower triangular matrix, whose components are given by the magic function <span class="math notranslate nohighlight">\(q_m\)</span> and sensors <span class="math notranslate nohighlight">\(v_m(\cdot)\)</span> as <span class="math notranslate nohighlight">\(\mathbb{B}_{mm'} = v_m\left(q_{m'}\right)\)</span>.</p>
+<p>This matrix has to be defined exploiting the <code class="docutils literal notranslate"><span class="pre">norms</span></code> class from <code class="docutils literal notranslate"><span class="pre">pyforce</span></code> able to compute integrals.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span>
@@ -294,16 +300,22 @@ Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
 </pre></div>
 </div>
 </div>
-<p>Now, for each snapshot of the observable field, let us compute the correspondent parameter. The global optimisation is solved in two steps adopting the <em>scipy</em> package:</p>
+<p>Now, for each snapshot of the observable field, let us compute the correspondent parameter.</p>
+<p>This is implemented in the <code class="docutils literal notranslate"><span class="pre">PE</span></code> class, this needs to be initialised with the matrix <span class="math notranslate nohighlight">\(\mathbb{B}\)</span>, the maps for the GEIM reduced coefficients <span class="math notranslate nohighlight">\(\mathcal{F}_T(\boldsymbol{\mu}) = \boldsymbol{\beta}^T(\boldsymbol{\mu})\)</span> and the bounds for the parameters to be given as list of tuples.</p>
+<p>The global optimisation is solved in two steps adopting the <em>scipy</em> package:</p>
 <ul class="simple">
-<li><p>First Guess using brute force (<code class="docutils literal notranslate"><span class="pre">brute</span></code>) and the differential evolution (<code class="docutils literal notranslate"><span class="pre">differential_evolution</span></code>) solver</p></li>
-<li><p>Check using least square solver</p></li>
+<li><p>First Guess using brute force (<code class="docutils literal notranslate"><span class="pre">brute</span></code>) or the differential evolution (<code class="docutils literal notranslate"><span class="pre">differential_evolution</span></code>) solver, which is a global optimisation method.</p></li>
+<li><p>Check using least square solver to ensure proper convergence.</p></li>
 </ul>
+<p>This optimisation is implemented in the <code class="docutils literal notranslate"><span class="pre">synt_test_error</span></code> method, which requires the true parameter, the test snapshot for the observable field to compute the measures, the magic functions, the maximum number of sensors to use. Then, some additional options are available: random noise can be inserted with <code class="docutils literal notranslate"><span class="pre">noise_value</span></code>, the progress can be displayed with <code class="docutils literal notranslate"><span class="pre">verbose</span></code> set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the choice to use brute force needs <code class="docutils literal notranslate"><span class="pre">use_brute</span></code> set to <code class="docutils literal notranslate"><span class="pre">True</span></code> and the number of grid element for brute
+force is given by <code class="docutils literal notranslate"><span class="pre">grid_elem</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">map_methods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geim_maps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.online.indirect_recon</span> <span class="kn">import</span> <span class="n">PE</span>
+
+<span class="n">map_methods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geim_maps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
 <span class="n">bnds</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.2</span><span class="p">,</span>  <span class="mi">5</span><span class="p">)]</span>
 
@@ -322,8 +334,9 @@ Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
 
         <span class="n">ave_absErr_pe</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">ave_relErr_pe</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">mu_estimated</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span>  <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">comput_times</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span>  <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">comput_times</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span>  <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">mu_estimated</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span>  <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -332,12 +345,31 @@ Info    : Done optimizing mesh (Wall 2.03727e-06s, CPU 1.1e-05s)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Solving Parameter Estimation : 84.000 / 84.00 - 4.240 s/it
+Solving Parameter Estimation : 84.000 / 84.00 - 4.043 s/it
+Solving Parameter Estimation : 84.000 / 84.00 - 5.421 s/it
 </pre></div></div>
 </div>
-<p>Let us plot the errors with respect to the number of measurements</p>
+<p>The output of the method <code class="docutils literal notranslate"><span class="pre">synt_test_error</span></code> is composed by 5 elements: the average absolute and relative errors, the computational times, the final estimated parameters and the results from the first step with brute force or differential evolution.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span><span class="o">.</span><span class="n">_fields</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;mean_abs_err&#39;, &#39;mean_rel_err&#39;, &#39;computational_time&#39;, &#39;mu_PE&#39;, &#39;mu_PE_guess&#39;)
+</pre></div></div>
+</div>
+<p>Let us plot the average errors of the PE phase with respect to the number of measurements used</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="n">mu_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">mu_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
@@ -369,18 +401,20 @@ Solving Parameter Estimation : 84.000 / 84.00 - 4.240 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_15_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_15_0.png" />
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_23_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_23_0.png" />
 </div>
 </div>
 </section>
 <section id="Proper-Orthogonal-Decomposition-with-Interpolation-(POD-I)">
 <h2>Proper Orthogonal Decomposition with Interpolation (POD-I)<a class="headerlink" href="#Proper-Orthogonal-Decomposition-with-Interpolation-(POD-I)" title="Link to this heading"></a></h2>
-<p>In this section, we are going to use the estimated parameter (using <span class="math notranslate nohighlight">\(M_{max}\)</span> measures) to reconstruct the non-observable fields (pressure and velocity) using POD-I.</p>
+<p>We are going to use the estimated parameter (using <span class="math notranslate nohighlight">\(M_{max}\)</span> measures) to reconstruct the non-observable fields (pressure and velocity) using POD-I. This procedure is very similar to the case of Tutorial 1, in which the parameter was assumed to be known a priori and not determined by the measures.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">podi_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.online.pod_interpolation</span> <span class="kn">import</span> <span class="n">PODI</span>
+
+<span class="n">podi_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">podi_res</span>  <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
 <span class="n">Nmax</span> <span class="o">=</span> <span class="mi">20</span>
@@ -406,13 +440,18 @@ Solving Parameter Estimation : 84.000 / 84.00 - 4.240 s/it
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-POD-I p: 2.000 / 2.00 - 5.111 s/it
-POD-I U: 2.000 / 2.00 - 6.848 s/it
+POD-I p: 2.000 / 2.00 - 6.830 s/it
+POD-I U: 2.000 / 2.00 - 7.696 s/it
 </pre></div></div>
 </div>
-<p>Let us plot the reconstruction error</p>
+<p>Let us plot the mean absolute and relative errors for each field, respectively, defined as follows <span class="math">\begin{equation*}
+\begin{split}
+E_N[u] &= \left\langle \left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}\right\rangle_{\boldsymbol{\mu}\in\Xi^{test}}\\
+\varepsilon_N[u] &= \left\langle\frac{\left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}}{\left\| u(\cdot;\,\boldsymbol{\mu}) \right\|_{L^2(\Omega)}}\right\rangle_{\boldsymbol{\mu}\in\Xi^{test}}
+\end{split}
+\end{equation*}</span> given <span class="math notranslate nohighlight">\(\mathcal{P}_N\)</span> the reconstruction operator with <span class="math notranslate nohighlight">\(N\)</span> basis functions.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
@@ -434,8 +473,8 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 
             <span class="n">axs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;POD basis rank $N$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 
-        <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Average Absolute Error - $&#39;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-        <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Average Relative Error - $&#39;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$E_N[&#39;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;]$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\varepsilon[&#39;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;]$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 </pre></div>
@@ -445,7 +484,7 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_19_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_19_0.png" />
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_27_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_27_0.png" />
 </div>
 </div>
 </section>
@@ -453,7 +492,7 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 <h2>Post Process<a class="headerlink" href="#Post-Process" title="Link to this heading"></a></h2>
 <p>In this last section, we are going to plot the computational times and some contour plots of the non-observable fields.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
@@ -499,12 +538,12 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_21_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_21_0.png" />
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_29_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_29_0.png" />
 </div>
 </div>
-<p>Lastly, we can plot the reconstructed fields for the non-observable variables</p>
+<p>Lastly, we can plot the reconstructed fields for the non-observable variables using the <code class="docutils literal notranslate"><span class="pre">reconstruct</span></code> method of the <code class="docutils literal notranslate"><span class="pre">PODI</span></code> class.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Nmax</span> <span class="o">=</span> <span class="mi">15</span>
@@ -527,169 +566,27 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 </pre></div>
 </div>
 </div>
-<p>Here the functions to plot with <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> are implemented.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vtk</span>
-<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
-<span class="kn">import</span> <span class="nn">dolfinx</span>
-
-<span class="n">pv</span><span class="o">.</span><span class="n">start_xvfb</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">vector_grids</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span> <span class="n">mag_plot</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">):</span>
-
-    <span class="n">topology</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">create_vtk_mesh</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">function_space</span><span class="p">)</span>
-    <span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">topology</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
-
-    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
-    <span class="n">values</span><span class="p">[:,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">fun</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun</span><span class="p">)))</span>
-    <span class="n">grid</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
-
-    <span class="k">if</span> <span class="n">mag_plot</span><span class="p">:</span>
-        <span class="n">warped</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">warp_by_vector</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">warped</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">glyph</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">warped</span><span class="p">,</span> <span class="n">values</span>
-
-<span class="k">def</span> <span class="nf">grids</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-    <span class="n">topology</span><span class="p">,</span> <span class="n">cell_types</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">create_vtk_mesh</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">function_space</span><span class="p">)</span>
-    <span class="n">u_grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">topology</span><span class="p">,</span> <span class="n">cell_types</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
-    <span class="n">u_grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span><span class="o">.</span><span class="n">real</span>
-    <span class="n">u_grid</span><span class="o">.</span><span class="n">set_active_scalars</span><span class="p">(</span><span class="s1">&#39;fun&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">u_grid</span>
-</pre></div>
-</div>
-</div>
-<p>Here we define the plotting function</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">PlotFOM_vs_ROM</span><span class="p">(</span> <span class="n">fom</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">rom</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                    <span class="n">clim</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mag_plot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colormap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span>
-                    <span class="n">colormap_res</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">plasma_r</span><span class="p">,</span> <span class="n">clim_res</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-
-    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rom</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-
-    <span class="n">resolution</span> <span class="o">=</span> <span class="p">[</span><span class="mi">900</span> <span class="o">*</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">900</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span>
-    <span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
-
-    <span class="n">lab_fontsize</span> <span class="o">=</span> <span class="mi">20</span>
-    <span class="n">title_fontsize</span> <span class="o">=</span> <span class="mi">30</span>
-    <span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.05</span>
-
-    <span class="n">dict_cb</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="n">varname</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-                    <span class="n">title_font_size</span><span class="o">=</span><span class="n">title_fontsize</span><span class="p">,</span>
-                    <span class="n">label_font_size</span><span class="o">=</span><span class="n">lab_fontsize</span><span class="p">,</span>
-                    <span class="n">n_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span>
-                    <span class="n">position_x</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">position_y</span><span class="o">=</span><span class="mf">0.885</span><span class="p">,</span>
-                    <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">fom</span><span class="o">.</span><span class="n">fun_space</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">vector_plot</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">vector_plot</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="c1">############################ FOMs ###################################</span>
-
-    <span class="n">plotter</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">vector_plot</span><span class="p">:</span>
-        <span class="n">warped_fom</span><span class="p">,</span> <span class="n">values_fom</span> <span class="o">=</span> <span class="n">vector_grids</span><span class="p">(</span><span class="n">fom</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">mag_plot</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">clim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">values_fom</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">values_fom</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">values_fom</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">warped_fom</span> <span class="o">=</span> <span class="n">grids</span><span class="p">(</span><span class="n">fom</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">clim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">fom</span><span class="p">(</span><span class="n">mu</span><span class="p">)),</span> <span class="nb">max</span><span class="p">(</span><span class="n">fom</span><span class="p">(</span><span class="n">mu</span><span class="p">))]</span>
-
-    <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;FOM - $&#39;</span><span class="o">+</span><span class="n">varname</span><span class="o">+</span><span class="s1">&#39;$&#39;</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">warped_fom</span><span class="p">,</span> <span class="n">clim</span> <span class="o">=</span> <span class="n">clim</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalar_bar_args</span><span class="o">=</span><span class="n">dict_cb</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">zoom</span><span class="p">)</span>
-
-    <span class="c1">############################ ROMs ###################################</span>
-
-
-    <span class="k">for</span> <span class="n">key_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)):</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="n">key_i</span><span class="p">)</span>
-
-        <span class="c1"># rom[keys[key_i]]._list[mu] = rom[keys[key_i]]._list[mu] * (umax - umin) + umin</span>
-
-        <span class="k">if</span> <span class="n">vector_plot</span><span class="p">:</span>
-            <span class="n">warped_rom</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">vector_grids</span><span class="p">(</span><span class="n">rom</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">key_i</span><span class="p">]]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">mag_plot</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warped_rom</span> <span class="o">=</span> <span class="n">grids</span><span class="p">(</span><span class="n">rom</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">key_i</span><span class="p">]]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
-
-        <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;POD-I &#39;</span><span class="o">+</span><span class="n">keys</span><span class="p">[</span><span class="n">key_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; - $&#39;</span><span class="o">+</span><span class="n">varname</span><span class="o">+</span><span class="s1">&#39;$&#39;</span>
-        <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;n_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">warped_rom</span><span class="p">,</span> <span class="n">clim</span> <span class="o">=</span> <span class="n">clim</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalar_bar_args</span><span class="o">=</span><span class="n">dict_cb</span><span class="p">)</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">zoom</span><span class="p">)</span>
-
-    <span class="c1">############################ Residuals ###################################</span>
-
-    <span class="n">max_res</span> <span class="o">=</span> <span class="mf">0.</span>
-    <span class="k">for</span> <span class="n">key_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)):</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="n">key_i</span><span class="p">)</span>
-
-        <span class="n">residual</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">rom</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">key_i</span><span class="p">]]</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
-        <span class="n">residual</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rom</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">key_i</span><span class="p">]](</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">fom</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
-
-        <span class="n">max_res</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">max_res</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">residual</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:])])</span>
-
-        <span class="k">if</span> <span class="n">vector_plot</span><span class="p">:</span>
-            <span class="n">warped_rom</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">vector_grids</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">mag_plot</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warped_rom</span> <span class="o">=</span> <span class="n">grids</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">clim_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">clim_res</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_res</span><span class="p">]</span>
-
-        <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Residual POD-I &#39;</span><span class="o">+</span><span class="n">keys</span><span class="p">[</span><span class="n">key_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; - $&#39;</span><span class="o">+</span><span class="n">varname</span><span class="o">+</span><span class="s1">&#39;$&#39;</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">warped_rom</span><span class="p">,</span> <span class="n">clim</span> <span class="o">=</span> <span class="n">clim_res</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap_res</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalar_bar_args</span><span class="o">=</span><span class="n">dict_cb</span><span class="p">)</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">zoom</span><span class="p">)</span>
-
-
-    <span class="n">plotter</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1">## Save figure</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">screenshot</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">transparent_background</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="n">window_size</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>In the end, the figure can be generated</p>
+<p>In the end, let us make some contour plots of the reconstructed fields with POD-I, using the <code class="docutils literal notranslate"><span class="pre">plot_FOM_vs_ROM</span></code> from the <code class="docutils literal notranslate"><span class="pre">contour_plotting.py</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmaps</span> <span class="o">=</span> <span class="p">[</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">RdYlBu_r</span><span class="p">]</span>
-<span class="n">cmaps_res</span> <span class="o">=</span> <span class="p">[</span><span class="n">cm</span><span class="o">.</span><span class="n">hot</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">bwr</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contour_plotting</span> <span class="kn">import</span> <span class="n">plot_FOM_vs_ROM</span>
 
-<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">field_i</span> <span class="o">!=</span> <span class="n">obs_idx</span><span class="p">:</span>
-        <span class="c1"># bar = LoopProgress(&#39;Plotting &#39;+var_names[field_i], final = len(test_snaps[field]))</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="mi">50</span>
 
-        <span class="n">mu_plot</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Re = </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mu_test</span><span class="p">[</span><span class="n">mu_plot</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39; - Ri = </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mu_test</span><span class="p">[</span><span class="n">mu_plot</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">plot_FOM_vs_ROM</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">reconstructions</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">mu</span><span class="p">,</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;POD-I at $\mu=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">tex_var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">_resolution</span> <span class="o">=</span> <span class="p">[</span><span class="mi">750</span><span class="p">,</span> <span class="mi">750</span><span class="p">],</span> <span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+                <span class="n">position_cb</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.843</span><span class="p">],</span>
+                <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">,</span> <span class="n">colormap_res</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">hot</span><span class="p">)</span>
 
-        <span class="n">PlotFOM_vs_ROM</span><span class="p">(</span> <span class="n">test_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">reconstructions</span><span class="p">[</span><span class="n">field</span><span class="p">],</span>
-                        <span class="n">mu_plot</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span>
-                        <span class="n">colormap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field_i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">colormap_res</span> <span class="o">=</span> <span class="n">cmaps_res</span><span class="p">[</span><span class="n">field_i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span>
-                        <span class="p">)</span>
+<span class="n">plot_FOM_vs_ROM</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">reconstructions</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">mu</span><span class="p">,</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;POD-I at $\mu=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">tex_var_names</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">_resolution</span> <span class="o">=</span> <span class="p">[</span><span class="mi">750</span><span class="p">,</span> <span class="mi">750</span><span class="p">],</span> <span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+                <span class="n">position_cb</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.843</span><span class="p">],</span>
+                <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span> <span class="n">colormap_res</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">hot</span><span class="p">,</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="mf">0.12</span><span class="p">,</span> <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.025</span><span class="p">,</span> <span class="n">mag_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -697,28 +594,14 @@ POD-I U: 2.000 / 2.00 - 6.848 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_29_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_29_0.png" />
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_33_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_33_0.png" />
 </div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-WARNING:py.warnings:/home/paolo/miniconda3/envs/mp/lib/python3.10/site-packages/pyvista/jupyter/notebook.py:33: UserWarning: Failed to use notebook backend:
-
-No module named &#39;trame&#39;
-
-Falling back to a static output.
-  warnings.warn(
-
-</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_29_2.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_29_2.png" />
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_33_1.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_03_online_IR_33_1.png" />
 </div>
 </div>
 </section>

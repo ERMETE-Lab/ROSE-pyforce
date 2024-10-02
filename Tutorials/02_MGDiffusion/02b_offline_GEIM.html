@@ -64,12 +64,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#Importing-Snapshots">Importing Snapshots</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#GEIM-algorithm">GEIM algorithm</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Calculation-of-the-Lebesgue-Constant">Calculation of the Lebesgue Constant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Post-Process">Post Process</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="02c_offline_SGREEDY.html">Offline Phase: SGREEDY</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02d_offline_PBDW.html">Offline Phase: PBDW</a></li>
-<li class="toctree-l3"><a class="reference internal" href="03a_online_GEIM.html">Online Phase: GEIM - effect of random noise</a></li>
-<li class="toctree-l3"><a class="reference internal" href="03b_online_PBDW.html">Online Phase: PBDW - effect of the Riesz Representation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03a_online_GEIM.html">Online Phase: GEIM and TR-GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03b_online_PBDW.html">Online Phase: PBDW</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
@@ -107,10 +108,11 @@
              
   <section id="Offline-Phase:-GEIM-algorithm">
 <h1>Offline Phase: GEIM algorithm<a class="headerlink" href="#Offline-Phase:-GEIM-algorithm" title="Link to this heading"></a></h1>
-<p>This notebook implements the offline phase of the following algorithms: - Generalised Empirical Interpolation Method (GEIM)</p>
-<p>In particular, the magic functions and sensors are generated through a <em>greedy</em> procedure, aimed at reducing the interpolation error.</p>
+<p><strong>Aim of the tutorial:</strong> this notebook shows how to perform the offline phase of the GEIM algorithm, i.e. how to use this method to generate the magic functions and the associared magic sensors from a parametric dataset.</p>
+<hr class="docutils" />
+<p><em>To execute this notebook</em> it is necessary to have the snapshots stored in <code class="docutils literal notranslate"><span class="pre">Snapshots</span></code> folder, placed in this directory (otherwise modify <code class="docutils literal notranslate"><span class="pre">path_FOM</span></code> variable).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -118,21 +120,16 @@
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 
-<span class="kn">import</span> <span class="nn">gmsh</span>
-<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
-<span class="kn">from</span> <span class="nn">dolfinx.io.gmshio</span> <span class="kn">import</span> <span class="n">model_to_mesh</span><span class="p">,</span><span class="n">read_from_msh</span>
 <span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span>
 
 <span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
-<span class="kn">from</span> <span class="nn">pyforce.offline.geim</span> <span class="kn">import</span> <span class="n">GEIM</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rcParams</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
 
-<span class="n">path</span><span class="o">=</span><span class="s1">&#39;./Offline_results&#39;</span>
+<span class="n">path</span><span class="o">=</span><span class="s1">&#39;./Offline_results/&#39;</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 </pre></div>
@@ -143,33 +140,9 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gdim</span> <span class="o">=</span> <span class="mi">2</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neutronics</span> <span class="kn">import</span> <span class="n">create_anl11a2_mesh</span>
 
-<span class="n">model_rank</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">mesh_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
-
-<span class="n">use_msh</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="c1"># If the snapshots are generated from a different computer than the one used for the offline/online simulation, there may be issues in the number of dofs</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">use_msh</span><span class="p">):</span>
-    <span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">read_from_msh</span><span class="p">(</span><span class="s2">&quot;ANL11A2_octave.msh&quot;</span><span class="p">,</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mesh_comm</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="c1"># Initialize the gmsh module</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-
-    <span class="c1"># Load the .geo file</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="s1">&#39;ANL11A2_octave.geo&#39;</span><span class="p">)</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
-
-    <span class="c1"># Set algorithm (adaptive = 1, Frontal-Delaunay = 6)</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">setNumber</span><span class="p">(</span><span class="s2">&quot;Mesh.Algorithm&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">gdim</span><span class="p">)</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="s2">&quot;Netgen&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Domain</span>
-    <span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mesh_comm</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
-    <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+<span class="n">domain</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">create_anl11a2_mesh</span><span class="p">(</span><span class="n">use_msh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">fuel1_marker</span>    <span class="o">=</span> <span class="mi">1</span>
 <span class="n">fuel2_marker</span>    <span class="o">=</span> <span class="mi">2</span>
@@ -179,26 +152,27 @@
 <span class="n">void_marker</span>     <span class="o">=</span> <span class="mi">10</span>
 <span class="n">sym_marker</span>      <span class="o">=</span> <span class="mi">20</span>
 
-<span class="n">tdim</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span>
-<span class="n">fdim</span> <span class="o">=</span> <span class="n">tdim</span> <span class="o">-</span> <span class="mi">1</span>
-<span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">fdim</span><span class="p">,</span> <span class="n">tdim</span><span class="p">)</span>
-
 <span class="n">clear_output</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <section id="Importing-Snapshots">
 <h2>Importing Snapshots<a class="headerlink" href="#Importing-Snapshots" title="Link to this heading"></a></h2>
-<p>The snapshots are loaded and stored into suitable data structures.</p>
+<p>The snapshots are loaded and stored into suitable data structures. The snapshots live in a functional space: piecewise linear functions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Defining the functional space</span>
-<span class="n">V</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Lagrange&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-<span class="c1"># Define the variables to load</span>
-<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">V</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Lagrange&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Defining the variables to load</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span>
              <span class="s1">&#39;phi_1&#39;</span><span class="p">,</span>
              <span class="s1">&#39;phi_2&#39;</span>
              <span class="p">]</span>
@@ -207,11 +181,16 @@
                  <span class="sa">r</span><span class="s1">&#39;\phi_1&#39;</span><span class="p">,</span>
                  <span class="sa">r</span><span class="s1">&#39;\phi_2&#39;</span>
                  <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Let us load the train snapshots.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path_FOM</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
 
-<span class="c1"># Snapshot path</span>
-<span class="n">path_FOM</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
-
-<span class="c1">################ Importing Snapshots ########################</span>
 <span class="n">train_snaps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
@@ -223,20 +202,15 @@
         <span class="n">train_snaps</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_FOM_list</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
 
     <span class="k">del</span> <span class="n">tmp_FOM_list</span>
-
-<span class="n">train_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">field_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_FOM</span><span class="o">+</span><span class="s1">&#39;./train.param&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">train_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="GEIM-algorithm">
 <h2>GEIM algorithm<a class="headerlink" href="#GEIM-algorithm" title="Link to this heading"></a></h2>
-<p>A list for each GEIM will be created: <span class="math notranslate nohighlight">\(0 = \phi_1,\; 1 = \phi_2\)</span>.</p>
-<p>The <em>greedy</em> procedure is summarised in the following figure</p>
+<p>The <em>greedy</em> procedure is summarised in the following figure.</p>
 <p><img alt="GEIM" src="../../_images/GEIM-algo.png" /></p>
+<p>More information about the method can be found in <a class="reference external" href="https://doi.org/10.1016/j.cma.2015.01.018">Maday et al. (2014)</a> and <a class="reference external" href="https://doi.org/10.1016/j.cma.2022.115773">Introini et al. (2023)</a>.</p>
 <section id="Generation-of-the-magic-functions/sensors">
 <h3>Generation of the magic functions/sensors<a class="headerlink" href="#Generation-of-the-magic-functions/sensors" title="Link to this heading"></a></h3>
 <p>The GEIM is used to generated through a greedy process a set of basis functions and basis sensors for the data assimilation process.</p>
@@ -245,35 +219,71 @@ v_m(u(\mathbf{x});\,\mathbf{x}_m,\,s)=\int_\Omega u(\mathbf{x})\cdot \mathcal{K}
 \end{equation*}</span> given <span class="math notranslate nohighlight">\(\mathbf{x}_m\)</span> the centre of mass of the functional and <span class="math notranslate nohighlight">\(s\)</span> its point spread. The current version adopts Gaussian kernels <span class="math">\begin{equation*}
 \mathcal{K}\left(\|\mathbf{x}-\mathbf{x}_m\|_2, s\right) = \frac{e^{\frac{-\|\mathbf{x}-\mathbf{x}_m\|_2^2}{2s^2}}}{\displaystyle\int_\Omega e^{\frac{-\|\mathbf{x}-\mathbf{x}_m\|_2^2}{2s^2}}\,d\Omega}
 \end{equation*}</span> such that <span class="math notranslate nohighlight">\(\|\mathcal{K}\left(\|\mathbf{x}-\mathbf{x}_m\|_2, s\right)\|_{L^1(\Omega)}=1\)</span>, this models the measurement process of scalar fields.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<p>A dictionary will be created for each GEIM with the keys consistent with the <code class="docutils literal notranslate"><span class="pre">var_names</span></code> variable. Moreover, the GEIM coefficients will be stored in a dictionary with the same keys: these will be needed in the online phase when the measures are polluted by random noise, within the Tikhonov Regularised version of the GEIM algorithm (TR-GEIM), <a class="reference external" href="https://doi.org/10.1016/j.cma.2022.115773">Introini et al. (2023)</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">train_GEIMcoeff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="n">Mmax</span> <span class="o">=</span> <span class="mi">30</span>
+</pre></div>
+</div>
+</div>
+<p>As for the POD in the previous notebook, the maximum number of sensors will be 20. The sensors are characterised by an hyperparameter, the spread <span class="math notranslate nohighlight">\(s\)</span>, which depends on the specific sensor: two different values will be considered to investigate what is the effect on the reduction process.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Mmax</span> <span class="o">=</span> <span class="mi">20</span>
 
-<span class="c1"># This parameter serves as input to select only some cells in the mesh</span>
-<span class="n">sam_every</span> <span class="o">=</span> <span class="mi">2</span>
-
-<span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e-1</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">]</span>
-
+<span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
 <span class="n">train_abs_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mmax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
 <span class="n">train_rel_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mmax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<p>Here in this cell the <code class="docutils literal notranslate"><span class="pre">GEIM</span></code> class is defined, which will be used to generate the magic functions and sensors. The essential input of the <code class="docutils literal notranslate"><span class="pre">GEIM</span></code> class is the domain from which candidate positions are selected, the functional space, the name of the variable to analyse and the point spread <span class="math notranslate nohighlight">\(s\)</span> of the sensors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.offline.geim</span> <span class="kn">import</span> <span class="n">GEIM</span>
+
+<span class="c1"># This parameter serves as input to select only some cells in the mesh</span>
+<span class="c1"># It is used to reduce the computational cost of the offline phase</span>
+<span class="n">sam_every</span> <span class="o">=</span> <span class="mi">4</span>
 
 <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
     <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="n">train_GEIMcoeff</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--&gt; &#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; - s = </span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
-        <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GEIM</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
-        <span class="n">tmp</span> <span class="o">=</span> <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">Mmax</span><span class="p">,</span> <span class="n">sampleEvery</span> <span class="o">=</span> <span class="n">sam_every</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 
+    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
+
+        <span class="c1"># Define the GEIM object</span>
+        <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GEIM</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">offline</span></code> method is used to generate the magic functions and sensors: it requires as input the train snapshot, the maximum number of sensors to generate. <code class="docutils literal notranslate"><span class="pre">sampleEvery</span></code> and <code class="docutils literal notranslate"><span class="pre">verbose</span></code> are optional parameters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--&gt; &#39;</span><span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39; - s = </span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+
+        <span class="c1"># Perform the offline phase of GEIM</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">Mmax</span><span class="p">,</span>
+                                                   <span class="n">sampleEvery</span> <span class="o">=</span> <span class="n">sam_every</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Store output</span>
         <span class="n">train_abs_err</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">train_rel_err</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">train_GEIMcoeff</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------------------------------------------&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -282,41 +292,39 @@ v_m(u(\mathbf{x});\,\mathbf{x}_m,\,s)=\int_\Omega u(\mathbf{x})\cdot \mathcal{K}
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
---&gt; phi_1 - s = 1.00e-01
-Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
-  Iteration 030 | Abs Err: 5.23e-08 | Rel Err: 1.50e-07
---&gt; phi_1 - s = 1.00e+00
-Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
-  Iteration 030 | Abs Err: 3.40e-08 | Rel Err: 9.34e-08
---&gt; phi_1 - s = 2.50e+00
-Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
-  Iteration 030 | Abs Err: 3.98e-08 | Rel Err: 1.11e-07
---------------------------------------------
---&gt; phi_2 - s = 1.00e-01
-Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
-  Iteration 030 | Abs Err: 2.40e-08 | Rel Err: 2.37e-07
---&gt; phi_2 - s = 1.00e+00
-Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
-  Iteration 030 | Abs Err: 4.39e-08 | Rel Err: 4.29e-07
---&gt; phi_2 - s = 2.50e+00
-Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
-  Iteration 030 | Abs Err: 4.60e-08 | Rel Err: 4.65e-07
---------------------------------------------
+--&gt; phi_1 - s = 2.00e+00
+Generating sensors (sampled every 4 cells): 1718.000 / 1718.00 - 0.003 s/it
+  Iteration 020 | Abs Err: 2.41e-04 | Rel Err: 4.68e-06
+--&gt; phi_1 - s = 5.00e+00
+Generating sensors (sampled every 4 cells): 1718.000 / 1718.00 - 0.004 s/it
+  Iteration 020 | Abs Err: 1.54e-04 | Rel Err: 2.97e-06
+
+--&gt; phi_2 - s = 2.00e+00
+Generating sensors (sampled every 4 cells): 1718.000 / 1718.00 - 0.005 s/it
+  Iteration 020 | Abs Err: 3.28e-04 | Rel Err: 1.04e-05
+--&gt; phi_2 - s = 5.00e+00
+Generating sensors (sampled every 4 cells): 1718.000 / 1718.00 - 0.003 s/it
+  Iteration 020 | Abs Err: 3.53e-04 | Rel Err: 1.11e-05
+
 </pre></div></div>
 </div>
 <p>Let us store the magic functions and the magic sensors</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;/BasisSensors&#39;</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;/BasisSensors&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;BasisSensors/&#39;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;BasisSensors/&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;BasisFunctions/&#39;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;BasisFunctions/&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;coeffs/&#39;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;coeffs/&#39;</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
     <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;/coeffs/GEIM_&#39;</span><span class="o">+</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">train_GEIMcoeff</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">],</span>  <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
-        <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">,</span>  <span class="s1">&#39;GEIM_&#39;</span> <span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]),</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;/BasisFunctions/basisGEIM_&#39;</span> <span class="o">+</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
-        <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">magic_sens</span><span class="p">,</span> <span class="s1">&#39;GEIM_&#39;</span> <span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]),</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;/BasisSensors/sensorsGEIM_&#39;</span> <span class="o">+</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;coeffs/GEIM_&#39;</span><span class="o">+</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="n">train_GEIMcoeff</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">],</span>  <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">,</span>  <span class="s1">&#39;GEIM_&#39;</span> <span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]),</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;BasisFunctions/basisGEIM_&#39;</span> <span class="o">+</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
+        <span class="n">store</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]][</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">magic_sens</span><span class="p">,</span> <span class="s1">&#39;GEIM_&#39;</span> <span class="o">+</span><span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]),</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;BasisSensors/sensorsGEIM_&#39;</span> <span class="o">+</span> <span class="n">var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_s_</span><span class="si">{:.2e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -325,32 +333,32 @@ Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it
 <h3>Comparison of the training errors<a class="headerlink" href="#Comparison-of-the-training-errors" title="Link to this heading"></a></h3>
 <p>The max absolute and relative reconstruction error is compared for the different algorithms, given the following definitions <span class="math">\begin{equation*}
 \begin{split}
-E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}\\
-\varepsilon_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \frac{\left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_N[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}}{\left\| u(\cdot;\,\boldsymbol{\mu}) \right\|_{L^2(\Omega)}}
+E_M[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_M[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}\\
+\varepsilon_M[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \frac{\left\| u(\cdot;\,\boldsymbol{\mu}) - \mathcal{P}_M[u](\cdot;\,\boldsymbol{\mu})\right\|_{L^2(\Omega)}}{\left\| u(\cdot;\,\boldsymbol{\mu}) \right\|_{L^2(\Omega)}}
 \end{split}
-\end{equation*}</span> given <span class="math notranslate nohighlight">\(\mathcal{P}_N[u]\)</span> the reconstruction operator with <span class="math notranslate nohighlight">\(N\)</span> basis functions.</p>
+\end{equation*}</span> given <span class="math notranslate nohighlight">\(\mathcal{P}_M\)</span> the reconstruction operator with <span class="math notranslate nohighlight">\(M\)</span> magic functions (takes the reduced coefficients generated by GEIM and performs the linear combination of the magic functions).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">TrainingErrFig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span> <span class="p">)</span>
 
-<span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Mmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)):</span>
 
     <span class="n">colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
-        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">train_abs_err</span><span class="p">[:</span><span class="n">Nmax</span><span class="p">,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">)</span>
-        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">train_rel_err</span><span class="p">[:</span><span class="n">Nmax</span><span class="p">,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">train_abs_err</span><span class="p">[:</span><span class="n">Mmax</span><span class="p">,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">train_rel_err</span><span class="p">[:</span><span class="n">Mmax</span><span class="p">,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">)</span>
 
-    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
-    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Nmax</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Mmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Mmax</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$E_N[&quot;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;]$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\varepsilon_N[&quot;</span><span class="o">+</span><span class="n">tex_var_names</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;]$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
-<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $N$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $N$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Number of sensors $M$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Number of sensors $M$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
@@ -358,8 +366,8 @@ E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsy
 
 <span class="n">Line</span><span class="p">,</span> <span class="n">Label</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
 
-<span class="n">TrainingErrFig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">Line</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.95</span><span class="p">),</span> <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">framealpha</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">TrainingErrFig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.225</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="mf">0.93</span><span class="p">)</span>
+<span class="n">TrainingErrFig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">Line</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.94</span><span class="p">),</span> <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">framealpha</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">TrainingErrFig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="mf">0.93</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -367,16 +375,17 @@ E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsy
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_12_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_12_0.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_23_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_23_0.png" />
 </div>
 </div>
 </section>
 </section>
 <section id="Calculation-of-the-Lebesgue-Constant">
 <h2>Calculation of the Lebesgue Constant<a class="headerlink" href="#Calculation-of-the-Lebesgue-Constant" title="Link to this heading"></a></h2>
-<p>The Lebesgue Constant <span class="math notranslate nohighlight">\(\Lambda_N\)</span> is important for the GEIM algorithm, since it appears in the <em>a-priori</em> error estimation for the reduction technique. The procedure on how this is computed was introduced in <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0045782515000389?via%3Dihub">Maday et al., (2015)</a>.</p>
+<p>The Lebesgue Constant <span class="math notranslate nohighlight">\(\Lambda_M\)</span> is important for the GEIM algorithm, since it appears in the <em>a-priori</em> error estimation for the reduction technique. The procedure on how this is computed was introduced in <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0045782515000389?via%3Dihub">Maday et al., (2015)</a>.</p>
+<p>The Lebesgue constant can be computed using the function <code class="docutils literal notranslate"><span class="pre">computeLebesgue</span></code>: it requires the magic functions and the magic sensors as input.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.offline.geim</span> <span class="kn">import</span> <span class="n">computeLebesgue</span>
@@ -399,12 +408,12 @@ E_N[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsy
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Computing Lebesgue: 6.000 / 6.00 - 8.692 s/it
+Computing Lebesgue: 4.000 / 4.00 - 4.632 s/it
 </pre></div></div>
 </div>
 <p>Let us plot it to see the effect of the point spread</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">LebesgueFig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span> <span class="p">)</span>
@@ -414,14 +423,14 @@ Computing Lebesgue: 6.000 / 6.00 - 8.692 s/it
     <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
         <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">Lebesgue_const</span><span class="p">[:,</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">jj</span><span class="p">],</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">jj</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="p">)</span>
 
-    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Rank $N$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Number of sensors $M$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
 
-    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
-    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Nmax</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">)</span>
 
-<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Lebesgue Constant $\Lambda_N$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Lebesgue Constant $\Lambda_M$&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
@@ -437,9 +446,68 @@ Computing Lebesgue: 6.000 / 6.00 - 8.692 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_16_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_16_0.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_27_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_27_0.png" />
 </div>
 </div>
+</section>
+<section id="Post-Process">
+<h2>Post Process<a class="headerlink" href="#Post-Process" title="Link to this heading"></a></h2>
+<p>In this last section, <em>pyvista</em> is used to make some contour plots of the magic functions and sensors for the fast and thermal flux.</p>
+<p>Let us plot the first 6 magic functions of each variable, for <span class="math notranslate nohighlight">\(s=2\)</span>: in particular, contour plots of the fast and thermal flux are shown.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contour_plotting</span> <span class="kn">import</span> <span class="n">plot_modes</span>
+
+<span class="n">plot_modes</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+           <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">PiYG</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Magic Function&#39;</span><span class="p">)</span>
+<span class="n">plot_modes</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+           <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">RdYlBu_r</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Magic Function&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_1.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_1.png" />
+</div>
+</div>
+<p>In the end, let us plot the sensors positions for the fast and thermal flux, for each value of <span class="math notranslate nohighlight">\(s\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contour_plotting</span> <span class="kn">import</span> <span class="n">plot_geim_sensors</span>
+
+<span class="n">plot_geim_sensors</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="mi">15</span><span class="p">,</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">s</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">hot</span><span class="p">)</span>
+<span class="n">plot_geim_sensors</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">15</span><span class="p">,</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$s=</span><span class="si">{:.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">s</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">cool</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_1.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_1.png" />
+</div>
+</div>
+<p>The first 3 positions are identical for the two values of <span class="math notranslate nohighlight">\(s\)</span>, then some differences are observed. In the coming notebooks, only the case with <span class="math notranslate nohighlight">\(s=2\)</span> will be considered since better represents the reality of a flux sensors.</p>
 </section>
 </section>
 

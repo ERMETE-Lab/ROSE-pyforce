@@ -7,9 +7,11 @@
    "source": [
     "# Offline Phase: SGREEDY algorithm for sensor placement\n",
     "\n",
-    "This notebook implements the following algorithm for sensor placement:\n",
+    "**Aim of the tutorial:** this notebook shows how to use the SGREEDY algorithm for sensor placement starting from a reduced basis, e.g., the POD modes.\n",
     "\n",
-    "- Stabilised GREEDY algorithm (SGREEDY)"
+    "----\n",
+    "\n",
+    "*To execute this notebook* it is necessary to have the POD modes stored in `Offline_results/BasisFunctions` folder, placed in this directory (otherwise modify `path_off` variable)."
    ]
   },
   {
@@ -23,14 +25,10 @@
     "from IPython.display import clear_output\n",
     "import pickle\n",
     "\n",
-    "import gmsh\n",
-    "from mpi4py import MPI\n",
-    "from dolfinx.io.gmshio import model_to_mesh\n",
     "from dolfinx.fem import FunctionSpace\n",
     "\n",
-    "from pyforce.tools.write_read import ImportH5, StoreFunctionsList as store\n",
+    "from pyforce.tools.write_read import ImportH5, StoreFunctionsList\n",
     "from pyforce.tools.functions_list import FunctionsList\n",
-    "from pyforce.offline.sensors import SGREEDY\n",
     "\n",
     "path_off ='./Offline_results/'"
    ]
@@ -49,27 +47,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "gdim = 2\n",
+    "from neutronics import create_anl11a2_mesh\n",
     "\n",
-    "model_rank = 0\n",
-    "mesh_comm = MPI.COMM_WORLD\n",
-    "\n",
-    "# Initialize the gmsh module\n",
-    "gmsh.initialize()\n",
-    "\n",
-    "# Load the .geo file\n",
-    "gmsh.merge('ANL11A2_octave.geo')\n",
-    "gmsh.model.geo.synchronize()\n",
-    "\n",
-    "# Set algorithm (adaptive = 1, Frontal-Delaunay = 6)\n",
-    "gmsh.option.setNumber(\"Mesh.Algorithm\", 6)\n",
-    "\n",
-    "gmsh.model.mesh.generate(gdim)\n",
-    "gmsh.model.mesh.optimize(\"Netgen\")\n",
-    "\n",
-    "# Domain\n",
-    "domain, ct, ft = model_to_mesh(gmsh.model, comm = mesh_comm, rank = model_rank, gdim = gdim )\n",
-    "gmsh.finalize()\n",
+    "domain, _, _ = create_anl11a2_mesh(use_msh=True, save_mesh=False)\n",
     "\n",
     "fuel1_marker    = 1\n",
     "fuel2_marker    = 2\n",
@@ -79,21 +59,14 @@
     "void_marker     = 10\n",
     "sym_marker      = 20\n",
     "\n",
-    "tdim = domain.topology.dim\n",
-    "fdim = tdim - 1\n",
-    "domain.topology.create_connectivity(fdim, tdim)\n",
-    "\n",
     "clear_output()"
    ]
   },
   {
-   "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Importing Snapshots\n",
-    "\n",
-    "The snapshots are loaded and stored into suitable data structures."
+    "Let us import the POD modes, using the `ImportH5` function from the `pyforce` package."
    ]
   },
   {
@@ -116,41 +89,6 @@
     "                 r'\\phi_2'\n",
     "                 ]\n",
     "\n",
-    "# Snapshot path\n",
-    "path_FOM = './Snapshots/'\n",
-    "\n",
-    "################ Importing Snapshots ########################\n",
-    "test_snaps = list()\n",
-    "\n",
-    "for field_i in range(len(var_names)):\n",
-    "    test_snaps.append(FunctionsList(V))\n",
-    "\n",
-    "    tmp_FOM_list, _ = ImportH5(V, path_FOM+'test_snap_'+var_names[field_i], var_names[field_i])\n",
-    "    \n",
-    "    for mu in range(len(tmp_FOM_list)):\n",
-    "        test_snaps[field_i].append(tmp_FOM_list(mu))\n",
-    "    \n",
-    "    del tmp_FOM_list      \n",
-    "            \n",
-    "test_params = list()\n",
-    "for field_i in range(len(var_names)):\n",
-    "    with open(path_FOM+'./test.param', 'rb') as f:\n",
-    "        test_params.append(pickle.load(f))"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Let us import the POD modes"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 4,
-   "metadata": {},
-   "outputs": [],
-   "source": [
     "bf = dict()\n",
     "\n",
     "for field_i in range(len(var_names)):\n",
@@ -163,20 +101,29 @@
    "metadata": {},
    "source": [
     "## SGREEDY for POD basis\n",
-    "A greedy procedure is set up to maximise the *inf-sup* constant $\\beta_{N,M}$, for 3 different values if the point spread"
+    "The SGREEDY algorithm, [Maday et al. (2014)](https://doi.org/10.1002/nme.4747), aims at maximising the *inf-sup* constant $\\beta_{N,M}$: roughly speaking, this constant measures how the sensors can include unmodelled physics with respect to the one embedded in the reduced basis.\n",
+    "\n",
+    "The overall algorithm is summarised in the following figure from [Riva et al. (2024)](https://doi.org/10.1016/j.apm.2024.06.040)\n",
+    "\n",
+    "![SGREEDY](sgreedy-algo.png)\n",
+    "\n",
+    "As for the GEIM method, three different values of the point spread will be considered: 0.1, 1 and 2.5.\n",
+    "The SGREEDY method is implemented in the `pyforce` package, and it is called by `SGREEDY`: the class must be initialised with the domain, the basis functions (the POD modes in this case), the functional space in which the snapshots live, the name of the variable and the value of the point spread."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": 4,
    "metadata": {},
    "outputs": [],
    "source": [
-    "s = [0.1, 1., 2.5]\n",
+    "from pyforce.offline.sensors import SGREEDY\n",
+    "\n",
+    "s = 2.\n",
     "sgreedy_pod = dict()\n",
     "\n",
     "for field_i in range(len(var_names)):\n",
-    "    sgreedy_pod[var_names[field_i]] = [SGREEDY(domain, bf[var_names[field_i]], V, var_names[field_i], s_jj) for s_jj in s]"
+    "    sgreedy_pod[var_names[field_i]] = [SGREEDY(domain, bf[var_names[field_i]], V, var_names[field_i], s)]*2"
    ]
   },
   {
@@ -190,64 +137,71 @@
     "The results will be compared with the approximation properties of the case with the Riesz representation in $L^2$, whose inner product is \n",
     "\\begin{equation*}\n",
     "\\left(u,v\\right)_{L^2} = \\int_\\Omega u\\cdot v\\,d\\Omega\n",
-    "\\end{equation*}"
+    "\\end{equation*}\n",
+    "\n",
+    "The SGREEDY algorithm is called by the method `generate` from the `SGREEDY` class: it requires the dimension of the reduced space to use, the maximum number of sensors to place and a tolerance value for the stability-loop of the algorithm. Moreover, the method can have the optional parameters `verbose` and `sampleEvery`, which allow to print the progress and telling how many cells are to be used, respectively. In the end, there is a switch option for the use of the Riesz representation in $H^1$ or $L^2$."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.084779\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.003 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.146526\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.180025\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.003 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.223101\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.393625\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.003 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.398683\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.085134\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.003 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.148458\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.173819\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.003 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.214982\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.002 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.357794\n",
-      "Generating sensors (sampled every 2 cells): 3435.000 / 3435.00 - 0.003 s/it\n",
-      "m = 30, n = 10 | beta_n,m = 0.371680\n"
+      "SGREEDY for phi_1 with s=2.00 and Riesz representation in L2\n",
+      " \n",
+      "SGREEDY for phi_1 with s=2.00 and Riesz representation in H1\n",
+      " \n",
+      "SGREEDY for phi_2 with s=2.00 and Riesz representation in L2\n",
+      " \n",
+      "SGREEDY for phi_2 with s=2.00 and Riesz representation in H1\n",
+      " \n"
      ]
     }
    ],
    "source": [
     "Nmax = 10\n",
-    "Mmax = 30\n",
+    "Mmax = 20\n",
     "\n",
-    "sam_every = 2\n",
+    "sam_every = 4\n",
     "\n",
     "is_H1 = [False, True]\n",
     "fun_space_label = ['L2', 'H1']\n",
     "\n",
     "for field_i in range(len(var_names)):\n",
-    "    for jj in range(len(s)):\n",
     "        for kk in range(len(is_H1)):\n",
     "            \n",
-    "            print('SGREEDY for '+var_names[field_i]+' with s={:.2f}'.format(s[jj])+' and Riesz representation in '+fun_space_label[kk])\n",
+    "            print('SGREEDY for '+var_names[field_i]+' with s={:.2f}'.format(s)+' and Riesz representation in '+fun_space_label[kk])\n",
     "            \n",
-    "            sgreedy_pod[var_names[field_i]][jj].generate(Nmax, Mmax, tol = 0.5, sampleEvery = sam_every, verbose=False, is_H1 = is_H1[kk])\n",
-    "            store(domain, sgreedy_pod[var_names[field_i]][jj].basis_sens, \n",
-    "                  'SGREEDYPOD_' +var_names[field_i]+'_s_{:.2e}'.format(s[jj]),\n",
-    "                  path_off+'/BasisSensors/sensorsSGREEDYPOD_' + var_names[field_i]+'_s_{:.2e}_'.format(s[jj])+fun_space_label[kk])"
+    "            sgreedy_pod[var_names[field_i]][kk].generate(   Nmax, Mmax, tol = 0.2, \n",
+    "                                                            sampleEvery = sam_every, \n",
+    "                                                            verbose=False, is_H1 = is_H1[kk])\n",
+    "            \n",
+    "            print(' ')\n",
+    "            "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can store the sensors using the `StoreFunctionsList` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for field_i in range(len(var_names)):\n",
+    "        for kk in range(len(is_H1)):\n",
+    "                StoreFunctionsList( domain, sgreedy_pod[var_names[field_i]][kk].basis_sens, \n",
+    "                                    'SGREEDYPOD_' +var_names[field_i]+'_s_{:.2e}'.format(s),\n",
+    "                                    path_off+'/BasisSensors/sensorsSGREEDYPOD_' + var_names[field_i]+'_s_{:.2e}_'.format(s)+fun_space_label[kk])"
    ]
   }
  ],
@@ -267,7 +221,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.10.12"
+   "version": "3.10.14"
   },
   "orig_nbformat": 4,
   "vscode": {

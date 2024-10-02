@@ -59,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../01_DFG2_benchmark.html">Unsteady Laminar Navier-Stokes - DFG2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="01_import_OFsnaps.html">Generation of the snapshots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01_import_OFsnaps.html">Import Snapshots from OF</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02a_offline_POD.html">Offline Phase: POD</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Offline Phase: GEIM</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#GEIM-algorithm">GEIM algorithm</a></li>
@@ -103,12 +103,10 @@
              
   <section id="Offline-Phase:-GEIM-algorithm">
 <h1>Offline Phase: GEIM algorithm<a class="headerlink" href="#Offline-Phase:-GEIM-algorithm" title="Link to this heading"></a></h1>
-<p>This notebook implements the offline phase of the following algorithms:</p>
-<ul class="simple">
-<li><p>Generalised Empirical Interpolation Method (GEIM)</p></li>
-</ul>
-<p>In particular, the magic functions and magic sensors are generated through the GEIM procedure, <strong>for the observable field only</strong> (<span class="math notranslate nohighlight">\(T\)</span> in this case).</p>
-<p>The current version of the <em>pyforce</em> package allows for GEIM only scalar fields.</p>
+<p><strong>Aim of the tutorial:</strong> this notebook shows how to perform the offline phase of the GEIM algorithm, i.e. how to use this method to generate the magic functions and the associared magic sensors from a parametric dataset.</p>
+<p>The only observable variable is assumed to be the temperature: <em>the GEIM class is only able to handle scalar variables at the moment</em>.</p>
+<hr class="docutils" />
+<p><em>To execute this notebook</em> it is necessary to have the snapshots stored in <code class="docutils literal notranslate"><span class="pre">Snapshots</span></code> folder, placed in this directory (otherwise modify <code class="docutils literal notranslate"><span class="pre">path_FOM</span></code> variable).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -116,27 +114,15 @@
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
 
 <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
 <span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">gmshio</span>
 <span class="kn">import</span> <span class="nn">gmsh</span>
 <span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
 
-<span class="kn">from</span> <span class="nn">pyforce.offline.geim</span> <span class="kn">import</span> <span class="n">GEIM</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
 <span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
-
-<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
-<span class="n">path_offline</span> <span class="o">=</span> <span class="s1">&#39;./Offline_results/&#39;</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_offline</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_offline</span><span class="p">)</span>
-
-<span class="c1"># The temperature is the only one that can be measured</span>
-<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">]</span>
-<span class="n">tex_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -168,8 +154,6 @@
 <span class="n">domain</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">gmshio</span><span class="o">.</span><span class="n">model_to_mesh</span><span class="p">(</span><span class="n">gmsh</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">model_rank</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span> <span class="p">)</span>
 <span class="n">gmsh</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 
-<span class="c1">########################################################################################################</span>
-
 <span class="n">tdim</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">dim</span>
 <span class="n">fdim</span> <span class="o">=</span> <span class="n">tdim</span> <span class="o">-</span> <span class="mi">1</span>
 <span class="n">domain</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">create_connectivity</span><span class="p">(</span><span class="n">fdim</span><span class="p">,</span> <span class="n">tdim</span><span class="p">)</span>
@@ -186,41 +170,37 @@ Info    : Done reading &#39;cavity.geo&#39;
 Info    : Meshing 1D...
 Info    : [  0%] Meshing curve 1 (Line)
 Info    : [ 30%] Meshing curve 2 (Line)
-Info    : [ 50%] Meshing curve 3 (Line)
+Info    : [ 60%] Meshing curve 3 (Line)
 Info    : [ 80%] Meshing curve 4 (Line)
-Info    : Done meshing 1D (Wall 0.000561164s, CPU 0.000411s)
+Info    : Done meshing 1D (Wall 0.00111864s, CPU 0.000849s)
 Info    : Meshing 2D...
 Info    : Meshing surface 1 (Transfinite)
-Info    : Done meshing 2D (Wall 0.00840923s, CPU 0.008269s)
+Info    : Done meshing 2D (Wall 0.0187267s, CPU 0.007379s)
 Info    : 16384 nodes 32770 elements
 Info    : Optimizing mesh (Netgen)...
-Info    : Done optimizing mesh (Wall 2.59234e-06s, CPU 7e-06s)
+Info    : Done optimizing mesh (Wall 2.643e-06s, CPU 3e-06s)
 </pre></div></div>
 </div>
 <p>Let us define the functional space onto which the OpenFOAM data have been projected; then, the snapshots can be imported.</p>
+<p>Even if only a single variable (the temperature is analysed), <code class="docutils literal notranslate"><span class="pre">var_names</span></code> is defined as a list of strings, to help generalise the notebook.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path_FOM</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/&#39;</span>
+
+<span class="c1"># The temperature is the only one that can be measured</span>
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">]</span>
+<span class="n">tex_var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span>
+
+<span class="n">fun_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span>
 
 <span class="n">train_snaps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="n">test_snaps</span>  <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-<span class="n">training</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
 
-    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
-        <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TrainSet_&#39;</span><span class="o">+</span><span class="n">field</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="s1">&#39;TestSet_&#39;</span> <span class="o">+</span><span class="n">field</span>
-    <span class="n">tmp</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">path_snap</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
-        <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">test_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">path_snap</span> <span class="o">=</span> <span class="n">path_FOM</span><span class="o">+</span><span class="s1">&#39;TrainSet_&#39;</span><span class="o">+</span><span class="n">field</span>
+    <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImportH5</span><span class="p">(</span><span class="n">fun_spaces</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">path_snap</span><span class="p">,</span> <span class="n">field</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -238,12 +218,14 @@ v_m(u(\mathbf{x});\,\mathbf{x}_m,\,s)=\int_\Omega u(\mathbf{x})\cdot \mathcal{K}
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.offline.geim</span> <span class="kn">import</span> <span class="n">GEIM</span>
+
+<span class="n">geim_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">train_GEIMcoeff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-<span class="n">Mmax</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">Mmax</span> <span class="o">=</span> <span class="mi">20</span>
 
 <span class="c1"># This parameter serves as input to select only some cells in the mesh</span>
-<span class="n">sam_every</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">sam_every</span> <span class="o">=</span> <span class="mi">5</span>
 
 <span class="n">s</span> <span class="o">=</span> <span class="mf">0.01</span>
 
@@ -265,16 +247,18 @@ v_m(u(\mathbf{x});\,\mathbf{x}_m,\,s)=\int_\Omega u(\mathbf{x})\cdot \mathcal{K}
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Generating sensors (sampled every 2 cells): 8192.000 / 8192.00 - 0.005 s/it
-  Iteration 030 | Abs Err: 5.32e-04 | Rel Err: 7.57e-04
+Generating sensors (sampled every 5 cells): 3277.000 / 3277.00 - 0.008 s/it
+  Iteration 020 | Abs Err: 6.48e-04 | Rel Err: 9.91e-04
 </pre></div></div>
 </div>
-<p>Let us store the magic functions and the magic sensors</p>
+<p>Let us store the magic functions, the magic sensors and the training coefficients for later use.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisSensors/&#39;</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path_offline</span> <span class="o">=</span> <span class="s1">&#39;./Offline_results/&#39;</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisSensors/&#39;</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisSensors/&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisFunctions/&#39;</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_offline</span><span class="o">+</span><span class="s1">&#39;/BasisFunctions/&#39;</span><span class="p">)</span>
@@ -291,69 +275,34 @@ Generating sensors (sampled every 2 cells): 8192.000 / 8192.00 - 0.005 s/it
 <section id="Post-process:-plotting-magic-functions-and-sensors">
 <h3>Post-process: plotting magic functions and sensors<a class="headerlink" href="#Post-process:-plotting-magic-functions-and-sensors" title="Link to this heading"></a></h3>
 <p>The magic functions and sensors are plotted using <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vtk</span>
-<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
-<span class="kn">import</span> <span class="nn">dolfinx</span>
-
-<span class="n">pv</span><span class="o">.</span><span class="n">start_xvfb</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">grids</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-    <span class="n">topology</span><span class="p">,</span> <span class="n">cell_types</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">create_vtk_mesh</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">function_space</span><span class="p">)</span>
-    <span class="n">u_grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">topology</span><span class="p">,</span> <span class="n">cell_types</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
-    <span class="n">u_grid</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span><span class="o">.</span><span class="n">real</span>
-    <span class="n">u_grid</span><span class="o">.</span><span class="n">set_active_scalars</span><span class="p">(</span><span class="s1">&#39;fun&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">u_grid</span>
-</pre></div>
-</div>
-</div>
-<p>The first 6 magic functions are plotted.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plotBasisFun</span><span class="p">(</span> <span class="n">basis</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shape</span> <span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-               <span class="n">colormap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contour_plotting</span> <span class="kn">import</span> <span class="n">plot_modes</span>
 
-    <span class="n">nrows</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">ncols</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">plot_modes</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+           <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span>
+           <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Magic Function&#39;</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">subfig_size</span><span class="o">=</span><span class="p">[</span><span class="mi">900</span><span class="p">,</span><span class="mi">900</span><span class="p">],</span>
+           <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02b_offline_GEIM_12_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02b_offline_GEIM_12_0.png" />
+</div>
+</div>
+<p>Let us also plot the sensors</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contour_plotting</span> <span class="kn">import</span> <span class="n">plot_geim_sensors</span>
 
-    <span class="n">resolution</span> <span class="o">=</span> <span class="p">[</span><span class="mi">900</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">900</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">]</span>
-    <span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
-
-    <span class="n">lab_fontsize</span> <span class="o">=</span> <span class="mi">20</span>
-    <span class="n">title_fontsize</span> <span class="o">=</span> <span class="mi">30</span>
-    <span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.05</span>
-
-    <span class="n">dict_cb</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="n">varname</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-                    <span class="n">title_font_size</span><span class="o">=</span><span class="n">title_fontsize</span><span class="p">,</span>
-                    <span class="n">label_font_size</span><span class="o">=</span><span class="n">lab_fontsize</span><span class="p">,</span>
-                    <span class="n">n_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span>
-                    <span class="n">position_x</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">position_y</span><span class="o">=</span><span class="mf">0.885</span><span class="p">,</span>
-                    <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
-            <span class="n">warped</span> <span class="o">=</span> <span class="n">grids</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
-            <span class="n">clim</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">basis</span><span class="p">(</span><span class="n">idx</span><span class="p">)),</span> <span class="nb">max</span><span class="p">(</span><span class="n">basis</span><span class="p">(</span><span class="n">idx</span><span class="p">))]</span>
-
-            <span class="n">plotter</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-            <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="n">varname</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="s1">&#39; - Magic Function &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">warped</span><span class="p">,</span> <span class="n">clim</span> <span class="o">=</span> <span class="n">clim</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalar_bar_args</span><span class="o">=</span><span class="n">dict_cb</span><span class="p">)</span>
-            <span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
-            <span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">zoom</span><span class="p">)</span>
-
-            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="n">plotter</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">plotBasisFun</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">plot_geim_sensors</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">],</span> <span class="mi">15</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">resolution</span><span class="o">=</span><span class="p">[</span><span class="mi">900</span><span class="p">,</span><span class="mi">900</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -362,74 +311,6 @@ Generating sensors (sampled every 2 cells): 8192.000 / 8192.00 - 0.005 s/it
 </div>
 <div class="output_area docutils container">
 <img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02b_offline_GEIM_14_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02b_offline_GEIM_14_0.png" />
-</div>
-</div>
-<p>Then, let us plot the magic sensors.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sens_pos</span><span class="p">(</span><span class="n">sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
-    <span class="n">x_dofs</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span>
-
-    <span class="n">x_sens</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
-        <span class="n">x_sens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_dofs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">sens</span><span class="p">(</span><span class="n">mm</span><span class="p">))])</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x_sens</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">plotBasisSens</span><span class="p">(</span> <span class="n">basis</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">M_to_use</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                   <span class="n">colormap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">magma_r</span><span class="p">):</span>
-
-    <span class="n">resolution</span> <span class="o">=</span> <span class="p">[</span><span class="mi">900</span><span class="p">,</span> <span class="mi">900</span><span class="p">]</span>
-    <span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">off_screen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
-
-    <span class="n">lab_fontsize</span> <span class="o">=</span> <span class="mi">20</span>
-    <span class="n">title_fontsize</span> <span class="o">=</span> <span class="mi">30</span>
-    <span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.05</span>
-
-    <span class="n">dict_cb</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="n">varname</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-                    <span class="n">title_font_size</span><span class="o">=</span><span class="n">title_fontsize</span><span class="p">,</span>
-                    <span class="n">label_font_size</span><span class="o">=</span><span class="n">lab_fontsize</span><span class="p">,</span>
-                    <span class="n">n_labels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span>
-                    <span class="n">position_x</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">position_y</span><span class="o">=</span><span class="mf">0.885</span><span class="p">,</span>
-                    <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="n">sensors</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
-    <span class="n">sensors</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">basis</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">basis</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M_to_use</span><span class="p">)])</span>
-
-    <span class="n">dict_cb</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="n">varname</span><span class="o">+</span><span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="s1">&#39; - Magic Sensors&#39;</span>
-    <span class="n">warped</span> <span class="o">=</span> <span class="n">grids</span><span class="p">(</span><span class="n">sensors</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">warped</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalar_bar_args</span><span class="o">=</span><span class="n">dict_cb</span><span class="p">)</span>
-
-    <span class="n">_sens</span> <span class="o">=</span> <span class="n">sens_pos</span><span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">M_to_use</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">add_point_labels</span><span class="p">(</span><span class="n">_sens</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">M_to_use</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">italic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                        <span class="n">font_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
-                        <span class="n">point_color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
-                        <span class="n">shape_color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
-                        <span class="n">shape_opacity</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
-                        <span class="n">point_size</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
-                        <span class="n">render_points_as_spheres</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">always_visible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">zoom</span><span class="p">)</span>
-
-    <span class="n">plotter</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
-    <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">sensors</span>
-
-<span class="n">aa</span> <span class="o">=</span> <span class="n">plotBasisSens</span><span class="p">(</span><span class="n">geim_data</span><span class="p">[</span><span class="s1">&#39;norm_T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">magic_sens</span><span class="p">,</span> <span class="n">tex_var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/Tutorials_03_BuoyantCavity_OF6_02b_offline_GEIM_16_0.png" src="../../_images/Tutorials_03_BuoyantCavity_OF6_02b_offline_GEIM_16_0.png" />
 </div>
 </div>
 </section>

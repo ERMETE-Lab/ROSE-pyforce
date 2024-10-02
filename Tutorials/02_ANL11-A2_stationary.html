@@ -62,8 +62,8 @@
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html">Offline Phase: GEIM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html">Offline Phase: SGREEDY</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html">Offline Phase: PBDW</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html">Online Phase: GEIM - effect of random noise</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html">Online Phase: PBDW - effect of the Riesz Representation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html">Online Phase: GEIM and TR-GEIM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html">Online Phase: PBDW</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
@@ -100,6 +100,8 @@
              
   <section id="steady-state-multigroup-diffusion-for-anl11-a2-benchmark">
 <h1>Steady State MultiGroup Diffusion for ANL11-A2 benchmark<a class="headerlink" href="#steady-state-multigroup-diffusion-for-anl11-a2-benchmark" title="Link to this heading"></a></h1>
+<p><strong>Aim of this tutorial:</strong> learn how to generate parametric snapshots, investigate the reduction capabilities of the POD and GEIM and algorithms used for sensor placement, during the online phase the effect of random noise on the reconstruction algorithms of GEIM and PBDW will be discussed.</p>
+<p>This tutorial wants to show how the GEIM and the PBDW can be adopted to integrate local measures and background knowledge, embedded in the basis functions, to improve the reconstruction of the solution in the online phase. Even though, the case investigate is rather simple, the same approach can be applied to more complex problems.</p>
 <p>The ANL11-A2 benchmark is taken from the <a class="reference external" href="https://www.osti.gov/biblio/12030251">Argonne Code Center - Supplement 2</a>.
 It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in the following figure.</p>
 <a class="reference internal image-reference" href="../_images/anl11a2_regions.png"><img alt="anl11a2_regions" class="align-center" src="../_images/anl11a2_regions.png" style="width: 750px;" /></a>
@@ -109,25 +111,22 @@ It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in t
     \begin{array}{ll}
     -\nabla\cdot \left(D_1\nabla \phi_1 \right)+(\Sigma_{a,1}+\Sigma_{s,1\rightarrow 2} + D_1\,B_{z,1}^2)\phi_1 =\frac{1}{k_{eff}}\nu\Sigma_{f,2}\phi_2 &amp; \mathbf{x}\in\Omega\\
     -\nabla\cdot \left(D_2\nabla \phi_2 \right)+(\Sigma_{a,2}+D_2\,B_{z,2}^2) \phi_2 - \Sigma_{s,1\rightarrow 2}\phi_1=0 &amp; \mathbf{x}\in\Omega\\
-    \nabla \phi_g\cdot  \mathbf{n} = -\frac{0.4692}{D_g}\,\phi_g &amp; \mathbf{x}\in\Gamma_{void} \\
+    \nabla \phi_g\cdot  \mathbf{n} = -\frac{0.4692}{D_g}\,\phi_g &amp; \mathbf{x}\in\Gamma_{vacuum} \\
     \nabla \phi_g\cdot  \mathbf{n} = 0 &amp; \mathbf{x}\in\Gamma_{sym}
     \end{array}
 \right.\end{split}\]</div>
-<p>given <span class="math notranslate nohighlight">\(\Omega\)</span> as the domain and <span class="math notranslate nohighlight">\(\partial\Omega\)</span> as its boundary, composed by <span class="math notranslate nohighlight">\(\partial\Omega = \Gamma_{sym}\cup\Gamma_{void}\)</span> where <span class="math notranslate nohighlight">\(\Gamma_{sym}\)</span> is the symmetry boundary and <span class="math notranslate nohighlight">\(\Gamma_{void}\)</span> is the end of the reactor.</p>
+<p>given <span class="math notranslate nohighlight">\(\Omega\)</span> as the domain and <span class="math notranslate nohighlight">\(\partial\Omega\)</span> as its boundary, composed by <span class="math notranslate nohighlight">\(\partial\Omega = \Gamma_{sym}\cup\Gamma_{vacuum}\)</span> where <span class="math notranslate nohighlight">\(\Gamma_{sym}\)</span> is the symmetry boundary and <span class="math notranslate nohighlight">\(\Gamma_{vacuum}\)</span> is the end of the reactor.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Steps:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html">Generation of the snapshots</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Mesh-and-parameters">Mesh and parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Importing-geometry-and-meshing">Importing geometry and meshing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Definition-of-the-physical-parameters">Definition of the physical parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Importing-geometry-and-meshing">Importing geometry and meshing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Definition-of-the-physical-parameters">Definition of the physical parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Generation-of-the-snapshots">Generation of the snapshots</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Generation-of-the-snapshots">Generation of the snapshots</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Train-Set">Train Set</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Test-Set">Test Set</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Train-Set">Train Set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/01_generate_snaps.html#Test-Set">Test Set</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02a_offline_POD.html">Offline Phase: POD</a><ul>
@@ -138,6 +137,7 @@ It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in t
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/02a_offline_POD.html#Computing-the-training-error">Computing the training error</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02a_offline_POD.html#Post-Process:-plotting-the-POD-modes">Post Process: plotting the POD modes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html">Offline Phase: GEIM</a><ul>
@@ -148,19 +148,19 @@ It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in t
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#Calculation-of-the-Lebesgue-Constant">Calculation of the Lebesgue Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02b_offline_GEIM.html#Post-Process">Post Process</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html">Offline Phase: SGREEDY</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html#Importing-Snapshots">Importing Snapshots</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02c_offline_SGREEDY.html#SGREEDY-for-POD-basis">SGREEDY for POD basis</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html">Offline Phase: PBDW</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html#Importing-basis-function-and-sensors">Importing basis function and sensors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html#Compute-the-inf-sup-constant">Compute the <em>inf-sup</em> constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/02d_offline_PBDW.html#PBDW-Offline:-Compute-the-inf-sup-constant">PBDW-Offline: Compute the <em>inf-sup</em> constant</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html">Online Phase: GEIM - effect of random noise</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html">Online Phase: GEIM and TR-GEIM</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html#Importing-Snapshots">Importing Snapshots</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html#Online-Reconstruction">Online Reconstruction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03a_online_GEIM.html#Effect-of-random-noise">Effect of random noise</a></li>
@@ -169,9 +169,10 @@ It’s 2D version of a Pressurised Water Reactor with 4 regions as depicted in t
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html">Online Phase: PBDW - effect of the Riesz Representation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html">Online Phase: PBDW</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Importing-Snapshots">Importing Snapshots</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Online-Reconstruction">Online Reconstruction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Effect-of-random-noise">Effect of random noise</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_MGDiffusion/03b_online_PBDW.html#Plotting-the-interpolant-and-the-residual-fields">Plotting the interpolant and the residual fields</a></li>
 </ul>
 </li>
