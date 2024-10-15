@@ -86,8 +86,6 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 
 ### Selected works with *pyforce*
 
-- Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Indirect Field Recon- struction and Sensor Positioning in Circulating Fuel Reactors using Data-Driven Model Order Reduction. In 2023 International Congress on Advances in Nuclear Power Plants, Gyeongju, Korea, April 2023.
-- Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-Physics Model Correction with Data-Driven Reduced Order Modelling. In 32nd International Conference Nuclear Energy for New Europe (NENE2023), Portoroz, Slovenia, September 2023.
 - Stefano Riva, Sophie Deanesi, Carolina Introini, Stefano Lorenzi, and Antonio Cammi. Neutron Flux Reconstruction from Out-Core Sparse Measurements using Data-Driven Reduced Order Modelling. In International Conference on Physics of Reactors (PHYSOR24), San Francisco, USA, April 2024.
 - Matteo Lo Verso, Stefano Riva, Carolina Introini, Eric Cervi, Francesca Giacobbo, Laura Savoldi, Marcello Di Prinzio, Marco Caramello, Luciana Barucca, and Antonio Cammi, “Application of a non-intrusive Reduced Order Modelling approach to Magneto-HydroDynamics,” accepted for publication in Physics of Fluids, 2024.
 - Stefano Riva, Carolina Introini, Antonio Cammi, and J. Nathan Kutz, “Robust state estimation from partial out-core measurements with shallow recurrent decoder for nuclear reactors,” 2024. preprint available at [https://arxiv.org/abs/2409.12550](https://arxiv.org/abs/2409.12550).
