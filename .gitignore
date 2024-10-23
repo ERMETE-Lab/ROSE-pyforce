@@ -84,6 +84,9 @@ tests/ongoing/
 # PyBuilder
 target/
 
+# Test additional folders
+tests/testIO
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
