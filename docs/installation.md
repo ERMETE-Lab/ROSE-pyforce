@@ -24,7 +24,13 @@ Be sure to install *gmsh* and *gmsh-api* before *dolfinx* (the package has been 
 
 **Currently *pyforce* can only be obtained by directly cloning the repository (not in PyPI or conda repository).**
 
-It is suggested to create a conda environment: at first, clone the repository
+To ensure a quicker and easier installation, it is suggested to change the *conda-solver* to `libmamba`:
+```bash
+conda install -n base conda-libmamba-solver
+conda config --set solver libmamba
+```
+
+At first, clone the repository
 ```bash
 git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
 ```
@@ -84,7 +90,8 @@ Once all the dependencies have been installed, *pyforce* can be installed using 
 ```bash
 git clone https://github.com/ROSE-Polimi/pyforce.git
 ```
-Change directory to *pyforce* and install using pip
+Change directory to *ROSE-pyforce* and install using pip
 ```bash
+cd ROSE-pyforce
 python -m pip install pyforce/
 ```

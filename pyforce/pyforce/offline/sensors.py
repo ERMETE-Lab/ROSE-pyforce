@@ -6,6 +6,7 @@
 import numpy as np
 import scipy
 from dolfinx import fem
+import dolfinx
 import warnings
 
 import ufl
@@ -213,7 +214,7 @@ class GaussianSensors():
     return measure
   
 # SGREEDY algorithm for sensor selection (both representation in L2 and H1)
-class SGREEDY(): # to be extended when inf-sup > tol !!!
+class SGREEDY(): 
   r"""
     A class to perform the SGREEDY algorithm, given a list of basis functions :math:`\{\phi_n\}_{n=1}^N`.
 
@@ -231,7 +232,7 @@ class SGREEDY(): # to be extended when inf-sup > tol !!!
         Standard deviation of the gaussian kernel for the sensors
 
   """
-  def __init__(self, domain, basis: FunctionsList, V: FunctionSpace, name: str, s: float) -> None:
+  def __init__(self, domain: dolfinx.mesh.Mesh, basis: FunctionsList, V: FunctionSpace, name: str, s: float) -> None:
 
     self.basis = basis
     self.V = V
