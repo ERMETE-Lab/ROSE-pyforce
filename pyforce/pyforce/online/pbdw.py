@@ -523,7 +523,7 @@ class PBDW():
             print('The maximum number of basis functions must not be higher than '+str(self.Nmax)+' --> set equal to '+str(self.Nmax))
             N = self.Nmax
         
-        assert M >= self.N
+        assert M >= self.Nmax
         
         # Variables to store the computational times
         computational_time = dict()
