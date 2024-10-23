@@ -86,6 +86,7 @@ target/
 
 # Test additional folders
 tests/testIO
+testIO
 
 # Jupyter Notebook
 .ipynb_checkpoints
