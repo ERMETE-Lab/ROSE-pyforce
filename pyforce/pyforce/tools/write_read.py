@@ -240,30 +240,52 @@ class ReadFromOF():
         return field, time_instants
     
     def create_mesh(self):
+        """
+        Creating the mesh from the OpenFOAM points. Assess that only a single cell type is present.
+        Works only with hexahedrons and tetrahedrons at the moment.
+
+        Returns
+        -------
+        domain : dolfinx.mesh.Mesh
+            Imported mesh from OpenFOAM into dolfinx.
+        """
         
-            # Creating the mesh from the OpenFOAM points - works only with blockMeshDict (hexahedrons only)!
-            
-            ## Nodes of the mesh - (Nh, gdim)
-            self.nodes = self.reader.read()['internalMesh'].points
-            
-            ## Connectivity of the mesh (topology) - The second dimension indicates the type of cell used
-            args_conn = np.argsort(self.reader.read()['internalMesh'].cells_dict[12], axis=1)
-            connectivity = np.array([self.reader.read()['internalMesh'].cells_dict[12][i, arg] for i, arg in enumerate(args_conn)])
+        ## Nodes of the mesh - (Nh, gdim)
+        self.nodes = self.reader.read()['internalMesh'].points
+        
+        # Define the cell type
+        self.cells_dict = self.reader.read()['internalMesh'].cells_dict
 
-            # # Use advanced indexing to reorder the connectivity in one step
-            # rows = np.arange(self.reader.read()['internalMesh'].cells_dict[10].shape[0])[:, None]
-            # connectivity = self.reader.read()['internalMesh'].cells_dict[10][rows, args_conn]
-
-            ## Define mesh element
+        _cell_types = list(self.cells_dict.keys())
+        
+        if len(self.cells_dict) > 1:
+            warnings.warn('The mesh contains more than one cell type.')
+            assert sum([_cell == 12 for _cell in _cell_types]) or sum([_cell == 10 for _cell in _cell_types])
+            
+        if sum([_cell == 12 for _cell in _cell_types]):
             shape = "hexahedron"
-            # shape = 'tetrahedron'
-            degree = 1
-            cell = ufl.Cell(shape, geometric_dimension=3)
-            mesh_ufl = ufl.Mesh(ufl.VectorElement("Lagrange", cell, degree))
+            shape_id = 12
+            print('Hexahedron cells selected')
+        elif sum([_cell == 10 for _cell in _cell_types]):
+            shape = "tetrahedron"
+            shape_id = 10
+            print('Tetrahedron cells selected')
+        else:
+            raise ValueError('The mesh contains neither hexahedron nor tetrahedron cells.')
 
-            cells = np.array(connectivity, dtype=np.int32)
-            
-            return create_mesh(MPI.COMM_WORLD, cells, self.nodes, mesh_ufl)
+        ## Connectivity of the mesh (topology) - The second dimension indicates the type of cell used
+        args_conn = np.argsort(self.reader.read()['internalMesh'].cells_dict[shape_id], axis=1)
+        rows = np.arange(self.reader.read()['internalMesh'].cells_dict[shape_id].shape[0])[:, None]
+        connectivity = self.reader.read()['internalMesh'].cells_dict[shape_id][rows, args_conn]
+
+        ## Define mesh element
+        degree = 1
+        cell = ufl.Cell(shape, geometric_dimension=3)
+        mesh_ufl = ufl.Mesh(ufl.VectorElement("Lagrange", cell, degree))
+
+        cells = np.array(connectivity, dtype=np.int32)
+        
+        return create_mesh(MPI.COMM_WORLD, cells, self.nodes, mesh_ufl)
     
     def foam_to_dolfinx(self, V: FunctionSpace, snaps: list, variables: list = ['x', 'y', 'z'], 
                         cut_value: float  = 0., verbose: bool = None):
