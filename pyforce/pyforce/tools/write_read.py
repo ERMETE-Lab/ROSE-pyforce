@@ -256,10 +256,10 @@ class ReadFromOF():
         # Define the cell type
         self.cells_dict = self.reader.read()['internalMesh'].cells_dict
 
+        _cell_types = list(self.cells_dict.keys())
+        
         if len(self.cells_dict) > 1:
             warnings.warn('The mesh contains more than one cell type.')
-            _cell_types = list(self.cells_dict.keys())
-            
             assert sum([_cell == 12 for _cell in _cell_types]) or sum([_cell == 10 for _cell in _cell_types])
             
         if sum([_cell == 12 for _cell in _cell_types]):
