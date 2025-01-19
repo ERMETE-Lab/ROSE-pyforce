@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -5,20 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.tools.write_read &mdash; pyforce 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -81,20 +79,28 @@
   <h1>Source code for pyforce.tools.write_read</h1><div class="highlight"><pre>
 <span></span><span class="c1"># I/O tools</span>
 <span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 09 September 2024</span>
-<span class="c1"># Latest Doc  Update: 05 July 2024</span>
+<span class="c1"># Latest Code Update: 15 October 2024</span>
+<span class="c1"># Latest Doc  Update: 15 October 2024</span>
 
 <span class="c1"># from pyforce.tools.functions_list import FunctionsList</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
 <span class="kn">from</span> <span class="nn">.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
 <span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
+
 <span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">XDMFFile</span><span class="p">,</span> <span class="n">gmshio</span>
+<span class="kn">from</span> <span class="nn">dolfinx.mesh</span> <span class="kn">import</span> <span class="n">create_mesh</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
 <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">fluidfoam</span> <span class="k">as</span> <span class="nn">of</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">NearestNDInterpolator</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
 
 <div class="viewcode-block" id="StoreFunctionsList">
@@ -209,8 +215,286 @@
     <span class="k">return</span> <span class="n">snap</span><span class="p">,</span> <span class="n">params_np</span></div>
 
 
+<span class="c1">## Routine for importing from OpenFOAM using pyvista and fluidfoam</span>
+<div class="viewcode-block" id="ReadFromOF">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF">[docs]</a>
+<span class="k">class</span> <span class="nc">ReadFromOF</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used to import data from OpenFOAM and interpolate them onto *dolfinx* mesh.</span>
 
-<span class="c1">## Routine for importing from OpenFOAM using fluidfoam</span>
+<span class="sd">    The fluidfoam library (see https://github.com/fluiddyn/fluidfoam) is exploited for the import process</span>
+<span class="sd">        - Supported OpenFoam Versions : 2.4.0, 4.1 to 9 (org), v1712plus to v2212plus (com)</span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path of the OpenFOAM case directory.</span>
+<span class="sd">    extract_dofs : boolean, optional (Default=False)</span>
+<span class="sd">        If true, the dofs :math:`x,\,y,\,z` of the OpenFOAM mesh are imported.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;pyvista&#39;</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;fluidfoam&#39;</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;pyvista&#39;</span><span class="p">:</span>
+            
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The mode selected is not supported. The default mode is set to `pyvista`.&#39;</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;pyvista&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+            
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;fluidfoam&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">extract_dofs</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">of</span><span class="o">.</span><span class="n">readmesh</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">of_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">of_dofs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check if any file with .foam extension exists in the directory</span>
+            <span class="n">foam_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;*.foam&#39;</span><span class="p">))</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">foam_files</span><span class="p">:</span>
+                <span class="c1"># If no .foam file exists, create foam.foam</span>
+                <span class="n">foam_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;foam.foam&#39;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">foam_file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Use the first found .foam file</span>
+                <span class="n">foam_file_path</span> <span class="o">=</span> <span class="n">foam_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">POpenFOAMReader</span><span class="p">(</span><span class="n">foam_file_path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReadFromOF.import_field">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF.import_field">[docs]</a>
+    <span class="k">def</span> <span class="nf">import_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Importing all time instances (**skipping zero folder**) from OpenFOAM directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var_name : str</span>
+<span class="sd">            Name of the field to import.</span>
+<span class="sd">        vector : boolean, (Default: False)</span>
+<span class="sd">            Labelling if the field is a vector.</span>
+<span class="sd">        verbose: boolean, (Default = True) </span>
+<span class="sd">            If `True`, printing is enabled</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        field : list</span>
+<span class="sd">            Imported list of functions (each element is a `numpy.ndarray`), sorted in time.</span>
+<span class="sd">        time_instants : list</span>
+<span class="sd">            Sorted list of time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">field</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">time_instants</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;fluidfoam&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Importing &#39;</span><span class="o">+</span><span class="n">var_name</span><span class="o">+</span><span class="s1">&#39; using fluidfoam&#39;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">file</span> <span class="o">==</span> <span class="s1">&#39;0.orig&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">)):</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="n">var_name</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">vector</span><span class="p">:</span>
+                                    <span class="n">field</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">of</span><span class="o">.</span><span class="n">readvector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">field</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">of</span><span class="o">.</span><span class="n">readscalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+                                <span class="n">time_instants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+                
+            <span class="c1"># Sorting snapshots according to the params_np</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_instants</span><span class="p">)),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">index</span><span class="p">:</span> <span class="n">time_instants</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)):</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">ii</span><span class="p">]])</span>
+            <span class="n">time_instants</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>    
+            
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Importing &#39;</span><span class="o">+</span><span class="n">var_name</span><span class="o">+</span><span class="s1">&#39; using pyvista&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx_t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">time_values</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">set_active_time_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">time_values</span><span class="p">[</span><span class="n">idx_t</span><span class="p">])</span>  
+                
+                <span class="n">field</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
+                <span class="n">time_instants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">time_values</span><span class="p">[</span><span class="n">idx_t</span><span class="p">])</span>
+                
+        <span class="k">return</span> <span class="n">field</span><span class="p">,</span> <span class="n">time_instants</span></div>
+
+    
+<div class="viewcode-block" id="ReadFromOF.create_mesh">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF.create_mesh">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creating the mesh from the OpenFOAM points. Assess that only a single cell type is present.</span>
+<span class="sd">        Works only with hexahedrons and tetrahedrons at the moment.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        domain : dolfinx.mesh.Mesh</span>
+<span class="sd">            Imported mesh from OpenFOAM into dolfinx.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1">## Nodes of the mesh - (Nh, gdim)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">points</span>
+        
+        <span class="c1"># Define the cell type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cells_dict</span>
+
+        <span class="n">_cell_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The mesh contains more than one cell type.&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_cell</span> <span class="o">==</span> <span class="mi">12</span> <span class="k">for</span> <span class="n">_cell</span> <span class="ow">in</span> <span class="n">_cell_types</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_cell</span> <span class="o">==</span> <span class="mi">10</span> <span class="k">for</span> <span class="n">_cell</span> <span class="ow">in</span> <span class="n">_cell_types</span><span class="p">])</span>
+            
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_cell</span> <span class="o">==</span> <span class="mi">12</span> <span class="k">for</span> <span class="n">_cell</span> <span class="ow">in</span> <span class="n">_cell_types</span><span class="p">]):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="s2">&quot;hexahedron&quot;</span>
+            <span class="n">shape_id</span> <span class="o">=</span> <span class="mi">12</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Hexahedron cells selected&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_cell</span> <span class="o">==</span> <span class="mi">10</span> <span class="k">for</span> <span class="n">_cell</span> <span class="ow">in</span> <span class="n">_cell_types</span><span class="p">]):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="s2">&quot;tetrahedron&quot;</span>
+            <span class="n">shape_id</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Tetrahedron cells selected&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The mesh contains neither hexahedron nor tetrahedron cells.&#39;</span><span class="p">)</span>
+
+        <span class="c1">## Connectivity of the mesh (topology) - The second dimension indicates the type of cell used</span>
+        <span class="n">args_conn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">shape_id</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">shape_id</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">connectivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cells_dict</span><span class="p">[</span><span class="n">shape_id</span><span class="p">][</span><span class="n">rows</span><span class="p">,</span> <span class="n">args_conn</span><span class="p">]</span>
+
+        <span class="c1">## Define mesh element</span>
+        <span class="n">degree</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">geometric_dimension</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">mesh_ufl</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;Lagrange&quot;</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">degree</span><span class="p">))</span>
+
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">connectivity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">create_mesh</span><span class="p">(</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">mesh_ufl</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="ReadFromOF.foam_to_dolfinx">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF.foam_to_dolfinx">[docs]</a>
+    <span class="k">def</span> <span class="nf">foam_to_dolfinx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">],</span> 
+                        <span class="n">cut_value</span><span class="p">:</span> <span class="nb">float</span>  <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converting the OpenFOAM data imported into `FunctionsList` based on *dolfinx* structures. The snapshots are projected onto a suitable functional space.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        V : FunctionSpace</span>
+<span class="sd">            Functional Space onto which data are projected.</span>
+<span class="sd">        snaps : list</span>
+<span class="sd">            List of `numpy.ndarray` of size `(ndofs, ndim)` with the OpenFOAM snapshots.</span>
+<span class="sd">        variables : list, (Default = `[&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]`)</span>
+<span class="sd">            List of spatial variables, either 2D (e.g., `[&#39;x&#39;, &#39;y&#39;]`, `[&#39;x&#39;, &#39;z&#39;]`, `[&#39;y&#39;, &#39;z&#39;]`) or 3D (e.g., `[&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]`).</span>
+<span class="sd">        cut_value : float, (Default = 0.)</span>
+<span class="sd">            For 2D meshes, one dimension is cut and this is the associated value.</span>
+<span class="sd">        verbose: str, (Default = None) </span>
+<span class="sd">            If not `None`, printing is enabled with input message.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        snap_dolfinx : FunctionsList</span>
+<span class="sd">            Project list of functions in *dolfinx*.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">snap_dolfinx</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">))</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;fluidfoam&#39;</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">of_dofs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">of</span><span class="o">.</span><span class="n">readmesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">of_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
+            
+            <span class="n">variables</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">gdim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+            <span class="k">assert</span><span class="p">(</span><span class="n">gdim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">fun_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">snaps</span><span class="p">:</span>
+                    <span class="n">interp_</span> <span class="o">=</span> <span class="p">[</span><span class="n">NearestNDInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">of_dofs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">snap</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+                    <span class="c1"># interp_ = [LinearNDInterpolator(self.of_dofs.T, snap[:, ii].flatten()) for ii in range(3)]</span>
+                        
+                    <span class="k">if</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        
+                        <span class="k">if</span> <span class="p">((</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">)):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cut_value</span><span class="p">))</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cut_value</span><span class="p">))</span>
+                            
+                        <span class="k">elif</span> <span class="p">((</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;z&#39;</span><span class="p">)):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cut_value</span><span class="p">,</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="mi">2</span><span class="p">](</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cut_value</span><span class="p">,</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            
+                        <span class="k">elif</span> <span class="p">((</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;z&#39;</span><span class="p">)):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">cut_value</span><span class="p">,</span> <span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="mi">2</span><span class="p">](</span><span class="n">cut_value</span><span class="p">,</span> <span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            
+                    <span class="k">elif</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gdim</span><span class="p">):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp_</span><span class="p">[</span><span class="n">ii</span><span class="p">](</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                            
+                    <span class="n">snap_dolfinx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fun_</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">snaps</span><span class="p">:</span>
+                    <span class="n">interp</span> <span class="o">=</span> <span class="n">NearestNDInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">of_dofs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">snap</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                    <span class="c1"># interp = LinearNDInterpolator(self.of_dofs.T, snap.flatten())</span>
+                        
+                    <span class="k">if</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        
+                        <span class="k">if</span> <span class="p">((</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">)):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp</span><span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cut_value</span><span class="p">))</span>
+                            
+                        <span class="k">elif</span> <span class="p">((</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;z&#39;</span><span class="p">)):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp</span><span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cut_value</span><span class="p">,</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            
+                        <span class="k">elif</span> <span class="p">((</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;z&#39;</span><span class="p">)):</span>
+                            <span class="n">fun_</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp</span><span class="p">(</span><span class="n">cut_value</span><span class="p">,</span> <span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                            
+                    <span class="k">elif</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">fun_</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xx</span><span class="p">:</span> <span class="n">interp</span><span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xx</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                        
+                    <span class="n">snap_dolfinx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fun_</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">else</span><span class="p">:</span>
+            
+            <span class="n">x_V</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">tabulate_dof_coordinates</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">snaps</span><span class="p">:</span> 
+                
+                <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">interp_</span> <span class="o">=</span> <span class="p">[</span><span class="n">NearestNDInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">snap</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+                    <span class="n">u_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">interp_</span><span class="p">[</span><span class="n">ii</span><span class="p">](</span><span class="o">*</span><span class="n">x_V</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">interp_</span> <span class="o">=</span> <span class="n">NearestNDInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">snap</span><span class="p">)</span>
+                    <span class="n">u_array</span> <span class="o">=</span> <span class="n">interp_</span><span class="p">(</span><span class="o">*</span><span class="n">x_V</span><span class="p">)</span>
+                    
+                <span class="n">snap_dolfinx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u_array</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">snap_dolfinx</span></div>
+</div>
+
+
+<span class="c1">## Routine for importing from OpenFOAM using fluidfoam - Deprecated?</span>
 <div class="viewcode-block" id="ImportOF">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ImportOF">[docs]</a>
 <span class="k">class</span> <span class="nc">ImportOF</span><span class="p">():</span>
