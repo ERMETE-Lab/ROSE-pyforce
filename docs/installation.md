@@ -23,6 +23,7 @@ Be sure to install *gmsh* and *gmsh-api* before *dolfinx* (the package has been 
 ## Set up a conda environment for *pyforce*
 
 **Currently *pyforce* can only be obtained by directly cloning the repository (not in PyPI or conda repository).**
+**This procedure is the suggested one for both users and developers.**
 
 To ensure a quicker and easier installation, it is suggested to change the *conda-solver* to `libmamba`:
 ```bash
