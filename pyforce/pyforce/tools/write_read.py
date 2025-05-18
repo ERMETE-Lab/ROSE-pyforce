@@ -384,7 +384,7 @@ class ReadFromOF():
                 
                 if V.num_sub_spaces > 0:
                     interp_ = [NearestNDInterpolator(self.nodes, snap[:, ii].flatten()) for ii in range(3)]
-                    u_array = np.array([interp_[ii](*x_V) for ii in range(3)]).T.flatten()
+                    u_array = np.array([interp_[ii](*x_V) for ii in range(V.num_sub_spaces)]).T.flatten()
 
                 else:
                     interp_ = NearestNDInterpolator(self.nodes, snap)

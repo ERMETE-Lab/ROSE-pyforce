@@ -234,7 +234,8 @@ class TRGEIM():
         return interp, resid, computational_time, coeff
     
     def hyperparameter_tuning(self, snaps: FunctionsList, noise_value: float, 
-                              lambda_lim = [10, 50], n_samples: int = 20, M: int = None, verbose = False):
+                              lambda_lim = [10, 50], n_samples: int = 20, num_repeats: int = 1,
+                              M: int = None, verbose = False):
         r"""
         The regularising parameter :math:`\lambda` of the TR-GEIM linear system is calibrated as the one minimising the absolute error in :math:`L^2`, namely
         
@@ -253,6 +254,8 @@ class TRGEIM():
             Lower and upper bound for :math:`\lambda^*` entering in the regularisation parameter of TR-GEIM as :math:`\lambda = \lambda^* \cdot \sigma^2`, given :math:`\sigma^2` as the variance of the noise.
         n_samples: int, optional (Default = 20)
             Number of samples for the hyperparameter :math:`\lambda` to optimize.
+        num_repeats: int, optional (Default = 1)
+            Number of repetitions of each numerical experiment.
         M : int, optional (Default = None)
             Number of sensor to use (if None is set to the number of magic functions/sensors)
         verbose : boolean, optional (default = False)
@@ -291,7 +294,7 @@ class TRGEIM():
             
         clean_measures = np.zeros((Ns, M))
         for mu in range(Ns):
-            clean_measures[mu, :] = self.compute_measure(snaps(mu), M)
+            clean_measures[mu, :] = self.compute_measure(snaps(mu), noise_value=noise_value, M=M)
                 
         # Solving the optimization problem using brute force
         for ii, lambda_star in enumerate(lambda_star_samples):
@@ -300,19 +303,23 @@ class TRGEIM():
             
             for mu in range(Ns):
                 
-                # Adding synthetic noise
-                y = clean_measures[mu, :] + np.random.normal(0, noise_value, len(clean_measures[mu, :]))
+                _err = np.zeros((num_repeats,))
+                for kk in range(num_repeats):
+                    
+                    # Adding synthetic noise
+                    y = clean_measures[mu, :] + np.random.normal(0, noise_value, len(clean_measures[mu, :]))
 
-                # Creating matrix and vector
-                sys_matrix = (self.B[:M, :M].T @ self.B[:M, :M]) + reg_param * (self.T[:M, :M].T @ self.T[:M, :M])
-                rhs = np.dot(self.B[:M, :M].T, y) + reg_param * np.dot((self.T[:M, :M].T @ self.T[:M, :M]), self.mean_beta[:M])
+                    # Creating matrix and vector
+                    sys_matrix = (self.B[:M, :M].T @ self.B[:M, :M]) + reg_param * (self.T[:M, :M].T @ self.T[:M, :M])
+                    rhs = np.dot(self.B[:M, :M].T, y) + reg_param * np.dot((self.T[:M, :M].T @ self.T[:M, :M]), self.mean_beta[:M])
 
-                # Solving the linear system
-                coeff = la.solve(sys_matrix, rhs)
-                
-                # Computing absolute error
-                resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
-                abs_err[mu, ii] = self.norm.L2norm(resid)
+                    # Solving the linear system
+                    coeff = la.solve(sys_matrix, rhs)
+                    
+                    # Computing absolute error
+                    resid.x.array[:] = snaps(mu) - self.mf.lin_combine(coeff)
+                    _err[kk] = self.norm.L2norm(resid)
+                abs_err[mu, ii] = _err.mean(axis = 0)
             
             if verbose:
                 progressBar.update(1, percentage = False)
