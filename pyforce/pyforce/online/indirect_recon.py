@@ -112,7 +112,11 @@ class PE():
         upper_bounds = [bound[1] for bound in self.bnds]  
         bounds = Bounds(lower_bounds, upper_bounds)
         
-        # Is this necessary?
+        # Add a check for the guess and clip it to the bounds if necessary
+        if np.any(guess < lower_bounds) or np.any(guess > upper_bounds):
+            guess = np.clip(guess, lower_bounds, upper_bounds)
+        
+        # Perform least squares optimisation to refine the guess
         sol = least_squares(objective, x0 = guess, bounds=bounds, args=(measure, self.B[:M, :M], self.maps))        
 
         if sol.status < 1:
