@@ -416,10 +416,12 @@ class DiscretePOD():
     .. math::
       \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{2}}
     
+    The POD coefficients used are the ones obtained by the SVD during the initialisation.
+
     Parameters
     ----------
     train_snap : FunctionsMatrix or FunctionsList
-      List of snapshots to project and compute errors
+      List of snapshots to compute errors
     maxBasis : int
       Integer input indicating the maximum number of modes to use.
     verbose : boolean, optional (Default = False) 
@@ -447,6 +449,62 @@ class DiscretePOD():
       for rank in range(maxBasis):
         recon = self.reconstruct(self.Vh_train[:rank+1, mu])
         absErr[mu, rank] = np.linalg.norm(recon - train_snap(mu))
+        relErr[mu, rank] = absErr[mu, rank] / norm
+      
+      if verbose:
+        progressBar.update(1, percentage=False)
+        
+    return absErr.max(axis = 0), relErr.max(axis = 0)
+
+  def test_error(self, test_snap: FunctionsList, maxBasis: int, verbose = False):
+    r"""
+    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`l^2`-sense
+
+    .. math::
+      E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}
+    .. math::
+      \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{2}}
+    
+    The POD coefficients used are the ones obtained by projection of `test_snap`.
+
+    Parameters
+    ----------
+    test_snap : FunctionsMatrix or FunctionsList
+      List of snapshots to project and compute errors
+    maxBasis : int
+      Integer input indicating the maximum number of modes to use.
+    verbose : boolean, optional (Default = False) 
+      If `True`, print of the progress is enabled.
+
+    Returns
+    -------
+    maxAbsErr : np.ndarray
+      Maximum absolute errors as a function of the dimension of the reduced space.
+    maxRelErr : np.ndarray
+      Maximum absolute errors as a function of the dimension of the reduced space.
+      
+    """
+    
+    assert(maxBasis <= self.Nmax)
+    
+    absErr = np.zeros((self.Ns, maxBasis))
+    relErr = np.zeros_like(absErr)
+
+    if verbose:
+        progressBar = LoopProgress(msg="Computing train error - "+self.name, final = self.Ns)
+      
+    for mu in range(self.Ns):
+      norm = np.linalg.norm(test_snap(mu))
+      for rank in range(maxBasis):
+
+        # Obtain the POD coefficient by projection
+        vh = self.projection(test_snap(mu), rank+1)
+
+        # Reconstruct the field
+        recon = self.reconstruct(vh)
+
+        # Compute the error
+        absErr[mu, rank] = np.linalg.norm(recon - test_snap(mu))
         relErr[mu, rank] = absErr[mu, rank] / norm
       
       if verbose:
