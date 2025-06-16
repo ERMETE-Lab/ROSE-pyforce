@@ -234,7 +234,8 @@ class TRGEIM():
         return interp, resid, computational_time, coeff
     
     def hyperparameter_tuning(self, snaps: FunctionsList, noise_value: float, 
-                              lambda_lim = [10, 50], n_samples: int = 20, num_repeats: int = 1,
+                              lambda_lim = [10, 50], n_samples: int = 20, log_sampling: bool = False,
+                              num_repeats: int = 1,
                               M: int = None, verbose = False):
         r"""
         The regularising parameter :math:`\lambda` of the TR-GEIM linear system is calibrated as the one minimising the absolute error in :math:`L^2`, namely
@@ -254,6 +255,8 @@ class TRGEIM():
             Lower and upper bound for :math:`\lambda^*` entering in the regularisation parameter of TR-GEIM as :math:`\lambda = \lambda^* \cdot \sigma^2`, given :math:`\sigma^2` as the variance of the noise.
         n_samples: int, optional (Default = 20)
             Number of samples for the hyperparameter :math:`\lambda` to optimize.
+        log_sampling: bool, optional (Default = False)
+            If True, the sampling of :math:`\lambda^*` is logarithmic, otherwise it is linear.
         num_repeats: int, optional (Default = 1)
             Number of repetitions of each numerical experiment.
         M : int, optional (Default = None)
@@ -280,7 +283,10 @@ class TRGEIM():
             M = self.Mmax
 
         # Defining the lambda^* parameters for the optimization problem
-        lambda_star_samples = np.linspace(lambda_lim[0], lambda_lim[1], n_samples)
+        if log_sampling:
+            lambda_star_samples = np.logspace(np.log10(lambda_lim[0]), np.log10(lambda_lim[1]), n_samples)
+        else:
+            lambda_star_samples = np.linspace(lambda_lim[0], lambda_lim[1], n_samples)
 
         # Defining structures to store the absolute errors
         Ns = len(snaps)
