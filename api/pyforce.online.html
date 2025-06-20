@@ -7,14 +7,14 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.online package &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -58,6 +58,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pyforce.offline.html">pyforce.offline package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">pyforce.online package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.failing_sensors">pyforce.online.failing_sensors module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.geim">pyforce.online.geim module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.indirect_recon">pyforce.online.indirect_recon module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-pyforce.online.pbdw">pyforce.online.pbdw module</a></li>
@@ -105,6 +106,334 @@
 <h1>pyforce.online package<a class="headerlink" href="#pyforce-online-package" title="Link to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyforce.online.failing_sensors">
+<span id="pyforce-online-failing-sensors-module"></span><h2>pyforce.online.failing_sensors module<a class="headerlink" href="#module-pyforce.online.failing_sensors" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.PBDW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.failing_sensors.</span></span><span class="sig-name descname"><span class="pre">PBDW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_sensors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_H1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#PBDW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.PBDW" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class can be used to perform the online phase of the PBDW formulation for synthetic measures <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span> obtained as evaluations of the magic sensors on the snapshot <span class="math notranslate nohighlight">\(u(\mathbf{x};\,\boldsymbol{\mu})\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u(\boldsymbol{\mu})) + \epsilon_m + \delta_{m}  \qquad \qquad m = 1, \dots, M\]</div>
+<p>in which <span class="math notranslate nohighlight">\(\epsilon_,\sim \mathcal{N}(0, \sigma^2)\)</span> is random noise and <span class="math notranslate nohighlight">\(\delta_m \sim \mathcal{N}(\kappa, \rho^2)\)</span> acting on some measurements. This term is referred to as drift.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>basis_functions</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of functions spanning the reduced space</p></li>
+<li><p><strong>basis_sensors</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of sensors representation spanning the update space</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+<li><p><strong>is_H1</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>Default= False</em><em>)</em>) – Boolean indicating whether to use scalar product in <span class="math notranslate nohighlight">\(\mathcal{H}^1\)</span> or <span class="math notranslate nohighlight">\(L^2\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.PBDW.drift_test_err">
+<span class="sig-name descname"><span class="pre">drift_test_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_failed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rep_exp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#PBDW.drift_test_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.PBDW.drift_test_err" title="Link to this definition"></a></dt>
+<dd><p>The PBDW online algorithm is used to reconstruct the <cite>snaps</cite> (<cite>FunctionsList</cite>), by solving the PBDW linear system</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[
+    \begin{array}{ccc}
+        \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\
+        \mathbb{K}^T &amp; &amp; 0
+    \end{array}
+    \right] \cdot
+    \left[
+    \begin{array}{c}
+        \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}
+    \end{array}
+    \right]   =
+    \left[
+    \begin{array}{c}
+        \mathbf{y} \\ \\ \mathbf{0}
+    \end{array}
+\right]\end{split}\]</div>
+<p>then the inteprolant and residual are computed and returned per each element of the list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Function to reconstruction</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Dimension of the reduced space</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>np.ndarray</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>kappa</strong> (<em>float</em>) – Mean value <span class="math notranslate nohighlight">\(\kappa\)</span> of the drift</p></li>
+<li><p><strong>rho</strong> (<em>float</em>) – Standard deviation  <span class="math notranslate nohighlight">\(\rho\)</span> of the drift</p></li>
+<li><p><strong>idx_failed</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of integers with the failed sensors</p></li>
+<li><p><strong>num_rep_exp</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 30</em><em>)</em>) – Number of repeated experiments.</p></li>
+<li><p><strong>mu_failure</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 0</em><em>)</em>) – Index from which failure starts, typically time.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>errors</strong> (<em>np.ndarray</em>) – Errors per each element in <cite>snaps</cite> (first column: absolute, second column: relative), measure in <span class="math notranslate nohighlight">\(||\cdot ||_{L^2}\)</span> and averaged for the numerical experiments.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM.</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span>,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.PBDW.gpr_measure_test_err">
+<span class="sig-name descname"><span class="pre">gpr_measure_test_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_sens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">surrogate_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_failed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#PBDW.gpr_measure_test_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.PBDW.gpr_measure_test_err" title="Link to this definition"></a></dt>
+<dd><p>The PBDW online algorithm is used to reconstruct the <cite>snaps</cite> (<cite>FunctionsList</cite>), by solving the PBDW linear systemwith <cite>idx_failed</cite> measure.
+In order to retrieve information on the “failed measure”, a surrogate model (e.g., GPR) has been trained to learn the map from non-failed external measures and the one related to <cite>idx_failed</cite>.</p>
+<p>The interpolant is then defined in the standard way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Function to reconstruction</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Dimension of the reduced space</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>np.ndarray</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>ext_sens</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Basis sensors adopted to compute the external measures, input of <cite>surrogate_model</cite></p></li>
+<li><p><strong>surrogate_model</strong> (<em>list</em>) – List of all the trained surrogate models</p></li>
+<li><p><strong>idx_failed</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of integers with the failed sensors</p></li>
+<li><p><strong>mu_failure</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 0</em><em>)</em>) – Index from which failure starts, typically time.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>errors</strong> (<em>np.ndarray</em>) – Errors per each element in <cite>snaps</cite> (first column: absolute, second column: relative), measure in <span class="math notranslate nohighlight">\(||\cdot ||_{L^2}\)</span>.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM.</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span>,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.PBDW.pure_remove_test_err">
+<span class="sig-name descname"><span class="pre">pure_remove_test_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_failed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#PBDW.pure_remove_test_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.PBDW.pure_remove_test_err" title="Link to this definition"></a></dt>
+<dd><p>The PBDW online algorithm is used to reconstruct the <cite>snaps</cite> (<cite>FunctionsList</cite>), by solving the modified PBDW linear system: in particular, <cite>idx_failed</cite> measure is removed thus from <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> the <cite>idx_failed</cite> row is deleted, from <span class="math notranslate nohighlight">\(\mathbb{A}\)</span> its <cite>idx_failed</cite> row and col are deleted and from <span class="math notranslate nohighlight">\(\mathbb{K}\)</span> its <cite>idx_failed</cite> row  is deleted.</p>
+<p>The interpolant is then defined as the sum over the obtained coefficients from the modified PBDW linear system, without <cite>idx_failed</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Function to reconstruction</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Dimension of the reduced space</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>np.ndarray</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>idx_failed</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of integers with the failed sensors</p></li>
+<li><p><strong>mu_failure</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 0</em><em>)</em>) – Index from which failure starts, typically time.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>errors</strong> (<em>np.ndarray</em>) – Errors per each element in <cite>snaps</cite> (first column: absolute, second column: relative), measure in <span class="math notranslate nohighlight">\(||\cdot ||_{L^2}\)</span>.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM.</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span>,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.TRGEIM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyforce.online.failing_sensors.</span></span><span class="sig-name descname"><span class="pre">TRGEIM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magic_fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">magic_sen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#TRGEIM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.TRGEIM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class can be used to perform the online phase of the TR-GEIM algorihtm for synthetic measures <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span> obtained as evaluations of the magic sensors on the snapshot <span class="math notranslate nohighlight">\(u(\mathbf{x};\,\boldsymbol{\mu})\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u(\boldsymbol{\mu})) + \epsilon_m + \delta_{m}  \qquad \qquad m = 1, \dots, M\]</div>
+<p>in which <span class="math notranslate nohighlight">\(\epsilon_m\sim \mathcal{N}(0, \sigma^2)\)</span> is random noise and <span class="math notranslate nohighlight">\(\delta_m \sim \mathcal{N}(\kappa, \rho^2)\)</span> acting on some measurements. This term is referred to as drift.</p>
+<p>Two approaches are implemented:</p>
+<ul class="simple">
+<li><p><strong>Unregularised case</strong>: how the drifted measurement affect the reconstruction?</p></li>
+<li><p><strong>Remove measure case</strong>: the failed measure (once at a time) is removed as well as the correspondent magic function</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magic_fun</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of magic functions computed during the offline phase.</p></li>
+<li><p><strong>magic_sen</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of magic sensors computed during the offline phase.</p></li>
+<li><p><strong>mean_beta</strong> (<em>np.ndarray</em>) – Mean values <span class="math notranslate nohighlight">\(\langle\beta_m\rangle\)</span> of the training reduced coefficients</p></li>
+<li><p><strong>std_beta</strong> (<em>np.ndarray</em>) – Standard deviations <span class="math notranslate nohighlight">\(\sigma_{\beta_m}\)</span> of the training reduced coefficients</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the snapshots (e.g., temperature T)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.TRGEIM.compute_measure">
+<span class="sig-name descname"><span class="pre">compute_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dolfinx.fem.Function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#TRGEIM.compute_measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.TRGEIM.compute_measure" title="Link to this definition"></a></dt>
+<dd><p>Computes the measurement vector from the <cite>snap</cite> input, using the magic sensors stored to which synthetic random noise is added.
+If the dimension <cite>M</cite> is not given, the whole set of magic sensors is used.</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u) +\epsilon_m \qquad \qquad m = 1, \dots, M\]</div>
+<p>If the dimension <span class="math notranslate nohighlight">\(M\)</span> is not given, the whole set of magic sensors is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<em>Function</em>) – Function from which measurements are to be extracted</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of sensor to use (if None is set to the number of magic functions/sensors)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>measure</strong> – Measurement vector <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^M\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.TRGEIM.drift_test_err">
+<span class="sig-name descname"><span class="pre">drift_test_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_failed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rep_exp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#TRGEIM.drift_test_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.TRGEIM.drift_test_err" title="Link to this definition"></a></dt>
+<dd><p>The TR-GEIM algorithm is used to reconstruct the <cite>snaps</cite> (<cite>FunctionsList</cite>), by solving the TR-GEIM linear system</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\left(\mathbb{B}^T\mathbb{B}+\lambda \mathbb{T}^T\mathbb{T}\right)\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y}+\lambda \mathbb{T}^T\mathbb{T} \langle{\boldsymbol{\beta}}\rangle\]</div>
+</div></blockquote>
+<p>then the inteprolant and residual are computed and returned per each element of the list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Function to reconstruction</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>kappa</strong> (<em>float</em>) – Mean value <span class="math notranslate nohighlight">\(\kappa\)</span> of the drift</p></li>
+<li><p><strong>rho</strong> (<em>float</em>) – Standard deviation  <span class="math notranslate nohighlight">\(\rho\)</span> of the drift</p></li>
+<li><p><strong>idx_failed</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of integers with the failed sensors</p></li>
+<li><p><strong>num_rep_exp</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 30</em><em>)</em>) – Number of repeated experiments.</p></li>
+<li><p><strong>mu_failure</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 0</em><em>)</em>) – Index from which failure starts, typically time.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>errors</strong> (<em>np.ndarray</em>) – Errors per each element in <cite>snaps</cite> (first column: absolute, second column: relative), measure in <span class="math notranslate nohighlight">\(||\cdot ||_{L^2}\)</span> and averaged for the numerical experiments.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM.</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span>,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.TRGEIM.gpr_measure_test_err">
+<span class="sig-name descname"><span class="pre">gpr_measure_test_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_sens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">surrogate_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_failed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#TRGEIM.gpr_measure_test_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.TRGEIM.gpr_measure_test_err" title="Link to this definition"></a></dt>
+<dd><p>The TR-GEIM algorithm is used to reconstruct the <cite>snaps</cite> (<cite>FunctionsList</cite>), by solving the TR-GEIM linear system with <cite>idx_failed</cite> measure.
+In order to retrieve information on the “failed measure”, a surrogate model (e.g., GPR) has been trained to learn the map from non-failed external measures and the one related to <cite>idx_failed</cite>.</p>
+<p>The interpolant is then defined in the standard way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Functions to reconstruction</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>ext_sens</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Basis sensors adopted to compute the external measures, input of <cite>surrogate_model</cite></p></li>
+<li><p><strong>surrogate_model</strong> (<em>list</em>) – List of all the trained surrogate models</p></li>
+<li><p><strong>idx_failed</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – List of integers with the failed sensors</p></li>
+<li><p><strong>mu_failure</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 0</em><em>)</em>) – Index from which failure starts, typically time.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>errors</strong> (<em>np.ndarray</em>) – Errors per each element in <cite>snaps</cite> (first column: absolute, second column: relative), measure in <span class="math notranslate nohighlight">\(||\cdot ||_{L^2}\)</span>.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM.</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span>,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.TRGEIM.pure_remove_test_err">
+<span class="sig-name descname"><span class="pre">pure_remove_test_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_failed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#TRGEIM.pure_remove_test_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.TRGEIM.pure_remove_test_err" title="Link to this definition"></a></dt>
+<dd><p>The TR-GEIM algorithm is used to reconstruct the <cite>snaps</cite> (<cite>FunctionsList</cite>), by solving the modified TR-GEIM linear system: in particular, <cite>idx_failed</cite> measure is removed thus from <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> the <cite>idx_failed</cite> row is deleted, from <span class="math notranslate nohighlight">\(\mathbb{T}\)</span> and <span class="math notranslate nohighlight">\(\mathbb{B}\)</span> their <cite>idx_failed</cite> row and col are deleted.</p>
+<p>The interpolant is then defined as the sum over the obtained coefficients from the modified TR-GEIM linear system, without <cite>idx_failed</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snaps</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – Function to reconstruction</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of sensor to use</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>reg_param</strong> (<em>float</em>) – Regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p><strong>idx_failed</strong> (<em>list</em>) – List of integers with the failed sensor</p></li>
+<li><p><strong>mu_failure</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = 0</em><em>)</em>) – Index from which failure starts, typically time.</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>errors</strong> (<em>np.ndarray</em>) – Errors per each element in <cite>snaps</cite> (first column: absolute, second column: relative), measure in <span class="math notranslate nohighlight">\(||\cdot ||_{L^2}\)</span>.</p></li>
+<li><p><strong>interps</strong> (<em>FunctionsList</em>) – Interpolant Field <span class="math notranslate nohighlight">\(\mathcal{I}_M[u]\)</span> of TR-GEIM.</p></li>
+<li><p><strong>resids</strong> (<em>FunctionsList</em>) – Residual Field <span class="math notranslate nohighlight">\(r_M[u]\)</span>,</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.compute_measure">
+<span class="sig-prename descclassname"><span class="pre">pyforce.online.failing_sensors.</span></span><span class="sig-name descname"><span class="pre">compute_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#compute_measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.compute_measure" title="Link to this definition"></a></dt>
+<dd><p>Computes the measurement matrix from the <cite>snaps</cite> input, using <cite>sensors</cite> given as input to which synthetic random noise is added.
+If the dimension <cite>M</cite> is not given, the whole set of magic sensors is used.</p>
+<div class="math notranslate nohighlight">
+\[y_m = v_m(u) +\epsilon_m \qquad \qquad m = 1, \dots, M\]</div>
+<p>If the dimension <span class="math notranslate nohighlight">\(M\)</span> is not given, the whole set of magic sensors is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snap</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – FunctionsList from which measurements are to be extracted</p></li>
+<li><p><strong>sensors</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – FunctionsList containing the sensors</p></li>
+<li><p><strong>noise_value</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default = None</em><em>)</em>) – Maximum number of sensor to use (if None is set to the number of magic functions/sensors)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>measure</strong> – Measurement vector <span class="math notranslate nohighlight">\(\mathbf{y}\in\mathbb{R}^{M\times N_s}\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyforce.online.failing_sensors.remove_lin_combine">
+<span class="sig-prename descclassname"><span class="pre">pyforce.online.failing_sensors.</span></span><span class="sig-name descname"><span class="pre">remove_lin_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensI_drifted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/failing_sensors.html#remove_lin_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.failing_sensors.remove_lin_combine" title="Link to this definition"></a></dt>
+<dd><p>This auxiliary function is used to perform a linear combination of basis functions without <cite>sensI_drifted</cite> (i.e., <span class="math notranslate nohighlight">\(j\)</span>).</p>
+<div class="math notranslate nohighlight">
+\[u = \sum_{i=1,i\neq j}^{M} \alpha_i \cdot \psi_i\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun_list</strong> (<a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><em>FunctionsList</em></a>) – List of basis functions</p></li>
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Iterable containing the coefficients <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}\in\mathbb{R}^{M-1}\)</span> of the linear combination.</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Maximum number of basis functions without removal.</p></li>
+<li><p><strong>sensI_drifted</strong> (<em>int</em>) – Index of the drifted sensor and hence drifted coefficient <span class="math notranslate nohighlight">\(\alpha_j\)</span> .</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>combination</strong> – <cite>np.ndarray</cite> object storing the result of the linear combination</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-pyforce.online.geim">
 <span id="pyforce-online-geim-module"></span><h2>pyforce.online.geim module<a class="headerlink" href="#module-pyforce.online.geim" title="Link to this heading"></a></h2>
@@ -758,7 +1087,7 @@ If the dimension <cite>M</cite> is not given, the whole set of magic sensors is 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyforce.online.tr_geim.TRGEIM.hyperparameter_tuning">
-<span class="sig-name descname"><span class="pre">hyperparameter_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[10,</span> <span class="pre">50]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/tr_geim.html#TRGEIM.hyperparameter_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim.TRGEIM.hyperparameter_tuning" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hyperparameter_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyforce.tools.html#pyforce.tools.functions_list.FunctionsList" title="pyforce.tools.functions_list.FunctionsList"><span class="pre">FunctionsList</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[10,</span> <span class="pre">50]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_sampling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_repeats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyforce/online/tr_geim.html#TRGEIM.hyperparameter_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyforce.online.tr_geim.TRGEIM.hyperparameter_tuning" title="Link to this definition"></a></dt>
 <dd><p>The regularising parameter <span class="math notranslate nohighlight">\(\lambda\)</span> of the TR-GEIM linear system is calibrated as the one minimising the absolute error in <span class="math notranslate nohighlight">\(L^2\)</span>, namely</p>
 <div class="math notranslate nohighlight">
 \[\hat{\lambda} = \text{arg}\,\min\limits_{\lambda\in\mathbb{R}^+} E_{M, \lambda}\]</div>
@@ -770,6 +1099,8 @@ If the dimension <cite>M</cite> is not given, the whole set of magic sensors is 
 <li><p><strong>noise_value</strong> (<em>float</em>) – Standard deviation of the noise, modelled as a normal <span class="math notranslate nohighlight">\(\mathcal{N}(0, \sigma^2)\)</span></p></li>
 <li><p><strong>lambda_lim</strong> (<em>tuple</em><em> of </em><em>floats</em><em>, </em><em>optional</em><em> (</em><em>Default =</em><em> [</em><em>10</em><em>, </em><em>50</em><em>]</em><em>)</em>) – Lower and upper bound for <span class="math notranslate nohighlight">\(\lambda^*\)</span> entering in the regularisation parameter of TR-GEIM as <span class="math notranslate nohighlight">\(\lambda = \lambda^* \cdot \sigma^2\)</span>, given <span class="math notranslate nohighlight">\(\sigma^2\)</span> as the variance of the noise.</p></li>
 <li><p><strong>n_samples</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 20</em><em>)</em>) – Number of samples for the hyperparameter <span class="math notranslate nohighlight">\(\lambda\)</span> to optimize.</p></li>
+<li><p><strong>log_sampling</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>Default = False</em><em>)</em>) – If True, the sampling of <span class="math notranslate nohighlight">\(\lambda^*\)</span> is logarithmic, otherwise it is linear.</p></li>
+<li><p><strong>num_repeats</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = 1</em><em>)</em>) – Number of repetitions of each numerical experiment.</p></li>
 <li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>Default = None</em><em>)</em>) – Number of sensor to use (if None is set to the number of magic functions/sensors)</p></li>
 <li><p><strong>verbose</strong> (<em>boolean</em><em>, </em><em>optional</em><em> (</em><em>default = False</em><em>)</em>) – If true, output is printed.</p></li>
 </ul>

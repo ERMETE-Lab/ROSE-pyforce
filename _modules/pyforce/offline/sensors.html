@@ -6,14 +6,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.offline.sensors &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -82,24 +82,24 @@
 <span class="c1"># Latest Code Update: 25 April 2024</span>
 <span class="c1"># Latest Doc  Update: 25 April 2024</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">from</span> <span class="nn">dolfinx</span> <span class="kn">import</span> <span class="n">fem</span>
-<span class="kn">import</span> <span class="nn">dolfinx</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx</span><span class="w"> </span><span class="kn">import</span> <span class="n">fem</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="kn">import</span> <span class="nn">ufl</span>
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">assemble_scalar</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">ufl</span> <span class="kn">import</span> <span class="n">dx</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">dot</span>
-<span class="kn">from</span> <span class="nn">petsc4py</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">assemble_scalar</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ufl</span><span class="w"> </span><span class="kn">import</span> <span class="n">dx</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">dot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
 
-<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
 
 <span class="c1"># Class to define gaussian sensors with a Riesz representation in L2</span>
 <div class="viewcode-block" id="GaussianSensors">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors">[docs]</a>
-<span class="k">class</span> <span class="nc">GaussianSensors</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GaussianSensors</span><span class="p">():</span>
 <span class="w">  </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to define normalised gaussian sensors in terms of functional to mimic measurements of scalar fields.</span>
 <span class="sd">    The measurement procedure is described through a linear functional with gaussian kernel, i.e.</span>
@@ -124,7 +124,7 @@
 <span class="sd">        Logic variable indicating whether or not to assemble the variational forms for the Riesz representations.</span>
 
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">assemble_riesz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">assemble_riesz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="c1"># standard deviation of the guassian</span>
@@ -153,7 +153,7 @@
 
 <div class="viewcode-block" id="GaussianSensors.define">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.define">[docs]</a>
-  <span class="k">def</span> <span class="nf">define</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">define</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a position :math:`x_m` defines the kernel function of the sensor as a Gaussian with given point spread `s`</span>
 <span class="sd">    </span>
@@ -182,7 +182,7 @@
 
 <div class="viewcode-block" id="GaussianSensors.define_riesz">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.define_riesz">[docs]</a>
-  <span class="k">def</span> <span class="nf">define_riesz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">define_riesz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a position :math:`x_m` defines the kernel function :math:`q_m` of the sensor as the Riesz representation in :math:`H^1` of the functional, i.e.</span>
 <span class="sd">    </span>
@@ -206,7 +206,7 @@
 
 <div class="viewcode-block" id="GaussianSensors.create">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.create">[docs]</a>
-  <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xm</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sampleEvery</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">is_H1</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FunctionsList</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xm</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sampleEvery</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">is_H1</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FunctionsList</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function creates the list of sensors (using Riesz representation either in :math:`L^2` or in :math:`H^1`), either by sampling from the mesh or from a prescribed list of positions.</span>
 
@@ -256,7 +256,7 @@
 
 <div class="viewcode-block" id="GaussianSensors.action_single">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.action_single">[docs]</a>
-  <span class="k">def</span> <span class="nf">action_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">action_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given an input function `fun` :math:`=f` and a sensors :math:`v_m`, the action of the sensor is applied to the function, as an inner product in :math:`L^2`:</span>
 
@@ -283,7 +283,7 @@
 
 <div class="viewcode-block" id="GaussianSensors.action">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.action">[docs]</a>
-  <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given an input function `fun` :math:`=f` and a list of sensors :math:`\{v_m\}_{m=1}^M`, the action of the sensor is applied to the function, as an inner product in :math:`L^2`:</span>
 
@@ -313,7 +313,7 @@
 <span class="c1"># SGREEDY algorithm for sensor selection (both representation in L2 and H1)</span>
 <div class="viewcode-block" id="SGREEDY">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.SGREEDY">[docs]</a>
-<span class="k">class</span> <span class="nc">SGREEDY</span><span class="p">():</span> 
+<span class="k">class</span><span class="w"> </span><span class="nc">SGREEDY</span><span class="p">():</span> 
 <span class="w">  </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to perform the SGREEDY algorithm, given a list of basis functions :math:`\{\phi_n\}_{n=1}^N`.</span>
 
@@ -331,7 +331,7 @@
 <span class="sd">        Standard deviation of the gaussian kernel for the sensors</span>
 
 <span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">,</span> <span class="n">basis</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">,</span> <span class="n">basis</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">basis</span> <span class="o">=</span> <span class="n">basis</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="SGREEDY.generate">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.SGREEDY.generate">[docs]</a>
-  <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
                <span class="n">xm</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sampleEvery</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">is_H1</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Selection of sensors position with a Riesz representation :math:`\{g_m\}_{m=1}^M` either in :math:`L^2` or :math:`H^1`.</span>
@@ -515,7 +515,7 @@
 
 <div class="viewcode-block" id="SGREEDY.approx_loop">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sensors.SGREEDY.approx_loop">[docs]</a>
-  <span class="k">def</span> <span class="nf">approx_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">is_H1</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">approx_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">is_H1</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Approximation loop for the selection of sensors position with a Riesz representation :math:`\{g_m\}_{m=1}^M` either in :math:`L^2` or :math:`H^1`.</span>
 <span class="sd">    At each step `m`, the next position is selected by the following</span>

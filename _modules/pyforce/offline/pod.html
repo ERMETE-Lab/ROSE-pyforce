@@ -6,14 +6,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.offline.pod &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -82,19 +82,19 @@
 <span class="c1"># Latest Code Update: 09 September 2024</span>
 <span class="c1"># Latest Doc  Update: 24 May 2024</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">sklearn.utils.extmath</span> <span class="kn">import</span> <span class="n">randomized_svd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.utils.extmath</span><span class="w"> </span><span class="kn">import</span> <span class="n">randomized_svd</span>
 
-<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <div class="viewcode-block" id="POD">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD">[docs]</a>
-<span class="k">class</span> <span class="nc">POD</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">POD</span><span class="p">():</span>
 <span class="w">  </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to perform the POD on a list of snapshots :math:`u(\mathbf{x};\,\boldsymbol{\mu})` dependent on some parameter :math:`\boldsymbol{\mu}\in\mathcal{P}\subset\mathbb{R}^p`. </span>
 <span class="sd">    This class is used for `FunctionsList`, the POD modes are obtained from the eigendecomposition of the correlation matrix :math:`C\in\mathbb{R}^{N_s\times N_s}`</span>
@@ -117,7 +117,9 @@
 <span class="sd">      If `True`, print of the progress is enabled.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_scipy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+               <span class="n">svd_acceleration_rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">use_scipy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">fun_space</span>
@@ -125,19 +127,49 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
     <span class="c1"># Generate the correlation matrix using inner product in L^2</span>
-    <span class="n">corrMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; correlation matrix&#39;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">svd_acceleration_rank</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">_svd_u</span><span class="p">,</span> <span class="n">_svd_s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">randomized_svd</span><span class="p">(</span><span class="n">train_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">n_components</span><span class="o">=</span><span class="n">svd_acceleration_rank</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
-                <span class="n">corrMatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">train_snap</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">corrMatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrMatrix</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span><span class="n">ii</span><span class="p">]</span>
+      <span class="c1"># Compute the residual energy and check if the rank is too low or too high</span>
+      <span class="n">residual_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">_svd_s</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">_svd_s</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">residual_energy</span> <span class="o">&lt;=</span> <span class="mf">0.99</span><span class="p">:</span>
+          <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: The residual energy of the SVD is </span><span class="si">{}</span><span class="s2"> &lt;= 0.9 for rank </span><span class="si">{}</span><span class="s2">. This may indicate that the rank is too low.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">residual_energy</span><span class="p">,</span> <span class="n">svd_acceleration_rank</span><span class="p">))</span>
+          
+      <span class="n">_svd_v</span> <span class="o">=</span> <span class="n">_svd_u</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span> <span class="c1"># shape (svd_acceleration_rank, Ns)</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+      <span class="c1"># Compute the matrix for L2 inner product</span>
+      <span class="n">_P_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">svd_acceleration_rank</span><span class="p">,</span> <span class="n">svd_acceleration_rank</span><span class="p">))</span>
+
+      <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+          <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; correlation matrix&#39;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">svd_acceleration_rank</span><span class="p">)</span>
+
+      <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">svd_acceleration_rank</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">svd_acceleration_rank</span><span class="p">):</span>
+          <span class="k">if</span> <span class="n">jj</span> <span class="o">&gt;=</span> <span class="n">ii</span><span class="p">:</span>
+            <span class="n">_P_matrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">_svd_u</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">],</span> <span class="n">_svd_u</span><span class="p">[:,</span> <span class="n">jj</span><span class="p">])</span>
+          <span class="k">else</span><span class="p">:</span>
+            <span class="n">_P_matrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">_P_matrix</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
+        <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+      <span class="c1"># Compute the correlation matrix using the SVD</span>
+      <span class="n">corrMatrix</span> <span class="o">=</span> <span class="n">_svd_v</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">_P_matrix</span> <span class="o">@</span> <span class="n">_svd_v</span>
+      <span class="k">assert</span> <span class="n">corrMatrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">),</span> <span class="s2">&quot;The correlation matrix has the wrong shape: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">corrMatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+          <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; correlation matrix&#39;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span>
+
+      <span class="n">corrMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">))</span>
+      <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+          <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+              <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
+                  <span class="n">corrMatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">train_snap</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+              <span class="k">else</span><span class="p">:</span>
+                  <span class="n">corrMatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrMatrix</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span><span class="n">ii</span><span class="p">]</span>
+
+          <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+              <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># Solving the eigenvalue problem and sorting the eigenvalue/eigenvector pairs</span>
     <span class="k">if</span> <span class="n">use_scipy</span><span class="p">:</span>
@@ -148,16 +180,13 @@
     <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="n">sorted_indexes</span><span class="p">]</span>
     <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="p">[:,</span><span class="n">sorted_indexes</span><span class="p">]</span>
 
-    <span class="c1"># if sum(eigenvalues &lt; 0) &gt; 0: </span>
-    <span class="c1">#     warnings.warn(&quot;Check eigenvalues: some of them are negative! \n Try DiscretePOD with `svd` method&quot;)</span>
-
     <span class="c1"># Store the eigenvalue/eigenvector pairs</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span>  <span class="o">=</span> <span class="n">eigenvalues</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span>
 
 <div class="viewcode-block" id="POD.GramSchmidt">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.GramSchmidt">[docs]</a>
-  <span class="k">def</span> <span class="nf">GramSchmidt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">GramSchmidt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform a step of the Gram-Schmidt process on POD modes :math:`\{\psi_k\}_{k=1}^r` adding `fun` :math:`=f` to enforce the orthonormality in :math:`L^2`</span>
 
@@ -197,7 +226,7 @@
   
 <div class="viewcode-block" id="POD.mode">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.mode">[docs]</a>
-  <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the `r`-th POD mode, according to the following formula</span>
 <span class="sd">    </span>
@@ -217,7 +246,7 @@
 
 <div class="viewcode-block" id="POD.compute_basis">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.compute_basis">[docs]</a>
-  <span class="k">def</span> <span class="nf">compute_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">normalise</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">compute_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">normalise</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the POD modes.</span>
 <span class="sd">    </span>
@@ -244,7 +273,7 @@
        
 <div class="viewcode-block" id="POD.projection">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.projection">[docs]</a>
-  <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The reduced coefficients :math:`\{\alpha_k\}_{k=1}^N` of `u` using `N` modes :math:`\{\psi_k\}_{k=1}^N` are computed using projection in :math:`L_2`, i.e.</span>
 
@@ -274,7 +303,7 @@
 
 <div class="viewcode-block" id="POD.train_error">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.train_error">[docs]</a>
-  <span class="k">def</span> <span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`L^2`-sense</span>
 
@@ -331,7 +360,7 @@
 
 <div class="viewcode-block" id="POD.test_error">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.POD.test_error">[docs]</a>
-  <span class="k">def</span> <span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The average absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the test set is computed, by projecting it onto the reduced space in :math:`L^2`-sense</span>
 
@@ -393,7 +422,7 @@
 <span class="c1"># discete POD - the SVD of the full snapshot matrix is used</span>
 <div class="viewcode-block" id="DiscretePOD">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD">[docs]</a>
-<span class="k">class</span> <span class="nc">DiscretePOD</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiscretePOD</span><span class="p">():</span>
 <span class="w">  </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to perform the POD on a list of snapshots :math:`u(\mathbf{x};\,\boldsymbol{\mu})` dependent on some parameter :math:`\boldsymbol{\mu}`. </span>
 <span class="sd">    This class is used for several kind of inputs (`FunctionsList`, vectors, images, matrices...).</span>
@@ -423,7 +452,7 @@
 <span class="sd">    random : bool, optional (default = False)</span>
 <span class="sd">      If True and if `Nmax` is provided, the randomised SVD is used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Nmax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Nmax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
@@ -455,7 +484,7 @@
        
 <div class="viewcode-block" id="DiscretePOD.projection">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.projection">[docs]</a>
-  <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The reduced coefficients :math:`\mathbf{V}^\dagger_\star\in\mathbb{R}^{N\times N_\star}` of `snap`:math:`=\mathbb{S}_\star\in\mathbb{R}^{\mathcal{N}_h\times N_\star}` using `N` modes :math:`\mathbb{U}\in\mathbb{R}^{\mathcal{N}_h\times N}` are computed using projection in :math:`l_2`, i.e.</span>
 
@@ -491,7 +520,7 @@
   
 <div class="viewcode-block" id="DiscretePOD.reconstruct">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.reconstruct">[docs]</a>
-  <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Vh_star</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Vh_star</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The reduced coefficients :math:`\mathbf{V}^\dagger_\star\in\mathbb{R}^{N\times N_\star}` are used to decode into the Full Order space :math:`\mathbb{R}^{\mathcal{N}_h}` using `N` modes :math:`\mathbb{U}\in\mathbb{R}^{\mathcal{N}_h\times N}`.</span>
 
@@ -517,7 +546,7 @@
 
 <div class="viewcode-block" id="DiscretePOD.train_error">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.train_error">[docs]</a>
-  <span class="k">def</span> <span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">train_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`l^2`-sense</span>
 
@@ -526,10 +555,12 @@
 <span class="sd">    .. math::</span>
 <span class="sd">      \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{2}}</span>
 <span class="sd">    </span>
+<span class="sd">    The POD coefficients used are the ones obtained by the SVD during the initialisation.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    train_snap : FunctionsMatrix or FunctionsList</span>
-<span class="sd">      List of snapshots to project and compute errors</span>
+<span class="sd">      List of snapshots to compute errors</span>
 <span class="sd">    maxBasis : int</span>
 <span class="sd">      Integer input indicating the maximum number of modes to use.</span>
 <span class="sd">    verbose : boolean, optional (Default = False) </span>
@@ -557,6 +588,65 @@
       <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
         <span class="n">recon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vh_train</span><span class="p">[:</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">mu</span><span class="p">])</span>
         <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">recon</span> <span class="o">-</span> <span class="n">train_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm</span>
+      
+      <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DiscretePOD.test_error">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.test_error">[docs]</a>
+  <span class="k">def</span><span class="w"> </span><span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The maximum absolute :math:`E_N` and relative :math:`\varepsilon_N` error on the train set is computed, by projecting it onto the reduced space in :math:`l^2`-sense</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">      E_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}</span>
+<span class="sd">    .. math::</span>
+<span class="sd">      \varepsilon_N = \max\limits_{\boldsymbol{\mu}\in\Xi_{\text{train}}} \frac{\left\| u(\mathbf{x};\,\boldsymbol{\mu}) -  \sum_{n=1}^N \alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\right\|_{2}}{\left\| u(\mathbf{x};\,\boldsymbol{\mu})\right\|_{2}}</span>
+<span class="sd">    </span>
+<span class="sd">    The POD coefficients used are the ones obtained by projection of `test_snap`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    test_snap : FunctionsMatrix or FunctionsList</span>
+<span class="sd">      List of snapshots to project and compute errors</span>
+<span class="sd">    maxBasis : int</span>
+<span class="sd">      Integer input indicating the maximum number of modes to use.</span>
+<span class="sd">    verbose : boolean, optional (Default = False) </span>
+<span class="sd">      If `True`, print of the progress is enabled.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    maxAbsErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">    maxRelErr : np.ndarray</span>
+<span class="sd">      Maximum absolute errors as a function of the dimension of the reduced space.</span>
+<span class="sd">      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">assert</span><span class="p">(</span><span class="n">maxBasis</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span>
+    
+    <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,</span> <span class="n">maxBasis</span><span class="p">))</span>
+    <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Computing train error - &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span>
+      
+    <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+      <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+      <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxBasis</span><span class="p">):</span>
+
+        <span class="c1"># Obtain the POD coefficient by projection</span>
+        <span class="n">vh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Reconstruct the field</span>
+        <span class="n">recon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="n">vh</span><span class="p">)</span>
+
+        <span class="c1"># Compute the error</span>
+        <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">recon</span> <span class="o">-</span> <span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
         <span class="n">relErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">absErr</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">rank</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm</span>
       
       <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>

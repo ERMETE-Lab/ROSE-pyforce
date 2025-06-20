@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Offline Phase: PBDW offline - computing the inf-sup constant &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
@@ -15,7 +15,7 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -70,6 +70,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_flow_cyl.html">Navier-Stokes (PimpleFoam) - Flow Over Cylinder</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
@@ -111,15 +112,15 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span>
 
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionSpace</span>
 
-<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImportH5</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span>
 
 <span class="n">path_off</span> <span class="o">=</span><span class="s1">&#39;./Offline_results/&#39;</span>
 </pre></div>
@@ -130,7 +131,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neutronics</span> <span class="kn">import</span> <span class="n">create_anl11a2_mesh</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">neutronics</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_anl11a2_mesh</span>
 
 <span class="n">domain</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">create_anl11a2_mesh</span><span class="p">(</span><span class="n">use_msh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -220,7 +221,7 @@ K^TA^{-1}K \mathbf{w}_j = \lambda_j B\mathbf{w}_j
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.offline.pbdw</span> <span class="kn">import</span> <span class="n">PBDW</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pbdw</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBDW</span>
 
 <span class="n">Nmax</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">Mmax</span> <span class="o">=</span> <span class="mi">20</span>

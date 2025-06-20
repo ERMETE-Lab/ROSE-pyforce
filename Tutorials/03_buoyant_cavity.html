@@ -7,14 +7,14 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Steady Buoyant Navier-Stokes for Differentially Heated Cavity &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -63,6 +63,7 @@
 <li class="toctree-l3"><a class="reference internal" href="03_BuoyantCavity_OF6/03_online_IR.html">Online Phase: Indirect Reconstruction</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="04_flow_cyl.html">Navier-Stokes (PimpleFoam) - Flow Over Cylinder</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
@@ -97,7 +98,8 @@
   <section id="steady-buoyant-navier-stokes-for-differentially-heated-cavity">
 <h1>Steady Buoyant Navier-Stokes for Differentially Heated Cavity<a class="headerlink" href="#steady-buoyant-navier-stokes-for-differentially-heated-cavity" title="Link to this heading"></a></h1>
 <p><strong>Aim of this tutorial:</strong> learn how the indirect reconstruction algorithm (two step approach) works, combining the methods discussed in the previous tutorial. This tutorial is of particular interest for multi-physics problems with partial observations: it is legitimate to investigate the possibility that a field carries information about another field: for instance, the temperature and the velocity in a buoyancy-driven problem. Moreover, this tutorial will show how to import snapshots from OpenFOAM simulations exploiting the <em>fluidfoam</em> module.</p>
-<a class="reference internal image-reference" href="../_images/PODdiagram.svg"><img alt="IR-scheme" class="align-center" src="../_images/PODdiagram.svg" width="700" /></a>
+<a class="reference internal image-reference" href="../_images/PODdiagram.svg"><img alt="IR-scheme" class="align-center" src="../_images/PODdiagram.svg" style="width: 700px;" />
+</a>
 <p>This two step method is based on the following steps <a class="reference external" href="https://doi.org/10.1016/j.anucene.2022.109538">Introini et al. (2023)</a>: at first, the characteristic parameter is estimation by solving an optimisation problem whose input are the measures of the observable field; then, the reconstruction of the unobservable field is performed by using POD with Interpolation.</p>
 <p>The Differentially Heated Cavity is taken from the <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM tutorial</a>.
 It’s 2D Cavity with velocity imposed at the left and right boundary, along with <span id="id1">[<a class="reference internal" href="../bibliography.html#id23" title="Kajal Chandra Saha. Double lid driven cavity with different moving wall directions for low reynolds number flow. International Journal of Applied Mathematics and Theoretical Physics, 4(3):67, 2018. doi:10.11648/j.ijamtp.20180403.11.">Sah18</a>]</span>.</p>

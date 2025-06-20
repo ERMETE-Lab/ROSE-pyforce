@@ -4,6 +4,14 @@ pyforce.offline package
 Submodules
 ----------
 
+pyforce.offline.eim module
+--------------------------
+
+.. automodule:: pyforce.offline.eim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyforce.offline.geim module
 ---------------------------
 

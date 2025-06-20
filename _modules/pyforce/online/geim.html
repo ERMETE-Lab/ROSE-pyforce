@@ -6,14 +6,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.online.geim &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -82,19 +82,19 @@
 <span class="c1"># Latest Code Update: 16 September 2024</span>
 <span class="c1"># Latest Doc  Update: 16 September 2024</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">la</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">Function</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">Function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Timer</span>
 
 <span class="c1"># GEIM online (synthetic and real measures)</span>
 <div class="viewcode-block" id="GEIM">
 <a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.geim.GEIM">[docs]</a>
-<span class="k">class</span> <span class="nc">GEIM</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GEIM</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class can be used to perform the online phase of the GEIM algorihtm for synthetic and real measures :math:`\mathbf{y}\in\mathbb{R}^M` either obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as</span>
 <span class="sd">    </span>
@@ -112,7 +112,7 @@
 <span class="sd">    name : str</span>
 <span class="sd">        Name of the snapshots (e.g., temperature T)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magic_fun</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">magic_sen</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magic_fun</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">magic_sen</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">mf</span> <span class="o">=</span> <span class="n">magic_fun</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ms</span> <span class="o">=</span> <span class="n">magic_sen</span>
@@ -135,7 +135,7 @@
 
 <div class="viewcode-block" id="GEIM.synt_test_error">
 <a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.geim.GEIM.synt_test_error">[docs]</a>
-    <span class="k">def</span> <span class="nf">synt_test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">noise_value</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span><span class="w"> </span><span class="nf">synt_test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">noise_value</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
                         <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">namedtuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The absolute and relative error on the test set is computed, by solving the GEIM linear system</span>
@@ -234,7 +234,7 @@
     
 <div class="viewcode-block" id="GEIM.reconstruct">
 <a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.geim.GEIM.reconstruct">[docs]</a>
-    <span class="k">def</span> <span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">noise_value</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">noise_value</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The interpolant for `snap` :math:`u` input is computed, by solving the GEIM linear system</span>
 <span class="sd">        </span>
@@ -306,7 +306,7 @@
 
 <div class="viewcode-block" id="GEIM.compute_measure">
 <a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.geim.GEIM.compute_measure">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_measure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_measure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the measurement vector :math:`\mathbf{y}\in\mathbb{R}^M` from the `snap` :math:`u` input, using the magic sensors stored.</span>
 <span class="sd">        </span>
@@ -343,7 +343,7 @@
     
 <div class="viewcode-block" id="GEIM.real_reconstruct">
 <a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.geim.GEIM.real_reconstruct">[docs]</a>
-    <span class="k">def</span> <span class="nf">real_reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">real_reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The interpolant given the `measure` vector :math:`\mathbf{y}` input is computed, by solving the GEIM linear system</span>
 <span class="sd">        </span>

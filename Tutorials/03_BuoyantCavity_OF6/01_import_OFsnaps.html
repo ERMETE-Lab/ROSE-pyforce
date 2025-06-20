@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Importing Snapshots from OpenFOAM &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
@@ -15,7 +15,7 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -64,6 +64,7 @@
 <li class="toctree-l3"><a class="reference internal" href="03_online_IR.html">Online Phase: Indirect Reconstruction</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../04_flow_cyl.html">Navier-Stokes (PimpleFoam) - Flow Over Cylinder</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
@@ -102,20 +103,20 @@
 <p>The snapshots are related to the Buoyant Cavity problem in fluid dynamics, governed by the Navier-Stokes equations, including energy, under the Boussinesq approximation. In particular, the snapshots have been generated using the case reported in <a class="reference external" href="https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html">ROSE-ROM4FOAM tutorials</a>.</p>
 <p><em>Disclaimer</em>: the OpenFOAM snapshots are not included in the Zenodo repository for storage issues, but they can be generated using the case reported in the link above. Therefore, to generate the OpenFOAM case and later execute this notebook, you need to have OpenFOAM-v6 installed in your machine. For interested readers, please contact <a class="reference external" href="mailto:stefano&#46;riva&#37;&#52;&#48;polimi&#46;it">stefano<span>&#46;</span>riva<span>&#64;</span>polimi<span>&#46;</span>it</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
-<span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">gmshio</span>
-<span class="kn">import</span> <span class="nn">gmsh</span>
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">gmshio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gmsh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
 
-<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoopProgress</span>
 
 <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;./Snapshots/OpenFOAM/&#39;</span>
 
@@ -162,7 +163,7 @@ Re_{test} = [17.5:10:147.5] & Ri_{test} = [0.4:0.8:44]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7fc379e6d7e0&gt;
+&lt;matplotlib.legend.Legend at 0x334ccc610&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -218,15 +219,15 @@ Info    : Done reading &#39;cavity.geo&#39;
 Info    : Meshing 1D...
 Info    : [  0%] Meshing curve 1 (Line)
 Info    : [ 30%] Meshing curve 2 (Line)
-Info    : [ 50%] Meshing curve 3 (Line)
+Info    : [ 60%] Meshing curve 3 (Line)
 Info    : [ 80%] Meshing curve 4 (Line)
-Info    : Done meshing 1D (Wall 0.000607034s, CPU 0.000692s)
+Info    : Done meshing 1D (Wall 0.000510708s, CPU 0.000353s)
 Info    : Meshing 2D...
 Info    : Meshing surface 1 (Transfinite)
-Info    : Done meshing 2D (Wall 0.00732976s, CPU 0.007374s)
+Info    : Done meshing 2D (Wall 0.00321s, CPU 0.001525s)
 Info    : 16384 nodes 32770 elements
 Info    : Optimizing mesh (Netgen)...
-Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
+Info    : Done optimizing mesh (Wall 1.458e-06s, CPU 1e-06s)
 </pre></div></div>
 </div>
 <p>Let us define the functional space onto which the OpenFOAM data are projected.</p>
@@ -239,16 +240,16 @@ Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
 </div>
 </div>
 <p>Let us import the pressure <span class="math notranslate nohighlight">\(p\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span> and velocity <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> fields. The mapping between OpenFOAM and <em>dolfinx</em> is performed using <span class="math notranslate nohighlight">\(N\)</span>-dimensional interpolation implemented in <em>scipy</em>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pyforce</span></code> comes with a class called <code class="docutils literal notranslate"><span class="pre">ImportOF</span></code>: this class requires the path to the OpenFOAM case, there is also an option to specify if the centroids of the cells must be imported. The class uses two important methods:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pyforce</span></code> comes with a class called <code class="docutils literal notranslate"><span class="pre">ReadFromOF</span></code>: this class requires the path to the OpenFOAM case, there is also an option to specify if the centroids of the cells must be imported. The class uses two important methods:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">import_field</span></code>: imports the field from OpenFOAM into numpy arrays</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">foam_to_dolfinx</span></code>: interpolates the OpenFOAM field into the dolfinx mesh using <em>scipy</em></p></li>
 </ul>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportOF</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadFromOF</span><span class="p">,</span> <span class="n">StoreFunctionsList</span> <span class="k">as</span> <span class="n">store</span>
 
 <span class="n">impo_i</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># for TrainSet</span>
 <span class="n">impo_i</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># for TestSet</span>
@@ -267,7 +268,7 @@ Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
 
             <span class="n">path_</span> <span class="o">=</span> <span class="n">path</span><span class="o">+</span><span class="n">importing</span><span class="p">[</span><span class="n">impo_i</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Case_</span><span class="si">{</span><span class="n">caseI</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1">_Re</span><span class="si">{</span><span class="n">Re</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">_Ri</span><span class="si">{</span><span class="n">Ri</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span>
 
-            <span class="n">oF</span> <span class="o">=</span> <span class="n">ImportOF</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">oF</span> <span class="o">=</span> <span class="n">ReadFromOF</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;fluidfoam&#39;</span><span class="p">)</span>
             <span class="n">of_snaps</span> <span class="o">=</span> <span class="n">oF</span><span class="o">.</span><span class="n">import_field</span><span class="p">(</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">vector</span><span class="o">=</span><span class="n">is_vector</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="c1"># Projection in dolfinx</span>
@@ -284,20 +285,12 @@ Info    : Done optimizing mesh (Wall 3.26009e-06s, CPU 1e-05s)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Import U - TrainSet: 364.000 / 364.00 - 1.324 s/it
-</pre></div></div>
-</div>
 <p>Let us normalise the temperature field, using <code class="docutils literal notranslate"><span class="pre">min-max</span></code> to have it scaled between <span class="math notranslate nohighlight">\((0,1)\)</span>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImportH5</span>
 
 <span class="n">field_i</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">field</span> <span class="o">=</span> <span class="n">var_names</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span>

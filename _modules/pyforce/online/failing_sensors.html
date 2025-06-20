@@ -1,0 +1,1054 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.online.failing_sensors &mdash; pyforce 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.online.failing_sensors</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.online.failing_sensors</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Synthetic Online Phase: Failing Sensors with drifted measures</span>
+<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 7 June 2025</span>
+<span class="c1"># Latest Doc  Update: 7 June 2025</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">la</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">norms</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+
+<div class="viewcode-block" id="remove_lin_combine">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.remove_lin_combine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_lin_combine</span><span class="p">(</span><span class="n">fun_list</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sensI_drifted</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This auxiliary function is used to perform a linear combination of basis functions without `sensI_drifted` (i.e., :math:`j`).</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        u = \sum_{i=1,i\neq j}^{M} \alpha_i \cdot \psi_i</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fun_list : FunctionsList</span>
+<span class="sd">        List of basis functions</span>
+<span class="sd">    vec : np.ndarray</span>
+<span class="sd">        Iterable containing the coefficients :math:`\boldsymbol{\alpha}\in\mathbb{R}^{M-1}` of the linear combination.</span>
+<span class="sd">    M : int</span>
+<span class="sd">        Maximum number of basis functions without removal.</span>
+<span class="sd">    sensI_drifted : int</span>
+<span class="sd">        Index of the drifted sensor and hence drifted coefficient :math:`\alpha_j` .</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    combination : np.ndarray</span>
+<span class="sd">        `np.ndarray` object storing the result of the linear combination</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        
+
+    <span class="n">kk</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+        <span class="n">combination</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">ii</span> <span class="o">!=</span> <span class="n">sensI_drifted</span><span class="p">:</span>
+                <span class="n">combination</span> <span class="o">+=</span> <span class="n">vec</span><span class="p">[</span><span class="n">kk</span><span class="p">]</span> <span class="o">*</span> <span class="n">fun_list</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+                <span class="n">kk</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">combination</span></div>
+
+
+
+<div class="viewcode-block" id="compute_measure">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.compute_measure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_measure</span><span class="p">(</span><span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">sensors</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the measurement matrix from the `snaps` input, using `sensors` given as input to which synthetic random noise is added.</span>
+<span class="sd">        If the dimension `M` is not given, the whole set of magic sensors is used.</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            y_m = v_m(u) +\epsilon_m \qquad \qquad m = 1, \dots, M</span>
+<span class="sd">        </span>
+<span class="sd">        If the dimension :math:`M` is not given, the whole set of magic sensors is used.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snap : FunctionsList</span>
+<span class="sd">            FunctionsList from which measurements are to be extracted</span>
+<span class="sd">        sensors : FunctionsList</span>
+<span class="sd">            FunctionsList containing the sensors</span>
+<span class="sd">        noise_value : float, optional (Default = None)</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        M : int, optional (default = None)</span>
+<span class="sd">            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measure : np.ndarray</span>
+<span class="sd">            Measurement vector :math:`\mathbf{y}\in\mathbb{R}^{M\times N_s}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check on the input M, maximum number of sensors to use</span>
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sensors</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sensors</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sensors</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sensors</span><span class="p">)))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sensors</span><span class="p">)</span>
+
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        <span class="n">norm_</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="n">snaps</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
+    
+        <span class="n">measure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">Ns</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)):</span>
+                <span class="n">measure</span><span class="p">[</span><span class="n">mm</span><span class="p">,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+
+        <span class="c1"># Adding synthetic noise</span>
+        <span class="k">if</span> <span class="n">noise_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">measure</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">measure</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">measure</span></div>
+
+
+<span class="c1"># TR-GEIM online with drifted synthetic measures</span>
+<div class="viewcode-block" id="TRGEIM">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TRGEIM</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class can be used to perform the online phase of the TR-GEIM algorihtm for synthetic measures :math:`\mathbf{y}\in\mathbb{R}^M` obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        y_m = v_m(u(\boldsymbol{\mu})) + \epsilon_m + \delta_{m}  \qquad \qquad m = 1, \dots, M</span>
+
+<span class="sd">    in which :math:`\epsilon_m\sim \mathcal{N}(0, \sigma^2)` is random noise and :math:`\delta_m \sim \mathcal{N}(\kappa, \rho^2)` acting on some measurements. This term is referred to as drift.</span>
+<span class="sd">    </span>
+<span class="sd">    Two approaches are implemented:</span>
+<span class="sd">    </span>
+<span class="sd">    - **Unregularised case**: how the drifted measurement affect the reconstruction?</span>
+<span class="sd">    - **Remove measure case**: the failed measure (once at a time) is removed as well as the correspondent magic function</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    magic_fun : FunctionsList</span>
+<span class="sd">        List of magic functions computed during the offline phase.</span>
+<span class="sd">    magic_sen : FunctionsList</span>
+<span class="sd">        List of magic sensors computed during the offline phase.</span>
+<span class="sd">    mean_beta : np.ndarray</span>
+<span class="sd">        Mean values :math:`\langle\beta_m\rangle` of the training reduced coefficients</span>
+<span class="sd">    std_beta : np.ndarray</span>
+<span class="sd">        Standard deviations :math:`\sigma_{\beta_m}` of the training reduced coefficients</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the snapshots (e.g., temperature T)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magic_fun</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">magic_sen</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">mean_beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">std_beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">mf</span> <span class="o">=</span> <span class="n">magic_fun</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ms</span> <span class="o">=</span> <span class="n">magic_sen</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">magic_fun</span><span class="o">.</span><span class="n">fun_space</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="c1"># Defining the norm class to make scalar products and norms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norms</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+
+        <span class="c1"># Computing the matrix B</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ms</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mf</span><span class="p">)),</span> <span class="s2">&quot;Number of magic sensors must be equal to number of magic functions&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+    
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="n">nn</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ms</span><span class="p">(</span><span class="n">nn</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mf</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+
+        <span class="c1"># Compute matrix T for the regularisation</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">mean_beta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">),</span> <span class="s2">&quot;The size of the mean values of beta must be equal to the number of magic sensors/functions&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">mean_beta</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">std_beta</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s2">&quot;The size of the mean values of beta must be equal to the size of the standard deviations&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_beta</span> <span class="o">=</span> <span class="n">mean_beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">std_beta</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TRGEIM.compute_measure">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.compute_measure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_measure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the measurement vector from the `snap` input, using the magic sensors stored to which synthetic random noise is added.</span>
+<span class="sd">        If the dimension `M` is not given, the whole set of magic sensors is used.</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            y_m = v_m(u) +\epsilon_m \qquad \qquad m = 1, \dots, M</span>
+<span class="sd">        </span>
+<span class="sd">        If the dimension :math:`M` is not given, the whole set of magic sensors is used.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snap : Function</span>
+<span class="sd">            Function from which measurements are to be extracted</span>
+<span class="sd">        noise_value : float, optional (Default = None)</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        M : int, optional (default = None)</span>
+<span class="sd">            Maximum number of sensor to use (if None is set to the number of magic functions/sensors)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measure : np.ndarray</span>
+<span class="sd">            Measurement vector :math:`\mathbf{y}\in\mathbb{R}^M`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check on the input M, maximum number of sensors to use</span>
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+        <span class="k">elif</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+
+        <span class="n">measure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="n">measure</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ms</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+
+        <span class="c1"># Adding synthetic noise</span>
+        <span class="k">if</span> <span class="n">noise_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">measure</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">measure</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">measure</span></div>
+
+    
+<div class="viewcode-block" id="TRGEIM.drift_test_err">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.drift_test_err">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drift_test_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reg_param</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                             <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+                             <span class="n">num_rep_exp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">mu_failure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The TR-GEIM algorithm is used to reconstruct the `snaps` (`FunctionsList`), by solving the TR-GEIM linear system</span>
+<span class="sd">        </span>
+<span class="sd">         .. math::</span>
+<span class="sd">            \left(\mathbb{B}^T\mathbb{B}+\lambda \mathbb{T}^T\mathbb{T}\right)\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y}+\lambda \mathbb{T}^T\mathbb{T} \langle{\boldsymbol{\beta}}\rangle</span>
+<span class="sd">       </span>
+<span class="sd">        then the inteprolant and residual are computed and returned per each element of the list.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            Function to reconstruction</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensor to use</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : float</span>
+<span class="sd">            Regularising parameter :math:`\lambda`</span>
+<span class="sd">        kappa : float</span>
+<span class="sd">            Mean value :math:`\kappa` of the drift</span>
+<span class="sd">        rho : float</span>
+<span class="sd">            Standard deviation  :math:`\rho` of the drift</span>
+<span class="sd">        idx_failed : list[int]</span>
+<span class="sd">            List of integers with the failed sensors</span>
+<span class="sd">        num_rep_exp : int, optional (default = 30)</span>
+<span class="sd">            Number of repeated experiments.</span>
+<span class="sd">        mu_failure : int, optional (default = 0)</span>
+<span class="sd">            Index from which failure starts, typically time.</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        errors : np.ndarray</span>
+<span class="sd">            Errors per each element in `snaps` (first column: absolute, second column: relative), measure in :math:`||\cdot ||_{L^2}` and averaged for the numerical experiments.</span>
+<span class="sd">        interps : FunctionsList</span>
+<span class="sd">            Interpolant Field :math:`\mathcal{I}_M[u]` of TR-GEIM.</span>
+<span class="sd">        resids : FunctionsList </span>
+<span class="sd">            Residual Field :math:`r_M[u]`,</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+        
+        <span class="k">assert</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">)</span>
+        
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        
+        <span class="c1"># Computing clean measures and norms of the snapshots</span>
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_measure</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">)</span>
+            <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        
+        <span class="n">errors</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_rep_exp</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">interps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing TR-GEIM drifted (synthetic) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">num_rep_exp</span> <span class="p">)</span>
+    
+        <span class="c1"># Assembling matrix for TR-GEIM</span>
+        <span class="n">sys_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">])</span>
+    
+        <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_rep_exp</span><span class="p">):</span>
+            
+            <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            
+                <span class="c1"># Compute measurement vector with noise</span>
+                <span class="c1"># y = self.compute_measure(snaps(mu), noise_value, M)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span>
+                
+                <span class="c1"># Adding drift</span>
+                <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                    <span class="n">y</span><span class="p">[</span><span class="n">idx_failed</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">))</span>
+            
+                <span class="c1"># Creating vector</span>
+                <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">reg_param</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_beta</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span>
+
+                <span class="c1"># Solving the linear system</span>
+                <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matrix</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+                
+                <span class="c1"># Compute the interpolant and residual</span>
+                <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mf</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+                <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">interpolant</span><span class="p">)</span>
+                
+                <span class="n">errors</span><span class="p">[</span><span class="n">kk</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                <span class="n">errors</span><span class="p">[</span><span class="n">kk</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">kk</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+
+                <span class="c1"># Storing interpolant and residual</span>
+                <span class="k">if</span> <span class="n">kk</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">num_rep_exp</span><span class="p">:</span>
+                    <span class="n">interps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolant</span><span class="p">)</span>
+                    <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">interps</span><span class="p">,</span> <span class="n">resids</span></div>
+
+    
+<div class="viewcode-block" id="TRGEIM.pure_remove_test_err">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.pure_remove_test_err">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pure_remove_test_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reg_param</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                                   <span class="n">idx_failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">mu_failure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The TR-GEIM algorithm is used to reconstruct the `snaps` (`FunctionsList`), by solving the modified TR-GEIM linear system: in particular, `idx_failed` measure is removed thus from :math:`\mathbf{y}` the `idx_failed` row is deleted, from :math:`\mathbb{T}` and :math:`\mathbb{B}` their `idx_failed` row and col are deleted.</span>
+<span class="sd">        </span>
+<span class="sd">        The interpolant is then defined as the sum over the obtained coefficients from the modified TR-GEIM linear system, without `idx_failed`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            Function to reconstruction</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensor to use</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : float</span>
+<span class="sd">            Regularising parameter :math:`\lambda`</span>
+<span class="sd">        idx_failed : list</span>
+<span class="sd">            List of integers with the failed sensor</span>
+<span class="sd">        mu_failure : int, optional (default = 0)</span>
+<span class="sd">            Index from which failure starts, typically time.</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        errors : np.ndarray</span>
+<span class="sd">            Errors per each element in `snaps` (first column: absolute, second column: relative), measure in :math:`||\cdot ||_{L^2}`.</span>
+<span class="sd">        interps : FunctionsList</span>
+<span class="sd">            Interpolant Field :math:`\mathcal{I}_M[u]` of TR-GEIM.</span>
+<span class="sd">        resids : FunctionsList </span>
+<span class="sd">            Residual Field :math:`r_M[u]`,</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+        
+        <span class="k">assert</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">)</span>
+        
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        
+        <span class="c1"># Computing clean measures and norms of the snapshots</span>
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_measure</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">)</span>
+            <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        
+        <span class="n">errors</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">interps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing TR-GEIM remove (synthetic) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns</span> <span class="p">)</span>
+    
+        <span class="c1"># Assembling matrix for TR-GEIM</span>
+        <span class="n">sys_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">])</span>
+    
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+        
+            <span class="c1"># Compute measurement vector with noise</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span>
+            <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">reg_param</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_beta</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span>
+
+            <span class="c1"># If failure the measurement and the matrix are modified</span>
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                <span class="n">_rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">)</span>
+                <span class="n">_sys_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">sys_matrix</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">idx_failed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_rhs</span> <span class="o">=</span> <span class="n">rhs</span>
+                <span class="n">_sys_matrix</span> <span class="o">=</span> <span class="n">sys_matrix</span>
+
+            <span class="c1"># Solving the linear system</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">_sys_matrix</span><span class="p">,</span> <span class="n">_rhs</span><span class="p">)</span>
+            
+            <span class="c1"># Compute the interpolant and residual</span>
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                <span class="n">interpolant</span> <span class="o">=</span> <span class="n">remove_lin_combine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mf</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">sensI_drifted</span><span class="o">=</span><span class="n">idx_failed</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mf</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">interpolant</span><span class="p">)</span>
+            
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+
+            <span class="c1"># Storing interpolant and residual</span>
+            <span class="n">interps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolant</span><span class="p">)</span>
+            <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">interps</span><span class="p">,</span> <span class="n">resids</span></div>
+
+    
+<div class="viewcode-block" id="TRGEIM.gpr_measure_test_err">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.gpr_measure_test_err">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gpr_measure_test_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reg_param</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                                   <span class="n">ext_sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">surrogate_model</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">mu_failure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The TR-GEIM algorithm is used to reconstruct the `snaps` (`FunctionsList`), by solving the TR-GEIM linear system with `idx_failed` measure.</span>
+<span class="sd">        In order to retrieve information on the &quot;failed measure&quot;, a surrogate model (e.g., GPR) has been trained to learn the map from non-failed external measures and the one related to `idx_failed`.</span>
+<span class="sd">        </span>
+<span class="sd">        The interpolant is then defined in the standard way.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            Functions to reconstruction</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensor to use</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : float</span>
+<span class="sd">            Regularising parameter :math:`\lambda`</span>
+<span class="sd">        ext_sens : FunctionsList</span>
+<span class="sd">            Basis sensors adopted to compute the external measures, input of `surrogate_model`</span>
+<span class="sd">        surrogate_model : list</span>
+<span class="sd">            List of all the trained surrogate models</span>
+<span class="sd">        idx_failed : list[int]</span>
+<span class="sd">            List of integers with the failed sensors</span>
+<span class="sd">        mu_failure : int, optional (default = 0)</span>
+<span class="sd">            Index from which failure starts, typically time.</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        errors : np.ndarray</span>
+<span class="sd">            Errors per each element in `snaps` (first column: absolute, second column: relative), measure in :math:`||\cdot ||_{L^2}`.</span>
+<span class="sd">        interps : FunctionsList</span>
+<span class="sd">            Interpolant Field :math:`\mathcal{I}_M[u]` of TR-GEIM.</span>
+<span class="sd">        resids : FunctionsList </span>
+<span class="sd">            Residual Field :math:`r_M[u]`,</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+        
+        <span class="k">assert</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">)</span>
+        
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        
+        <span class="c1"># Computing clean measures and norms of the snapshots</span>
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_measure</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">)</span>
+            <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        
+        <span class="n">ext_measures</span> <span class="o">=</span> <span class="n">compute_measure</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">ext_sens</span><span class="p">,</span> <span class="n">noise_value</span><span class="o">=</span><span class="n">noise_value</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        
+        <span class="n">errors</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">interps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing TR-GEIM ml-remove (synthetic) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns</span> <span class="p">)</span>
+    
+        <span class="c1"># Assembling matrix for TR-GEIM</span>
+        <span class="n">sys_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">])</span>
+    
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+        
+            <span class="c1"># Compute measurement vector with noise</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span>
+
+            <span class="c1"># If failure the measurement and the matrix are modified</span>
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">):</span>
+                    <span class="n">y</span><span class="p">[</span><span class="n">_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">surrogate_model</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">ext_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">reg_param</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_beta</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span>
+            
+            <span class="c1"># Solving the linear system</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matrix</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+            
+            <span class="c1"># Compute the interpolant and residual</span>
+            <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mf</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">interpolant</span><span class="p">)</span>
+            
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+
+            <span class="c1"># Storing interpolant and residual</span>
+            <span class="n">interps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolant</span><span class="p">)</span>
+            <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">interps</span><span class="p">,</span> <span class="n">resids</span></div>
+</div>
+
+    
+<div class="viewcode-block" id="PBDW">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.PBDW">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PBDW</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class can be used to perform the online phase of the PBDW formulation for synthetic measures :math:`\mathbf{y}\in\mathbb{R}^M` obtained as evaluations of the magic sensors on the snapshot :math:`u(\mathbf{x};\,\boldsymbol{\mu})` as</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        y_m = v_m(u(\boldsymbol{\mu})) + \epsilon_m + \delta_{m}  \qquad \qquad m = 1, \dots, M</span>
+
+<span class="sd">    in which :math:`\epsilon_,\sim \mathcal{N}(0, \sigma^2)` is random noise and :math:`\delta_m \sim \mathcal{N}(\kappa, \rho^2)` acting on some measurements. This term is referred to as drift.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basis_functions : FunctionsList</span>
+<span class="sd">        List of functions spanning the reduced space</span>
+<span class="sd">    basis_sensors : FunctionsList</span>
+<span class="sd">        List of sensors representation spanning the update space</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the snapshots (e.g., temperature T)</span>
+<span class="sd">    is_H1: boolean, optional (Default= False)</span>
+<span class="sd">        Boolean indicating whether to use scalar product in :math:`\mathcal{H}^1` or :math:`L^2`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">basis_sensors</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_H1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># store basis function and basis sensors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">_list</span>   <span class="o">=</span> <span class="n">basis_sensors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_space</span>
+        
+        <span class="c1"># Defining the norm class to make scalar products and norms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span> <span class="o">=</span> <span class="n">is_H1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norms</span> <span class="o">=</span> <span class="n">norms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">is_H1</span><span class="o">=</span><span class="n">is_H1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">)</span>
+
+        <span class="c1"># A_{ii,jj} = (basis_sensors[ii], basis_sensors[jj])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span><span class="n">M</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">jj</span><span class="o">&gt;=</span><span class="n">ii</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_sensors</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
+        
+        <span class="c1"># K_{ii,jj} = (basis_sensors[ii], basis_functions[jj])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">),</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span> <span class="o">=</span> <span class="n">N</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span> <span class="o">=</span> <span class="n">M</span>
+
+<div class="viewcode-block" id="PBDW.drift_test_err">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.PBDW.drift_test_err">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drift_test_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                             <span class="n">noise_value</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reg_param</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                             <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+                             <span class="n">num_rep_exp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">mu_failure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The PBDW online algorithm is used to reconstruct the `snaps` (`FunctionsList`), by solving the PBDW linear system</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \left[ </span>
+<span class="sd">                \begin{array}{ccc}</span>
+<span class="sd">                    \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\</span>
+<span class="sd">                    \mathbb{K}^T &amp; &amp; 0</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right] \cdot</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \boldsymbol{\alpha} \\ \\ \boldsymbol{\theta}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right]   =</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \mathbf{y} \\ \\ \mathbf{0}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">            \right]</span>
+<span class="sd">            </span>
+<span class="sd">        then the inteprolant and residual are computed and returned per each element of the list.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            Function to reconstruction</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Dimension of the reduced space</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensor to use</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : np.ndarray</span>
+<span class="sd">            Regularising parameter :math:`\lambda`</span>
+<span class="sd">        kappa : float</span>
+<span class="sd">            Mean value :math:`\kappa` of the drift</span>
+<span class="sd">        rho : float</span>
+<span class="sd">            Standard deviation  :math:`\rho` of the drift</span>
+<span class="sd">        idx_failed : list[int]</span>
+<span class="sd">            List of integers with the failed sensors</span>
+<span class="sd">        num_rep_exp : int, optional (default = 30)</span>
+<span class="sd">            Number of repeated experiments.</span>
+<span class="sd">        mu_failure : int, optional (default = 0)</span>
+<span class="sd">            Index from which failure starts, typically time.</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        errors : np.ndarray</span>
+<span class="sd">            Errors per each element in `snaps` (first column: absolute, second column: relative), measure in :math:`||\cdot ||_{L^2}` and averaged for the numerical experiments.</span>
+<span class="sd">        interps : FunctionsList</span>
+<span class="sd">            Interpolant Field :math:`\mathcal{I}_M[u]` of TR-GEIM.</span>
+<span class="sd">        resids : FunctionsList </span>
+<span class="sd">            Residual Field :math:`r_M[u]`, </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of basis functions must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+
+        <span class="k">assert</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">)</span>
+        
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        
+        <span class="c1"># Computing clean measures and norms of the snapshots</span>
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="n">semi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+            <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        
+        <span class="n">errors</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_rep_exp</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">interps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing PBDW drifted (synthetic) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">num_rep_exp</span> <span class="p">)</span>
+    
+        <span class="c1"># Assembling PBDW matrix</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reg_param</span><span class="p">)</span> <span class="o">==</span> <span class="n">M</span><span class="p">)</span>
+        <span class="n">sys_matr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]])</span>
+        <span class="n">sys_matr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))])</span>
+        <span class="n">sys_matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sys_matr1</span><span class="p">,</span> <span class="n">sys_matr2</span><span class="p">])</span>
+    
+        <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_rep_exp</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+
+                <span class="c1"># Compute measurement vector with noise</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span>
+            
+                <span class="c1"># Adding drift</span>
+                <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                    <span class="n">y</span><span class="p">[</span><span class="n">idx_failed</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">))</span>
+                    
+                <span class="c1"># Creating rhs</span>
+                <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                
+                <span class="c1"># Solving the linear system</span>
+                <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matr</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+
+                <span class="c1"># Compute the interpolant and residual</span>
+                <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">M</span><span class="p">:])</span>
+                <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">interpolant</span><span class="p">)</span>
+                
+                <span class="n">errors</span><span class="p">[</span><span class="n">kk</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                <span class="n">errors</span><span class="p">[</span><span class="n">kk</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">kk</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+                
+                <span class="c1"># Storing interpolant and residual</span>
+                <span class="k">if</span> <span class="n">kk</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">num_rep_exp</span><span class="p">:</span>
+                    <span class="n">interps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolant</span><span class="p">)</span>
+                    <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">interps</span><span class="p">,</span> <span class="n">resids</span></div>
+
+
+<div class="viewcode-block" id="PBDW.pure_remove_test_err">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.PBDW.pure_remove_test_err">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pure_remove_test_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                             <span class="n">noise_value</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reg_param</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                             <span class="n">idx_failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">mu_failure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The PBDW online algorithm is used to reconstruct the `snaps` (`FunctionsList`), by solving the modified PBDW linear system: in particular, `idx_failed` measure is removed thus from :math:`\mathbf{y}` the `idx_failed` row is deleted, from :math:`\mathbb{A}` its `idx_failed` row and col are deleted and from :math:`\mathbb{K}` its `idx_failed` row  is deleted.</span>
+<span class="sd">        </span>
+<span class="sd">        The interpolant is then defined as the sum over the obtained coefficients from the modified PBDW linear system, without `idx_failed`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            Function to reconstruction</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Dimension of the reduced space</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensor to use</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : np.ndarray</span>
+<span class="sd">            Regularising parameter :math:`\lambda`</span>
+<span class="sd">        idx_failed : list[int]</span>
+<span class="sd">            List of integers with the failed sensors</span>
+<span class="sd">        mu_failure : int, optional (default = 0)</span>
+<span class="sd">            Index from which failure starts, typically time.</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        errors : np.ndarray</span>
+<span class="sd">            Errors per each element in `snaps` (first column: absolute, second column: relative), measure in :math:`||\cdot ||_{L^2}`.</span>
+<span class="sd">        interps : FunctionsList</span>
+<span class="sd">            Interpolant Field :math:`\mathcal{I}_M[u]` of TR-GEIM.</span>
+<span class="sd">        resids : FunctionsList </span>
+<span class="sd">            Residual Field :math:`r_M[u]`, </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of basis functions must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+
+        <span class="k">assert</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">)</span>
+        
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        
+        <span class="c1"># Computing clean measures and norms of the snapshots</span>
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="n">semi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+            <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        
+        <span class="n">errors</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">interps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing PBDW remove (synthetic) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns</span> <span class="p">)</span>
+    
+        <span class="c1"># Assembling PBDW matrix</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reg_param</span><span class="p">)</span> <span class="o">==</span> <span class="n">M</span><span class="p">)</span>
+        <span class="n">sys_matr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]])</span>
+        <span class="n">sys_matr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))])</span>
+        <span class="n">sys_matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sys_matr1</span><span class="p">,</span> <span class="n">sys_matr2</span><span class="p">])</span>
+    
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+
+            <span class="c1"># Compute measurement vector with noise</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span>
+        
+            <span class="c1"># Creating rhs</span>
+            <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            
+            <span class="c1"># If failure the measurement and the matrix are modified</span>
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                <span class="n">_rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">)</span>
+                <span class="n">_sys_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">sys_matr</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">idx_failed</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_rhs</span> <span class="o">=</span> <span class="n">rhs</span>
+                <span class="n">_sys_matrix</span> <span class="o">=</span> <span class="n">sys_matr</span>
+            
+            <span class="c1"># Solving the linear system</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">_sys_matrix</span><span class="p">,</span> <span class="n">_rhs</span><span class="p">)</span>
+
+            <span class="c1"># Compute the interpolant and residual</span>
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>
+                <span class="n">interpolant</span> <span class="o">=</span> <span class="n">remove_lin_combine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">,</span> <span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">M</span><span class="p">,</span> <span class="n">sensI_drifted</span><span class="o">=</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">M</span><span class="p">:])</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">interpolant</span><span class="p">)</span>
+            
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+            
+            <span class="c1"># Storing interpolant and residual</span>
+            <span class="n">interps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolant</span><span class="p">)</span>
+            <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">interps</span><span class="p">,</span> <span class="n">resids</span></div>
+
+
+<div class="viewcode-block" id="PBDW.gpr_measure_test_err">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failing_sensors.PBDW.gpr_measure_test_err">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gpr_measure_test_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                             <span class="n">noise_value</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reg_param</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                             <span class="n">ext_sens</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">surrogate_model</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">idx_failed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">mu_failure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The PBDW online algorithm is used to reconstruct the `snaps` (`FunctionsList`), by solving the PBDW linear systemwith `idx_failed` measure.</span>
+<span class="sd">        In order to retrieve information on the &quot;failed measure&quot;, a surrogate model (e.g., GPR) has been trained to learn the map from non-failed external measures and the one related to `idx_failed`.</span>
+<span class="sd">        </span>
+<span class="sd">        The interpolant is then defined in the standard way.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList</span>
+<span class="sd">            Function to reconstruction</span>
+<span class="sd">        N : int</span>
+<span class="sd">            Dimension of the reduced space</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensor to use</span>
+<span class="sd">        noise_value : float</span>
+<span class="sd">            Standard deviation of the noise, modelled as a normal :math:`\mathcal{N}(0, \sigma^2)`</span>
+<span class="sd">        reg_param : np.ndarray</span>
+<span class="sd">            Regularising parameter :math:`\lambda`</span>
+<span class="sd">        ext_sens : FunctionsList</span>
+<span class="sd">            Basis sensors adopted to compute the external measures, input of `surrogate_model`</span>
+<span class="sd">        surrogate_model : list</span>
+<span class="sd">            List of all the trained surrogate models</span>
+<span class="sd">        idx_failed : list[int]</span>
+<span class="sd">            List of integers with the failed sensors</span>
+<span class="sd">        mu_failure : int, optional (default = 0)</span>
+<span class="sd">            Index from which failure starts, typically time.</span>
+<span class="sd">        verbose : boolean, optional (default = False)</span>
+<span class="sd">            If true, output is printed.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        errors : np.ndarray</span>
+<span class="sd">            Errors per each element in `snaps` (first column: absolute, second column: relative), measure in :math:`||\cdot ||_{L^2}`.</span>
+<span class="sd">        interps : FunctionsList</span>
+<span class="sd">            Interpolant Field :math:`\mathcal{I}_M[u]` of TR-GEIM.</span>
+<span class="sd">        resids : FunctionsList </span>
+<span class="sd">            Residual Field :math:`r_M[u]`, </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">M</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of basis functions must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span><span class="p">))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nmax</span>
+
+        <span class="k">assert</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">)</span>
+        
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+        
+        <span class="c1"># Computing clean measures and norms of the snapshots</span>
+        <span class="n">clean_measures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">snap_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,))</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_H1</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="n">semi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+            <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">))</span>
+        
+        <span class="n">ext_measures</span> <span class="o">=</span> <span class="n">compute_measure</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">ext_sens</span><span class="p">,</span> <span class="n">noise_value</span><span class="o">=</span><span class="n">noise_value</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        
+        <span class="n">errors</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">interps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">resids</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Computing PBDW remove (synthetic) - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns</span> <span class="p">)</span>
+    
+        <span class="c1"># Assembling PBDW matrix</span>
+        <span class="n">sys_matr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">reg_param</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]])</span>
+        <span class="n">sys_matr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))])</span>
+        <span class="n">sys_matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sys_matr1</span><span class="p">,</span> <span class="n">sys_matr2</span><span class="p">])</span>
+    
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+
+            <span class="c1"># Compute measurement vector with noise</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">clean_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_value</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&gt;=</span> <span class="n">mu_failure</span><span class="p">:</span>    
+                <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">):</span>
+                    <span class="n">y</span><span class="p">[</span><span class="n">_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">surrogate_model</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">ext_measures</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                    
+            <span class="c1"># Creating rhs</span>
+            <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,))])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            
+            <span class="c1"># Solving the linear system</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matr</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+
+            <span class="c1"># Compute the interpolant and residual</span>
+            <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_sensors</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[:</span><span class="n">M</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">M</span><span class="p">:])</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">interpolant</span><span class="p">)</span>
+            
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span><span class="o">.</span><span class="n">L2norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+            <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">snap_norms</span><span class="p">[</span><span class="n">mu</span><span class="p">]</span>
+            
+            <span class="c1"># Storing interpolant and residual</span>
+            <span class="n">interps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolant</span><span class="p">)</span>
+            <span class="n">resids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">interps</span><span class="p">,</span> <span class="n">resids</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

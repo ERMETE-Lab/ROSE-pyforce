@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Online Phase: POD with Interpolation &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
@@ -15,7 +15,7 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -66,6 +66,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../02_ANL11-A2_stationary.html">MultiGroup Neutron Diffusion - ANL11-A2 benchmark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../03_buoyant_cavity.html">Steady Buoyant Navier-Stokes - Differentially Heated Cavity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_flow_cyl.html">Navier-Stokes (PimpleFoam) - Flow Over Cylinder</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
@@ -108,21 +109,21 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">FunctionSpace</span>
-<span class="kn">from</span> <span class="nn">pyforce.online.pod_interpolation</span> <span class="kn">import</span> <span class="n">PODI</span>
-<span class="kn">from</span> <span class="nn">pyforce.online.pod_projection</span> <span class="kn">import</span> <span class="n">PODproject</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.pod_interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">PODI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.pod_projection</span><span class="w"> </span><span class="kn">import</span> <span class="n">PODproject</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span>
 
-<span class="kn">from</span> <span class="nn">pyforce.tools.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">train_test_split</span>
-<span class="kn">from</span> <span class="nn">pyforce.tools.write_read</span> <span class="kn">import</span> <span class="n">ImportH5</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImportH5</span>
 
 
 <span class="n">path_off</span> <span class="o">=</span><span class="s1">&#39;./Offline_results/&#39;</span>
@@ -136,7 +137,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ns</span> <span class="kn">import</span> <span class="n">create_dfg2_mesh</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ns</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_dfg2_mesh</span>
 
 <span class="c1"># Snapshots downloaded</span>
 <span class="c1"># domain = create_dfg2_mesh(mesh_factor=0.5, use_msh=True)[0]</span>
@@ -342,7 +343,7 @@ Computing POD test error (interpolation) - u: 160.000 / 160.00 - 0.026 s/it
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_errors</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">Nmax</span><span class="p">,</span> <span class="n">test_results</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_errors</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">Nmax</span><span class="p">,</span> <span class="n">test_results</span><span class="p">):</span>
 
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="mi">4</span><span class="p">))</span>
 
@@ -402,7 +403,7 @@ Computing POD test error (interpolation) - u: 160.000 / 160.00 - 0.026 s/it
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_computational_times</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">test_results</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_computational_times</span><span class="p">(</span><span class="n">var_names</span><span class="p">,</span> <span class="n">test_results</span><span class="p">):</span>
 
     <span class="c1"># Initialize subplots</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
@@ -502,8 +503,8 @@ Computing POD test error (interpolation) - u: 160.000 / 160.00 - 0.026 s/it
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ns</span> <span class="kn">import</span> <span class="n">DragLift</span>
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">Expression</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ns</span><span class="w"> </span><span class="kn">import</span> <span class="n">DragLift</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">Expression</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mf">5.00e-4</span>                <span class="c1"># Time step size</span>
@@ -519,7 +520,7 @@ Computing POD test error (interpolation) - u: 160.000 / 160.00 - 0.026 s/it
 
 <span class="n">QoI_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">compute_d_l</span><span class="p">(</span><span class="n">p_snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">u_snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_d_l</span><span class="p">(</span><span class="n">p_snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">u_snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span>
                 <span class="n">domain</span><span class="p">,</span> <span class="n">ft</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">bound_markers</span><span class="p">):</span>
 
     <span class="n">V2</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">VectorElement</span><span class="p">(</span><span class="s2">&quot;Lagrange&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">ufl_cell</span><span class="p">(),</span> <span class="mi">2</span><span class="p">))</span>
@@ -602,7 +603,7 @@ Computing POD test error (interpolation) - u: 160.000 / 160.00 - 0.026 s/it
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contour_plotting</span> <span class="kn">import</span> <span class="n">plot_FOM_vs_ROM</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contour_plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_FOM_vs_ROM</span>
 
 <span class="n">sorted_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">test_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
 

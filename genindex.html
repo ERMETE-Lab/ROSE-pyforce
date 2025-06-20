@@ -6,14 +6,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=01f34227"></script>
-      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -82,6 +82,7 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
@@ -121,6 +122,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/pyforce.tools.html#pyforce.tools.backends.norms.check_input">check_input() (pyforce.tools.backends.norms method)</a>
+</li>
       <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.clear">clear() (pyforce.tools.functions_list.FunctionsList method)</a>
 </li>
       <li><a href="api/pyforce.offline.html#pyforce.offline.pod.POD.compute_basis">compute_basis() (pyforce.offline.pod.POD method)</a>
@@ -131,9 +134,13 @@
       </ul></li>
       <li><a href="api/pyforce.offline.html#pyforce.offline.pbdw.PBDW.compute_infsup">compute_infsup() (pyforce.offline.pbdw.PBDW method)</a>
 </li>
-      <li><a href="api/pyforce.online.html#pyforce.online.geim.GEIM.compute_measure">compute_measure() (pyforce.online.geim.GEIM method)</a>
+      <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.compute_measure">compute_measure() (in module pyforce.online.failing_sensors)</a>
 
       <ul>
+        <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.compute_measure">(pyforce.online.failing_sensors.TRGEIM method)</a>
+</li>
+        <li><a href="api/pyforce.online.html#pyforce.online.geim.GEIM.compute_measure">(pyforce.online.geim.GEIM method)</a>
+</li>
         <li><a href="api/pyforce.online.html#pyforce.online.pbdw.PBDW.compute_measure">(pyforce.online.pbdw.PBDW method)</a>
 </li>
         <li><a href="api/pyforce.online.html#pyforce.online.tr_geim.TRGEIM.compute_measure">(pyforce.online.tr_geim.TRGEIM method)</a>
@@ -159,11 +166,25 @@
 </li>
       <li><a href="api/pyforce.offline.html#pyforce.offline.sensors.GaussianSensors.define_riesz">define_riesz() (pyforce.offline.sensors.GaussianSensors method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.delete">delete() (pyforce.tools.functions_list.FunctionsList method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD">DiscretePOD (class in pyforce.offline.pod)</a>
+</li>
+      <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.PBDW.drift_test_err">drift_test_err() (pyforce.online.failing_sensors.PBDW method)</a>
+
+      <ul>
+        <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.drift_test_err">(pyforce.online.failing_sensors.TRGEIM method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/pyforce.offline.html#pyforce.offline.eim.EIM">EIM (class in pyforce.offline.eim)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -195,10 +216,16 @@
         <li><a href="api/pyforce.online.html#pyforce.online.geim.GEIM">(class in pyforce.online.geim)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/pyforce.offline.html#pyforce.offline.sensors.SGREEDY.generate">generate() (pyforce.offline.sensors.SGREEDY method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.PBDW.gpr_measure_test_err">gpr_measure_test_err() (pyforce.online.failing_sensors.PBDW method)</a>
+
+      <ul>
+        <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.gpr_measure_test_err">(pyforce.online.failing_sensors.TRGEIM method)</a>
+</li>
+      </ul></li>
       <li><a href="api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.GrahmSchmidt">GrahmSchmidt() (pyforce.offline.weak_greedy.WeakGreedy method)</a>
 </li>
       <li><a href="api/pyforce.offline.html#pyforce.offline.pod.POD.GramSchmidt">GramSchmidt() (pyforce.offline.pod.POD method)</a>
@@ -269,6 +296,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.map">map() (pyforce.tools.functions_list.FunctionsList method)</a>
 </li>
+      <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.max">max() (pyforce.tools.functions_list.FunctionsList method)</a>
+</li>
+      <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.min">min() (pyforce.tools.functions_list.FunctionsList method)</a>
+</li>
       <li><a href="api/pyforce.offline.html#pyforce.offline.pod.POD.mode">mode() (pyforce.offline.pod.POD method)</a>
 </li>
       <li>
@@ -278,6 +309,8 @@
         <li><a href="api/pyforce.html#module-pyforce">pyforce</a>
 </li>
         <li><a href="api/pyforce.offline.html#module-pyforce.offline">pyforce.offline</a>
+</li>
+        <li><a href="api/pyforce.offline.html#module-pyforce.offline.eim">pyforce.offline.eim</a>
 </li>
         <li><a href="api/pyforce.offline.html#module-pyforce.offline.geim">pyforce.offline.geim</a>
 </li>
@@ -290,6 +323,8 @@
         <li><a href="api/pyforce.offline.html#module-pyforce.offline.weak_greedy">pyforce.offline.weak_greedy</a>
 </li>
         <li><a href="api/pyforce.online.html#module-pyforce.online">pyforce.online</a>
+</li>
+        <li><a href="api/pyforce.online.html#module-pyforce.online.failing_sensors">pyforce.online.failing_sensors</a>
 </li>
         <li><a href="api/pyforce.online.html#module-pyforce.online.geim">pyforce.online.geim</a>
 </li>
@@ -332,10 +367,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/pyforce.online.html#pyforce.online.indirect_recon.objective">objective() (in module pyforce.online.indirect_recon)</a>
 </li>
+      <li><a href="api/pyforce.offline.html#pyforce.offline.eim.EIM.offline">offline() (pyforce.offline.eim.EIM method)</a>
+
+      <ul>
+        <li><a href="api/pyforce.offline.html#pyforce.offline.geim.GEIM.offline">(pyforce.offline.geim.GEIM method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/pyforce.offline.html#pyforce.offline.geim.GEIM.offline">offline() (pyforce.offline.geim.GEIM method)</a>
-</li>
       <li><a href="api/pyforce.online.html#pyforce.online.indirect_recon.PE.optimise">optimise() (pyforce.online.indirect_recon.PE method)</a>
 </li>
   </ul></td>
@@ -347,6 +386,8 @@
       <li><a href="api/pyforce.offline.html#pyforce.offline.pbdw.PBDW">PBDW (class in pyforce.offline.pbdw)</a>
 
       <ul>
+        <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.PBDW">(class in pyforce.online.failing_sensors)</a>
+</li>
         <li><a href="api/pyforce.online.html#pyforce.online.pbdw.PBDW">(class in pyforce.online.pbdw)</a>
 </li>
       </ul></li>
@@ -370,6 +411,12 @@
         <li><a href="api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.projection">(pyforce.offline.weak_greedy.WeakGreedy method)</a>
 </li>
       </ul></li>
+      <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.PBDW.pure_remove_test_err">pure_remove_test_err() (pyforce.online.failing_sensors.PBDW method)</a>
+
+      <ul>
+        <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM.pure_remove_test_err">(pyforce.online.failing_sensors.TRGEIM method)</a>
+</li>
+      </ul></li>
       <li>
     pyforce
 
@@ -382,6 +429,13 @@
 
       <ul>
         <li><a href="api/pyforce.offline.html#module-pyforce.offline">module</a>
+</li>
+      </ul></li>
+      <li>
+    pyforce.offline.eim
+
+      <ul>
+        <li><a href="api/pyforce.offline.html#module-pyforce.offline.eim">module</a>
 </li>
       </ul></li>
       <li>
@@ -426,6 +480,13 @@
 
       <ul>
         <li><a href="api/pyforce.online.html#module-pyforce.online">module</a>
+</li>
+      </ul></li>
+      <li>
+    pyforce.online.failing_sensors
+
+      <ul>
+        <li><a href="api/pyforce.online.html#module-pyforce.online.failing_sensors">module</a>
 </li>
       </ul></li>
       <li>
@@ -528,9 +589,11 @@
         <li><a href="api/pyforce.online.html#pyforce.online.tr_geim.TRGEIM.real_reconstruct">(pyforce.online.tr_geim.TRGEIM method)</a>
 </li>
       </ul></li>
-      <li><a href="api/pyforce.offline.html#pyforce.offline.geim.GEIM.reconstruct">reconstruct() (pyforce.offline.geim.GEIM method)</a>
+      <li><a href="api/pyforce.offline.html#pyforce.offline.eim.EIM.reconstruct">reconstruct() (pyforce.offline.eim.EIM method)</a>
 
       <ul>
+        <li><a href="api/pyforce.offline.html#pyforce.offline.geim.GEIM.reconstruct">(pyforce.offline.geim.GEIM method)</a>
+</li>
         <li><a href="api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.reconstruct">(pyforce.offline.pod.DiscretePOD method)</a>
 </li>
         <li><a href="api/pyforce.online.html#pyforce.online.geim.GEIM.reconstruct">(pyforce.online.geim.GEIM method)</a>
@@ -546,6 +609,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.remove_lin_combine">remove_lin_combine() (in module pyforce.online.failing_sensors)</a>
+</li>
       <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.return_matrix">return_matrix() (pyforce.tools.functions_list.FunctionsList method)</a>
 </li>
   </ul></td>
@@ -586,9 +651,13 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/pyforce.offline.html#pyforce.offline.geim.GEIM.test_error">test_error() (pyforce.offline.geim.GEIM method)</a>
+      <li><a href="api/pyforce.offline.html#pyforce.offline.eim.EIM.test_error">test_error() (pyforce.offline.eim.EIM method)</a>
 
       <ul>
+        <li><a href="api/pyforce.offline.html#pyforce.offline.geim.GEIM.test_error">(pyforce.offline.geim.GEIM method)</a>
+</li>
+        <li><a href="api/pyforce.offline.html#pyforce.offline.pod.DiscretePOD.test_error">(pyforce.offline.pod.DiscretePOD method)</a>
+</li>
         <li><a href="api/pyforce.offline.html#pyforce.offline.pod.POD.test_error">(pyforce.offline.pod.POD method)</a>
 </li>
         <li><a href="api/pyforce.offline.html#pyforce.offline.weak_greedy.WeakGreedy.test_error">(pyforce.offline.weak_greedy.WeakGreedy method)</a>
@@ -608,8 +677,12 @@
       </ul></li>
       <li><a href="api/pyforce.tools.html#pyforce.tools.functions_list.train_test_split">train_test_split() (in module pyforce.tools.functions_list)</a>
 </li>
-      <li><a href="api/pyforce.online.html#pyforce.online.tr_geim.TRGEIM">TRGEIM (class in pyforce.online.tr_geim)</a>
+      <li><a href="api/pyforce.online.html#pyforce.online.failing_sensors.TRGEIM">TRGEIM (class in pyforce.online.failing_sensors)</a>
+
+      <ul>
+        <li><a href="api/pyforce.online.html#pyforce.online.tr_geim.TRGEIM">(class in pyforce.online.tr_geim)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 

@@ -6,14 +6,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyforce.tools.write_read &mdash; pyforce 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
@@ -83,29 +83,29 @@
 <span class="c1"># Latest Doc  Update: 15 October 2024</span>
 
 <span class="c1"># from pyforce.tools.functions_list import FunctionsList</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">.functions_list</span> <span class="kn">import</span> <span class="n">FunctionsList</span>
-<span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoopProgress</span>
 
-<span class="kn">from</span> <span class="nn">dolfinx.io</span> <span class="kn">import</span> <span class="n">XDMFFile</span><span class="p">,</span> <span class="n">gmshio</span>
-<span class="kn">from</span> <span class="nn">dolfinx.mesh</span> <span class="kn">import</span> <span class="n">create_mesh</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
-<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
-<span class="kn">import</span> <span class="nn">h5py</span>
-<span class="kn">from</span> <span class="nn">dolfinx.fem</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">XDMFFile</span><span class="p">,</span> <span class="n">gmshio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_mesh</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ufl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">fluidfoam</span> <span class="k">as</span> <span class="nn">of</span>
-<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fluidfoam</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">of</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
 
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">NearestNDInterpolator</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">NearestNDInterpolator</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
 
 <div class="viewcode-block" id="StoreFunctionsList">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.StoreFunctionsList">[docs]</a>
-<span class="k">def</span> <span class="nf">StoreFunctionsList</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">StoreFunctionsList</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function can be used to save in `xdmf/h5` files scalar or vector list of functions.</span>
 
@@ -142,7 +142,7 @@
 
 <div class="viewcode-block" id="ImportH5">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ImportH5">[docs]</a>
-<span class="k">def</span> <span class="nf">ImportH5</span><span class="p">(</span><span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ImportH5</span><span class="p">(</span><span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function can be used to load from xdmf/h5 files scalar or vector list of functions.</span>
 
@@ -218,7 +218,7 @@
 <span class="c1">## Routine for importing from OpenFOAM using pyvista and fluidfoam</span>
 <div class="viewcode-block" id="ReadFromOF">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF">[docs]</a>
-<span class="k">class</span> <span class="nc">ReadFromOF</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReadFromOF</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class used to import data from OpenFOAM and interpolate them onto *dolfinx* mesh.</span>
 
@@ -233,7 +233,7 @@
 <span class="sd">        If true, the dofs :math:`x,\,y,\,z` of the OpenFOAM mesh are imported.</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;pyvista&#39;</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;pyvista&#39;</span><span class="p">,</span> <span class="n">extract_dofs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         
@@ -266,7 +266,7 @@
 
 <div class="viewcode-block" id="ReadFromOF.import_field">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF.import_field">[docs]</a>
-    <span class="k">def</span> <span class="nf">import_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">import_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Importing all time instances (**skipping zero folder**) from OpenFOAM directory.</span>
 
@@ -331,7 +331,7 @@
     
 <div class="viewcode-block" id="ReadFromOF.create_mesh">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF.create_mesh">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creating the mesh from the OpenFOAM points. Assess that only a single cell type is present.</span>
 <span class="sd">        Works only with hexahedrons and tetrahedrons at the moment.</span>
@@ -382,7 +382,7 @@
     
 <div class="viewcode-block" id="ReadFromOF.foam_to_dolfinx">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ReadFromOF.foam_to_dolfinx">[docs]</a>
-    <span class="k">def</span> <span class="nf">foam_to_dolfinx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">],</span> 
+    <span class="k">def</span><span class="w"> </span><span class="nf">foam_to_dolfinx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">],</span> 
                         <span class="n">cut_value</span><span class="p">:</span> <span class="nb">float</span>  <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converting the OpenFOAM data imported into `FunctionsList` based on *dolfinx* structures. The snapshots are projected onto a suitable functional space.</span>
@@ -479,7 +479,7 @@
                 
                 <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">interp_</span> <span class="o">=</span> <span class="p">[</span><span class="n">NearestNDInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">snap</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-                    <span class="n">u_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">interp_</span><span class="p">[</span><span class="n">ii</span><span class="p">](</span><span class="o">*</span><span class="n">x_V</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                    <span class="n">u_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">interp_</span><span class="p">[</span><span class="n">ii</span><span class="p">](</span><span class="o">*</span><span class="n">x_V</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">interp_</span> <span class="o">=</span> <span class="n">NearestNDInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">snap</span><span class="p">)</span>
@@ -497,7 +497,7 @@
 <span class="c1">## Routine for importing from OpenFOAM using fluidfoam - Deprecated?</span>
 <div class="viewcode-block" id="ImportOF">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ImportOF">[docs]</a>
-<span class="k">class</span> <span class="nc">ImportOF</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImportOF</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class used to import data from OpenFOAM and interpolate them onto *dolfinx* mesh.</span>
 
@@ -512,7 +512,7 @@
 <span class="sd">        If true, the dofs :math:`x,\,y,\,z` of the OpenFOAM mesh are imported.</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extract_dofs</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extract_dofs</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         
@@ -524,7 +524,7 @@
 
 <div class="viewcode-block" id="ImportOF.import_field">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ImportOF.import_field">[docs]</a>
-    <span class="k">def</span> <span class="nf">import_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">import_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Importing all time instances (**skipping zero folder**) from OpenFOAM directory.</span>
 
@@ -579,7 +579,7 @@
     
 <div class="viewcode-block" id="ImportOF.foam_to_dolfinx">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.write_read.ImportOF.foam_to_dolfinx">[docs]</a>
-    <span class="k">def</span> <span class="nf">foam_to_dolfinx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> 
+    <span class="k">def</span><span class="w"> </span><span class="nf">foam_to_dolfinx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> 
                         <span class="n">cut_value</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converting the OpenFOAM data imported into `FunctionsList` based on *dolfinx* structures. The snapshots are projected onto a suitable functional space.</span>
