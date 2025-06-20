@@ -33,7 +33,11 @@ The following case studies are discussed:
     - *Offline*: Creation of the reduced space using the POD and GEIM.
     - *Online*:  Indirect Reconstruction (PE+POD-I), considering noisy data.
 
-*Coming Soon: multiphysics (neutronics+thermal-hydraulics) with dolfinx and OpenFOAM.*
+4. **Flow over Cylinder** (solved with OpenFOAM-v2012)
+
+    - *Offline*: Import from OpenFOAM and plotting using *pyvista*.
+    - *Offline*: Creation of the surrogate model for the dynamics of the reduced coefficients (POD) using Gaussian Process Regression.
+    - *Online*:  Indirect Reconstruction (PE+POD-I), considering noisy data.
 
 Each tutorial requires a dataset to be generated: the notebooks generating the dataset are available in the tutorials, alternatively the data can be downloaded from `Zenodo <https://doi.org/10.5281/zenodo.11483677>`_.
 
@@ -44,3 +48,4 @@ Each tutorial requires a dataset to be generated: the notebooks generating the d
     Unsteady Laminar Navier-Stokes - DFG2 benchmark <Tutorials/01_DFG2_benchmark.rst>
     MultiGroup Neutron Diffusion - ANL11-A2 benchmark <Tutorials/02_ANL11-A2_stationary.rst>
     Steady Buoyant Navier-Stokes - Differentially Heated Cavity <Tutorials/03_buoyant_cavity.rst>
+    Navier-Stokes (PimpleFoam) - Flow Over Cylinder <Tutorials/04_flow_cyl.rst>
