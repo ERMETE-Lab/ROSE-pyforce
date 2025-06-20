@@ -10,6 +10,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Tutorial Data
+docs/Tutorials/04_FlowOverCylinder_OF2012/OF_case/
+docs/Tutorials/04_FlowOverCylinder_OF2012/Snapshots/
+
 # Distribution / packaging
 .Python
 build/

@@ -171,6 +171,38 @@ class FunctionsList():
                 combination.vector.axpy(vec[ii], self.map(ii).vector)
             combination.vector.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
             return combination
+        
+    def min(self, axis: int = None) -> np.ndarray:
+        """
+        Returns the minimum of the functions in the list along the specified axis.
+
+        Parameters
+        ----------
+        axis : int, optional (Default=None)
+            Axis along which to compute the minimum. If None, computes the minimum over the entire array.
+        
+        Returns
+        -------
+        min_values : np.ndarray
+            Minimum values of the functions in the list.
+        """
+        return np.min(self.return_matrix(), axis=axis)
+    
+    def max(self, axis: int = None) -> np.ndarray:
+        """
+        Returns the maximum of the functions in the list along the specified axis.
+
+        Parameters
+        ----------
+        axis : int, optional (Default=None)
+            Axis along which to compute the maximum. If None, computes the maximum over the entire array.
+        
+        Returns
+        -------
+        max_values : np.ndarray
+            Maximum values of the functions in the list.
+        """
+        return np.max(self.return_matrix(), axis=axis)
 
 def train_test_split(params: list, fun_list: FunctionsList, test_size: float = 0.33, random_state: int = 42):
     """

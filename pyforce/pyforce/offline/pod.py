@@ -36,7 +36,9 @@ class POD():
       If `True`, print of the progress is enabled.
 
     """
-  def __init__(self, train_snap: FunctionsList, name: str, use_scipy=False, verbose = False) -> None:
+  def __init__(self, train_snap: FunctionsList, name: str, 
+               svd_acceleration_rank: int = None,
+               use_scipy=False, verbose = False) -> None:
 
     self.Ns   = len(train_snap)
     self.V = train_snap.fun_space
@@ -44,19 +46,49 @@ class POD():
     self.name = name
 
     # Generate the correlation matrix using inner product in L^2
-    corrMatrix = np.zeros((self.Ns, self.Ns))
-    if verbose:
-        progressBar = LoopProgress(msg = "Computing " + self.name + ' correlation matrix', final = self.Ns)
+    if svd_acceleration_rank is not None:
+      _svd_u, _svd_s, _ = randomized_svd(train_snap.return_matrix(), n_components=svd_acceleration_rank, n_iter='auto')
 
-    for ii in range(self.Ns):
-        for jj in range(self.Ns):
-            if jj>=ii:
-                corrMatrix[ii,jj] = self.norm.L2innerProd(train_snap(ii), train_snap(jj))
-            else:
-                corrMatrix[ii,jj] = corrMatrix[jj,ii]
+      # Compute the residual energy and check if the rank is too low or too high
+      residual_energy = np.sum(_svd_s[:-1]**2) / np.sum(_svd_s**2)
+      if residual_energy <= 0.99:
+          print("Warning: The residual energy of the SVD is {} <= 0.9 for rank {}. This may indicate that the rank is too low.".format(residual_energy, svd_acceleration_rank))
+          
+      _svd_v = _svd_u.T @ train_snap.return_matrix() # shape (svd_acceleration_rank, Ns)
 
-        if verbose:
-            progressBar.update(1, percentage = False)
+      # Compute the matrix for L2 inner product
+      _P_matrix = np.zeros((svd_acceleration_rank, svd_acceleration_rank))
+
+      if verbose:
+          progressBar = LoopProgress(msg = "Computing " + self.name + ' correlation matrix', final = svd_acceleration_rank)
+
+      for ii in range(svd_acceleration_rank):
+        for jj in range(svd_acceleration_rank):
+          if jj >= ii:
+            _P_matrix[ii, jj] = self.norm.L2innerProd(_svd_u[:, ii], _svd_u[:, jj])
+          else:
+            _P_matrix[ii, jj] = _P_matrix[jj, ii]
+        progressBar.update(1, percentage = False)
+
+      # Compute the correlation matrix using the SVD
+      corrMatrix = _svd_v.T @ _P_matrix @ _svd_v
+      assert corrMatrix.shape == (self.Ns, self.Ns), "The correlation matrix has the wrong shape: {}".format(corrMatrix.shape)
+    
+    else:
+
+      if verbose:
+          progressBar = LoopProgress(msg = "Computing " + self.name + ' correlation matrix', final = self.Ns)
+
+      corrMatrix = np.zeros((self.Ns, self.Ns))
+      for ii in range(self.Ns):
+          for jj in range(self.Ns):
+              if jj>=ii:
+                  corrMatrix[ii,jj] = self.norm.L2innerProd(train_snap(ii), train_snap(jj))
+              else:
+                  corrMatrix[ii,jj] = corrMatrix[jj,ii]
+
+          if verbose:
+              progressBar.update(1, percentage = False)
 
     # Solving the eigenvalue problem and sorting the eigenvalue/eigenvector pairs
     if use_scipy:
@@ -66,9 +98,6 @@ class POD():
     sorted_indexes = np.argsort( eigenvalues * (-1.) )
     eigenvalues = eigenvalues[sorted_indexes]
     eigenvectors = eigenvectors[:,sorted_indexes]
-
-    # if sum(eigenvalues < 0) > 0: 
-    #     warnings.warn("Check eigenvalues: some of them are negative! \n Try DiscretePOD with `svd` method")
 
     # Store the eigenvalue/eigenvector pairs
     self.eigenvalues  = eigenvalues
