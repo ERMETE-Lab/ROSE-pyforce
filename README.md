@@ -11,8 +11,6 @@
 
 [![Testing pyforce](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg)](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml) [![JOSS draft paper](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml)
 
-[![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.15705990.svg)](https://zenodo.org/records/15705990)
-
 **pyforce: Python Framework data-driven model Order Reduction for multi-physiCs problEms**
 
 - [Description](#description)
