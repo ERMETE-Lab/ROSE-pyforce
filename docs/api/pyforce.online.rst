@@ -4,6 +4,14 @@ pyforce.online package
 Submodules
 ----------
 
+pyforce.online.failing\_sensors module
+--------------------------------------
+
+.. automodule:: pyforce.online.failing_sensors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyforce.online.geim module
 --------------------------
 
