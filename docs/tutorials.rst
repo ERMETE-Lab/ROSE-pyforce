@@ -39,7 +39,7 @@ The following case studies are discussed:
     - *Offline*: Creation of the surrogate model for the dynamics of the reduced coefficients (POD) using Gaussian Process Regression.
     - *Online*:  Indirect Reconstruction (PE+POD-I), considering noisy data.
 
-Each tutorial requires a dataset to be generated: the notebooks generating the dataset are available in the tutorials, alternatively the data can be downloaded from `Zenodo <https://doi.org/10.5281/zenodo.11483677>`_.
+Each tutorial requires a dataset to be generated: the notebooks generating the dataset are available in the tutorials, alternatively the data can be downloaded from `Zenodo <https://doi.org/10.5281/zenodo.15705990>`_.
 
 .. toctree::
     :maxdepth: 1
