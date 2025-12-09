@@ -1,6 +1,6 @@
 # Installation notes
 
-**pyforce** has been tested on MacOS and Linux machines with **Python3.10**.
+**pyforce** has been tested on MacOS and Linux machines with **Python3.10**, using **conda** as package manager. There is no direct support for Windows machines, but it can work using WSL2.
 
 ## Dependencies
 The *pyforce* package requires the following dependencies:
@@ -43,7 +43,8 @@ conda env create -f pyforce/environment.yml
 activate the environment and then install the package using `pip`
 ```bash
 conda activate pyforce-env
-python -m pip install pyforce/
+cd pyforce/
+python -m pip install .
 ```
 
 If the previous procedure encounters any issues, you can adopt a step-by-step approach: start by creating a new conda environment
@@ -89,10 +90,10 @@ python -m pip install fluidfoam scikit-learn
 ```
 Once all the dependencies have been installed, *pyforce* can be installed using *pip*: clone the repository
 ```bash
-git clone https://github.com/ROSE-Polimi/pyforce.git
+git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
 ```
 Change directory to *ROSE-pyforce* and install using pip
 ```bash
-cd ROSE-pyforce
-python -m pip install pyforce/
+cd ROSE-pyforce/pyforce/
+python -m pip install .
 ```
