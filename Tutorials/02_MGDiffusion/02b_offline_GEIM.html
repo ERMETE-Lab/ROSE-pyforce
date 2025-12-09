@@ -18,7 +18,6 @@
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -136,12 +135,12 @@
 </div>
 <p>The geometry is imported from “ANL11A2_octave.geo”, generated with GMSH. Then, the mesh is created with the gmsh module.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">neutronics</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_anl11a2_mesh</span>
 
-<span class="n">domain</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">create_anl11a2_mesh</span><span class="p">(</span><span class="n">use_msh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">domain</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">create_anl11a2_mesh</span><span class="p">(</span><span class="n">use_msh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">fuel1_marker</span>    <span class="o">=</span> <span class="mi">1</span>
 <span class="n">fuel2_marker</span>    <span class="o">=</span> <span class="mi">2</span>
@@ -154,6 +153,23 @@
 <span class="n">clear_output</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dolfinx.mesh.Mesh
+</pre></div></div>
 </div>
 <section id="Importing-Snapshots">
 <h2>Importing Snapshots<a class="headerlink" href="#Importing-Snapshots" title="Link to this heading"></a></h2>
@@ -374,7 +390,7 @@ E_M[u] &= \max\limits_{\boldsymbol{\mu}\in\Xi^{train}} \left\| u(\cdot;\,\boldsy
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_23_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_23_0.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_24_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_24_0.png" />
 </div>
 </div>
 </section>
@@ -445,7 +461,7 @@ Computing Lebesgue: 4.000 / 4.00 - 4.632 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_27_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_27_0.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_28_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_28_0.png" />
 </div>
 </div>
 </section>
@@ -470,14 +486,14 @@ Computing Lebesgue: 4.000 / 4.00 - 4.632 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_0.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_30_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_30_0.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_1.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_29_1.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_30_1.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_30_1.png" />
 </div>
 </div>
 <p>In the end, let us plot the sensors positions for the fast and thermal flux, for each value of <span class="math notranslate nohighlight">\(s\)</span>.</p>
@@ -496,14 +512,14 @@ Computing Lebesgue: 4.000 / 4.00 - 4.632 s/it
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_0.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_32_0.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_32_0.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_1.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_31_1.png" />
+<img alt="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_32_1.png" src="../../_images/Tutorials_02_MGDiffusion_02b_offline_GEIM_32_1.png" />
 </div>
 </div>
 <p>The first 3 positions are identical for the two values of <span class="math notranslate nohighlight">\(s\)</span>, then some differences are observed. In the coming notebooks, only the case with <span class="math notranslate nohighlight">\(s=2\)</span> will be considered since better represents the reality of a flux sensors.</p>

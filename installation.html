@@ -17,7 +17,6 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -85,7 +84,7 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="installation-notes">
 <h1>Installation notes<a class="headerlink" href="#installation-notes" title="Link to this heading"></a></h1>
-<p><strong>pyforce</strong> has been tested on MacOS and Linux machines with <strong>Python3.10</strong>.</p>
+<p><strong>pyforce</strong> has been tested on MacOS and Linux machines with <strong>Python3.10</strong>, using <strong>conda</strong> as package manager. There is no direct support for Windows machines, but it can work using WSL2.</p>
 <section id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
 <p>The <em>pyforce</em> package requires the following dependencies:</p>
@@ -123,7 +122,8 @@ conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> <
 </div>
 <p>activate the environment and then install the package using <code class="docutils literal notranslate"><span class="pre">pip</span></code></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>pyforce-env
-python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pyforce/
+<span class="nb">cd</span><span class="w"> </span>pyforce/
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 <p>If the previous procedure encounters any issues, you can adopt a step-by-step approach: start by creating a new conda environment</p>
@@ -168,12 +168,12 @@ conda<span class="w"> </span>install<span class="w"> </span><span class="nv">num
 </pre></div>
 </div>
 <p>Once all the dependencies have been installed, <em>pyforce</em> can be installed using <em>pip</em>: clone the repository</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ROSE-Polimi/pyforce.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ERMETE-Lab/ROSE-pyforce.git
 </pre></div>
 </div>
 <p>Change directory to <em>ROSE-pyforce</em> and install using pip</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ROSE-pyforce
-python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pyforce/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ROSE-pyforce/pyforce/
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 </section>

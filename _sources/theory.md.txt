@@ -1,6 +1,23 @@
 # Theory and package structure
 This section presents the main ideas behind Reduced Order Modelling (ROM) {cite:p}`Quarteroni2016, MadayChapter2020, Degen2020_conference`, focusing on data-driven paradigm of these techniques. Then, the structure of the package is presented showing how the different classes are connected to each other.
 
+The following table summarises the main acronyms used throughout the documentation.
+
+| Acronym | Full Name                                      | Brief Description |
+|--------|--------------------------------------------------|-------------------|
+| **DA**  | Data Assimilation                               | Methodology to combine model predictions with observational data to improve state estimates. |
+| **DDROM** | Data-Driven Reduced Order Model               | ROM built only from data without requiring explicit knowledge of the governing equations, including state estimation from sparse measurements. |
+| **FOM** | Full Order Model                                | High-fidelity model, typically a discretized PDE, used to generate snapshots for ROM construction. |
+| **GEIM** | Generalized Empirical Interpolation Method     | State estimation method able to reconstruct the state from measurements and place sensors in a greedy way. |
+| **IR** | Indirect Reconstruction                         | Technique to reconstruct non-observable fields from measurements of observable ones using ROM. |
+| **ODE** | Ordinary Differential Equation                   | Mathematical equations involving functions of a single variable and their derivatives. |
+| **PBDW** | Parametrized-Background Data-Weak formulation   | Data assimilation approach combining a background model with experimental measurements in a variational framework. |
+| **PDE** | Partial Differential Equation                    | Mathematical equations involving multivariable functions and their partial derivatives, governing many physical phenomena. |
+| **POD** | Proper Orthogonal Decomposition                  | Technique to extract dominant modes from data/snapshots for reduced modelling. |
+| **RB**  | Reduced Basis                                   | Set of basis functions derived from FOM snapshots to represent solutions in a low-dimensional space. |
+| **ROM** | Reduced Order Model                             | Low-dimensional surrogate model that approximates high-fidelity simulations. |
+| **SVD** | Singular Value Decomposition                    | Matrix factorization method used in POD to identify dominant spatial modes. |
+
 ## What is Reduced Order Modelling?
 In scientific literature, the expression Reduced Order Modelling is related to a set of techniques devoted to the search for an optimal coordinate system onto which some parametric solutions of Partial Differential Equations (PDEs) - typically called High-Fidelity (HF) or Full Order Model (FOM) - can be represented. These methods are very useful in multi-query and real-time scenarios, when quick and efficient solutions of models are required, e.g. optimization, uncertainty quantification and inverse problems {cite:p}`Guo_Veroy2021, Degen2022`. Recently, with the developments in data-driven modelling, a lot of interest in the combination of data and models has been raised. ROM offers new opportunities both to integrate the model with experimental data in real-time and to define methods of sensor positioning, by providing efficient tools to compress the prior knowledge about the system coming from the parametrized mathematical model into low-dimensional forms.
 
@@ -26,7 +43,7 @@ Data-Driven Reduced Order Modelling (DDROM) {cite:p}`RMP_2024, DDMOR_CFR` is a s
 
 The techniques implemented here follow the same underlying idea expressed in the Figure \ref{fig:darom}. They all share the typical offline/online paradigm of ROM techniques: the former is computationally expensive and it is performed only once, whereas the latter is cheap from the computational point of view and allows to have quick and reliable evaluations of the state of the system by merging background model knowledge and real evaluations of quantities of interest {cite:p}`MadayPBDW`.
 
-During the offline (also called training) phase, a *high-fidelity* or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collections of snapshots $\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}$, given $\mathcal{N}_h$ the dimension of the spatial mesh, which are dependent on some parameters $\boldsymbol{\mu}_n$; then, these snapshots are used to generate a reduced representation through a set of basis functions $\{\psi_n(\mathbf{x})\}$ of size $N$, in this way the degrees of freedom are decreased from $\mathcal{N}_h$ to $N$, provided that $\mathcal{N}_h>>N$. This allows for an approximation of any solution of the FOM as follows
+During the offline (also called training) phase, a *high-fidelity* or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collection of snapshots $\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}$, given $\mathcal{N}_h$ the dimension of the spatial mesh, which are dependent on some parameters $\boldsymbol{\mu}_n$; then, these snapshots are used to generate a reduced representation through a set of basis functions $\{\psi_n(\mathbf{x})\}$ of size $N$, in this way the degrees of freedom are decreased from $\mathcal{N}_h$ to $N$, provided that $\mathcal{N}_h>>N$. This allows for an approximation of any solution of the FOM as follows
 
 ```{math}
 u_{FOM}(\mathbf{x} ; \boldsymbol{\mu}) \simeq \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})
@@ -41,7 +58,7 @@ The online phase aims to obtain a quick and reliable way a solution of the FOM f
 The package **pyforce** comprises 3 subpackages: *offline*, *online* and *tools*. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions (from *dolfinx* directly or mapping from OpenFOAM), some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.
 
 ### Offline Phase
-Once the snapshots have been generated and collected into the class `FunctionsList`, the aims of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.
+Once the snapshots have been generated and collected into the class `FunctionsList`, the aim of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.
 
 ![Offline Phase](images/offline_classes.svg)
 

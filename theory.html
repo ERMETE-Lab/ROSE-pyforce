@@ -17,7 +17,6 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -96,6 +95,65 @@
   <section class="tex2jax_ignore mathjax_ignore" id="theory-and-package-structure">
 <h1>Theory and package structure<a class="headerlink" href="#theory-and-package-structure" title="Link to this heading"></a></h1>
 <p>This section presents the main ideas behind Reduced Order Modelling (ROM) <span id="id1">[<a class="reference internal" href="bibliography.html#id7" title="D. Degen, K. Veroy, and F. Wellmann. How Uncertainty Quantification and Reduced Order Modeling Change our Model Understanding. In AGU Fall Meeting Abstracts, volume 2020, T015-0002. December 2020. URL: https://ui.adsabs.harvard.edu/abs/2020AGUFMT015.0002D.">DVW20a</a>, <a class="reference internal" href="bibliography.html#id6" title="Yvon Maday and Anthony T Patera. 4 Reduced basis methods. In Peter Benner, Stefano Grivet-Talocia, Alfio Quarteroni, Gianluigi Rozza, Wil Schilders, and Luís Miguel Silveira, editors, Volume 2 Snapshot-Based Methods and Algorithms, pages 139–180. De Gruyter, 2020. doi:doi:10.1515/9783110671490-004.">MP20</a>, <a class="reference internal" href="bibliography.html#id5" title="Alfio Quarteroni, Andrea Manzoni, and Federico Negri. Reduced Basis Methods for Partial Differential Equations. Springer International Publishing, 2016. doi:10.1007/978-3-319-15431-2.">QMN16</a>]</span>, focusing on data-driven paradigm of these techniques. Then, the structure of the package is presented showing how the different classes are connected to each other.</p>
+<p>The following table summarises the main acronyms used throughout the documentation.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Acronym</p></th>
+<th class="head"><p>Full Name</p></th>
+<th class="head"><p>Brief Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>DA</strong></p></td>
+<td><p>Data Assimilation</p></td>
+<td><p>Methodology to combine model predictions with observational data to improve state estimates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>DDROM</strong></p></td>
+<td><p>Data-Driven Reduced Order Model</p></td>
+<td><p>ROM built only from data without requiring explicit knowledge of the governing equations, including state estimation from sparse measurements.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>FOM</strong></p></td>
+<td><p>Full Order Model</p></td>
+<td><p>High-fidelity model, typically a discretized PDE, used to generate snapshots for ROM construction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>GEIM</strong></p></td>
+<td><p>Generalized Empirical Interpolation Method</p></td>
+<td><p>State estimation method able to reconstruct the state from measurements and place sensors in a greedy way.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>IR</strong></p></td>
+<td><p>Indirect Reconstruction</p></td>
+<td><p>Technique to reconstruct non-observable fields from measurements of observable ones using ROM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>ODE</strong></p></td>
+<td><p>Ordinary Differential Equation</p></td>
+<td><p>Mathematical equations involving functions of a single variable and their derivatives.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>PBDW</strong></p></td>
+<td><p>Parametrized-Background Data-Weak formulation</p></td>
+<td><p>Data assimilation approach combining a background model with experimental measurements in a variational framework.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>PDE</strong></p></td>
+<td><p>Partial Differential Equation</p></td>
+<td><p>Mathematical equations involving multivariable functions and their partial derivatives, governing many physical phenomena.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>POD</strong></p></td>
+<td><p>Proper Orthogonal Decomposition</p></td>
+<td><p>Technique to extract dominant modes from data/snapshots for reduced modelling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>RB</strong></p></td>
+<td><p>Reduced Basis</p></td>
+<td><p>Set of basis functions derived from FOM snapshots to represent solutions in a low-dimensional space.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>ROM</strong></p></td>
+<td><p>Reduced Order Model</p></td>
+<td><p>Low-dimensional surrogate model that approximates high-fidelity simulations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SVD</strong></p></td>
+<td><p>Singular Value Decomposition</p></td>
+<td><p>Matrix factorization method used in POD to identify dominant spatial modes.</p></td>
+</tr>
+</tbody>
+</table>
 <section id="what-is-reduced-order-modelling">
 <h2>What is Reduced Order Modelling?<a class="headerlink" href="#what-is-reduced-order-modelling" title="Link to this heading"></a></h2>
 <p>In scientific literature, the expression Reduced Order Modelling is related to a set of techniques devoted to the search for an optimal coordinate system onto which some parametric solutions of Partial Differential Equations (PDEs) - typically called High-Fidelity (HF) or Full Order Model (FOM) - can be represented. These methods are very useful in multi-query and real-time scenarios, when quick and efficient solutions of models are required, e.g. optimization, uncertainty quantification and inverse problems <span id="id2">[<a class="reference internal" href="bibliography.html#id8" title="Denise Degen, Karen Veroy, and Florian Wellmann. Uncertainty quantification for basin-scale geothermal conduction models. Scientific Reports, 12:, 03 2022. doi:10.1038/s41598-022-08017-2.">DVW22</a>, <a class="reference internal" href="bibliography.html#id9" title="Theron Guo, Ondřej Rokoš, and Karen Veroy. Learning constitutive models from microstructural simulations via a non-intrusive reduced basis method. Computer Methods in Applied Mechanics and Engineering, 384:113924, 2021. doi:https://doi.org/10.1016/j.cma.2021.113924.">GRV21</a>]</span>. Recently, with the developments in data-driven modelling, a lot of interest in the combination of data and models has been raised. ROM offers new opportunities both to integrate the model with experimental data in real-time and to define methods of sensor positioning, by providing efficient tools to compress the prior knowledge about the system coming from the parametrized mathematical model into low-dimensional forms.</p>
@@ -117,7 +175,7 @@
 <p>Data-Driven Reduced Order Modelling (DDROM) <span id="id7">[<a class="reference internal" href="bibliography.html#id25" title="Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-Driven Model Order Reduction for Sensor Positioning and Indirect Reconstruction with Noisy Data: Application to a Circulating Fuel Reactor. submitted to Nuclear Engineering and Design, :, 2024. URL:, doi:.">CRI+24</a>, <a class="reference internal" href="bibliography.html#id26" title="Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order techniques: application to nuclear case studies. 2024. URL: https://www.sciencedirect.com/science/article/pii/S0307904X24003196, doi:https://doi.org/10.1016/j.apm.2024.06.040.">RIC24</a>]</span> is a set of techniques, combining theoretical modelling with real data collecting from a physical system. In particular, ROM is seen in a Data Assimilation (DA) framework <span id="id8">[<a class="reference internal" href="bibliography.html#id18" title="Steven L Brunton and J Nathan Kutz. Data-Driven Science and Engineering: Machine Learning, Dynamical Systems, and Control. Cambridge University Press, USA, 1st edition, 2019. ISBN 1108422098. URL: http://www.databookuw.com.">BK19</a>]</span>, so that the theoretical prediction, approximated by ROM, is corrected or updated by experimental evaluations of some fields (e.g., the local measurements of the temperature in a pipe or the neutron flux in a nuclear reactor).</p>
 <p><img alt="General scheme of DDROM methods [&#64;RMP_2024].abel{fig:darom}" src="_images/tie_frighter.svg" /></p>
 <p>The techniques implemented here follow the same underlying idea expressed in the Figure \ref{fig:darom}. They all share the typical offline/online paradigm of ROM techniques: the former is computationally expensive and it is performed only once, whereas the latter is cheap from the computational point of view and allows to have quick and reliable evaluations of the state of the system by merging background model knowledge and real evaluations of quantities of interest <span id="id9">[<a class="reference internal" href="bibliography.html#id20" title="Yvon Maday, Anthony Patera, James Penn, and Masayuki Yano. A parameterized-background data-weak approach to variational data assimilation: formulation, analysis, and application to acoustics. International Journal for Numerical Methods in Engineering, 2014. doi:10.1002/nme.4747.">MPPY14</a>]</span>.</p>
-<p>During the offline (also called training) phase, a <em>high-fidelity</em> or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collections of snapshots <span class="math notranslate nohighlight">\(\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}\)</span>, given <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> the dimension of the spatial mesh, which are dependent on some parameters <span class="math notranslate nohighlight">\(\boldsymbol{\mu}_n\)</span>; then, these snapshots are used to generate a reduced representation through a set of basis functions <span class="math notranslate nohighlight">\(\{\psi_n(\mathbf{x})\}\)</span> of size <span class="math notranslate nohighlight">\(N\)</span>, in this way the degrees of freedom are decreased from <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> to <span class="math notranslate nohighlight">\(N\)</span>, provided that <span class="math notranslate nohighlight">\(\mathcal{N}_h&gt;&gt;N\)</span>. This allows for an approximation of any solution of the FOM as follows</p>
+<p>During the offline (also called training) phase, a <em>high-fidelity</em> or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collection of snapshots <span class="math notranslate nohighlight">\(\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}\)</span>, given <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> the dimension of the spatial mesh, which are dependent on some parameters <span class="math notranslate nohighlight">\(\boldsymbol{\mu}_n\)</span>; then, these snapshots are used to generate a reduced representation through a set of basis functions <span class="math notranslate nohighlight">\(\{\psi_n(\mathbf{x})\}\)</span> of size <span class="math notranslate nohighlight">\(N\)</span>, in this way the degrees of freedom are decreased from <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> to <span class="math notranslate nohighlight">\(N\)</span>, provided that <span class="math notranslate nohighlight">\(\mathcal{N}_h&gt;&gt;N\)</span>. This allows for an approximation of any solution of the FOM as follows</p>
 <div class="math notranslate nohighlight">
 \[u_{FOM}(\mathbf{x} ; \boldsymbol{\mu}) \simeq \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\]</div>
 <p>with <span class="math notranslate nohighlight">\(\alpha_n(\boldsymbol{\mu})\)</span> as the reduced coefficients, embedding the parametric dependence. Moreover, a reduced representation allows for the search for the optimal positions of sensors in the physical domain in a more efficient manner.</p>
@@ -128,7 +186,7 @@
 <p>The package <strong>pyforce</strong> comprises 3 subpackages: <em>offline</em>, <em>online</em> and <em>tools</em>. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions (from <em>dolfinx</em> directly or mapping from OpenFOAM), some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.</p>
 <section id="offline-phase">
 <h3>Offline Phase<a class="headerlink" href="#offline-phase" title="Link to this heading"></a></h3>
-<p>Once the snapshots have been generated and collected into the class <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>, the aims of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.</p>
+<p>Once the snapshots have been generated and collected into the class <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>, the aim of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.</p>
 <p><img alt="Offline Phase" src="_images/offline_classes.svg" /></p>
 </section>
 <section id="online-phase">
