@@ -10,6 +10,7 @@ authors:
   - name: Stefano Riva
     orcid: 0000-0001-9997-4101
     equal-contrib: true
+    corresponding: true # (This is how to denote the corresponding author)
     affiliation: 1 # (Multiple affiliations must be quoted "1, 2")
   - name: Carolina Introini
     orcid: 0000-0003-4682-1683
@@ -17,12 +18,13 @@ authors:
     affiliation: 1
   - name: Antonio Cammi
     orcid: 0000-0003-1508-5935
-    corresponding: true # (This is how to denote the corresponding author)
-    affiliation: 1
+    affiliation: 1, 2
 affiliations:
  - name: Energy Department - Nuclear Engineering Division, Nuclear Reactors Group - ERMETE Lab, Politecnico di Milano, Milan, Italy
    index: 1
-date: 5 June 2024
+ - name: Department of Mechanical and Nuclear Engineering and Emirates Nuclear Technology Center, Khalifa University, Abu Dhabi (127788), United Arab Emirates
+   index: 2
+date: 8 January 2026
 bibliography: paper.bib
 
 ---
