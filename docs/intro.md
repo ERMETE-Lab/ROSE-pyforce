@@ -4,13 +4,19 @@
 
 ![pyforce](images/immy_pyforce2.png)
 
-[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X)
+[![JOSS Paper](https://img.shields.io/badge/JOSS%20Paper-10.21105/joss.06950-brightgreen?style=flat&logo=journal-of-open-source-software&logoColor=white)](https://doi.org/10.21105/joss.06950)
+[![Reference Paper 1](https://img.shields.io/badge/Ref%20Paper%201-Nucl.%20Eng.%20Des.-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.nucengdes.2024.113105)](https://doi.org/10.1016/j.nucengdes.2024.113105) [![Reference Paper 2](https://img.shields.io/badge/Ref%20Paper%202-Appl.%20Math.%20Mod.-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040)
 
 [![Zenodo](https://img.shields.io/badge/Zenodo-purple?style=flat&link=https://zenodo.org/records/15705990)](https://zenodo.org/records/15705990)
 
 ## Description
 
-*pyforce* (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) is a Python package implementing some Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the **nuclear engineering** world. These techniques have been implemented upon the [pyvista](https://docs.pyvista.org/index.html) package to handle meshes, integral calculation and plotting functionalities. The package is part of the **ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)** framework which is one of the main research topics investigated at the [ERMETE-Lab](https://github.com/ERMETE-Lab#reduced-order-modelling-with-data-driven-techniques-for-multi-physics-problems-rose-): in particular, the focus of the research activities is on mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, searching for optimal sensor positions and integrating experimental data to improve the knowledge on the physical systems.
+*pyforce* (**Py**thon **F**ramework for data-driven model **O**rder **R**eduction of multi-physi**C**s probl**E**ms) is a Python package implementing Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the **nuclear engineering** world.
+
+> **⚠️ Note on Versioning**
+> This documentation describes **pyforce v1.0+**, which uses `pyvista` and `numpy` for solver-independent mesh handling and integral calculations. The original implementation (described in the JOSS paper) was built upon `dolfinx`. While the architecture has evolved, the underlying methodology remains consistent.
+
+The package is part of the **ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)** framework which is one of the main research topics investigated at the [ERMETE-Lab](https://github.com/ERMETE-Lab#reduced-order-modelling-with-data-driven-techniques-for-multi-physics-problems-rose-): in particular, the focus of the research activities is on mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, searching for optimal sensor positions and integrating experimental data to improve the knowledge on the physical systems.
 
 At the moment, the following techniques have been implemented:
 
@@ -24,20 +30,38 @@ At the moment, the following techniques have been implemented:
 
 This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted to the nuclear engineering world. This documentation includes a brief introduction to the world of Reduced Order Modelling and dimensionality reduction, the API documentation and some examples of how to use the various modules of the package.
 
-This work has been carried out at the [Nuclear Reactors Group - ERMETE Lab](https://github.com/ERMETE-Lab) at [Politecnico di Milano](https://polimi.it), under the supervision of Prof. Antonio Cammi. The original development of the package started in 2022 during the [PhD research of Stefano Riva](https://github.com/Steriva/phd-thesis), and it is still ongoing: this package can be considered as an evolution of the [ROM4FOAM](https://github.com/ERMETE-Lab/ROSE-ROM4FOAM), developed in OpenFOAM-v6 in 2018-2021.
+This work has been carried out at the [Nuclear Reactors Group - ERMETE Lab](https://github.com/ERMETE-Lab) at [Politecnico di Milano](https://polimi.it), under the supervision of Prof. Antonio Cammi. The original development of the package started in 2022 during the [PhD research of Stefano Riva](https://github.com/Steriva/phd-thesis), and it is still ongoing.
 
 ---
 
 ## How to cite pyforce
 
-If you are going to use *pyforce* in your research work, please cite the following articles:
+If you use *pyforce* in your research, please cite the **JOSS paper** as the primary software reference.
+**Note:** While the JOSS paper describes the original `dolfinx`-based implementation, it remains the standard citation for the *pyforce* project until the publication of the new methodology.
 
-1. Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040).
-2. Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:[https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105).
+1. **[Software Reference]** S. Riva, C. Introini, and A. Cammi, "pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems," *Journal of Open Source Software*, vol. 11, no. 117, p. 6950, 2026. [https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)
+
+For the original papers, with applications on nuclear reactors (multiphysics modelling), please also cite:
+
+2. **[Model Bias Correction]** S. Riva, C. Introini, and A. Cammi, "Multi-physics model bias correction...", *Applied Mathematical Modelling*, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040)
+3. **[Sensor Positioning and Indirect Reconstruction]** A. Cammi, S. Riva, et al., "Data-driven model order reduction...", *Nuclear Engineering and Design*, 2024. [https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105)
 
 For LaTeX users:
 
 ```bibtex
+
+@article{pyforce_JOSS,
+  doi = {10.21105/joss.06950},
+  url = {[https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)},
+  year = {2026},
+  publisher = {The Open Journal},
+  volume = {11},
+  number = {117},
+  pages = {6950},
+  author = {Stefano Riva and Carolina Introini and Antonio Cammi},
+  title = {pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems},
+  journal = {Journal of Open Source Software}
+}
 
 @article{RIVA2024_AMM,
 title = {Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies},
