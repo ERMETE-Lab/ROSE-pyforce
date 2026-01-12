@@ -151,7 +151,7 @@ cd ROSE-pyforce
 *If you want to install the development version*, clone the repo from Steriva's account
 
 ```bash
-git clone --branch development --single-branch https://github.com/ERMETE-Lab/ROSE-pyforce.git
+git clone --branch development --single-branch https://github.com/Steriva/ROSE-pyforce.git
 cd ROSE-pyforce
 ```
 

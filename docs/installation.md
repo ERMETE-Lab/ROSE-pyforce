@@ -36,6 +36,13 @@ git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
 cd ROSE-pyforce
 ```
 
+*If you want to install the development version*, clone the repo from Steriva's account
+
+```bash
+git clone --branch development --single-branch https://github.com/Steriva/ROSE-pyforce.git
+cd ROSE-pyforce
+```
+
 At this point, you choose one of the two following procedures. The first one is the quickest and easiest, and it is suggested if you want to install *pyforce* in an existing conda environment, consisting in a direct `pip` installation; the second one is more robust, it uses the `environment.yml` file provided in the repository which creates a conda environment with all the necessary dependencies. The second one is suggested if you encounter issues with the first procedure.
 
 
