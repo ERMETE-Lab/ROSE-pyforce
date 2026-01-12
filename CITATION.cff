@@ -1,0 +1,84 @@
+cff-version: 1.2.0
+title: "pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems"
+message: "If you use this software, please cite the JOSS paper (preferred-citation). For specific applications or the novel implementation, please refer to the additional references."
+type: software
+authors:
+  - family-names: "Riva"
+    given-names: "Stefano"
+    affiliation: "Politecnico di Milano"
+    orcid: "https://orcid.org/0000-0001-9997-4101"
+  - family-names: "Introini"
+    given-names: "Carolina"
+    affiliation: "Politecnico di Milano"
+  - family-names: "Cammi"
+    given-names: "Antonio"
+    affiliation: "Politecnico di Milano"
+repository-code: "https://github.com/ERMETE-Lab/ROSE-pyforce" # Update with your actual repo URL
+license: "MIT"
+
+# --- PRIMARY CITATION (JOSS) ---
+preferred-citation:
+  type: article
+  title: "pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems"
+  authors:
+    - family-names: "Riva"
+      given-names: "Stefano"
+    - family-names: "Introini"
+      given-names: "Carolina"
+    - family-names: "Cammi"
+      given-names: "Antonio"
+  journal: "Journal of Open Source Software"
+  doi: "10.21105/joss.06950"
+  volume: 11
+  issue: 117
+  year: 2026
+  start: 6950
+
+# --- ADDITIONAL REFERENCES ---
+references:
+  # Original Application 1 (Nuclear Engineering and Design)
+  - type: article
+    title: "Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a Circulating Fuel Reactor"
+    authors:
+      - family-names: "Cammi"
+        given-names: "Antonio"
+      - family-names: "Riva"
+        given-names: "Stefano"
+      - family-names: "Introini"
+        given-names: "Carolina"
+      - family-names: "Loi"
+        given-names: "Lorenzo"
+      - family-names: "Padovani"
+        given-names: "Enrico"
+    journal: "Nuclear Engineering and Design"
+    volume: 421
+    year: 2024
+    doi: "10.1016/j.nucengdes.2024.113105"
+
+  # Original Application 2 (Applied Mathematical Modelling)
+  - type: article
+    title: "Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies"
+    authors:
+      - family-names: "Riva"
+        given-names: "Stefano"
+      - family-names: "Introini"
+        given-names: "Carolina"
+      - family-names: "Cammi"
+        given-names: "Antonio"
+    journal: "Applied Mathematical Modelling"
+    volume: 135
+    year: 2024
+    doi: "10.1016/j.apm.2024.06.040"
+    start: 243
+    end: 268
+
+  # --- FUTURE: Novel Implementation (ArXiv) ---
+  # Uncomment and fill this section when you have the ArXiv DOI
+  # - type: article
+  #   title: "Title of your new ArXiv paper"
+  #   authors:
+  #     - family-names: "Riva"
+  #       given-names: "Stefano"
+  #   journal: "arXiv"
+  #   year: 2026
+  #   doi: "10.48550/arXiv.XXXX.XXXXX"

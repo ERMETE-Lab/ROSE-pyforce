@@ -4,14 +4,31 @@
   </a>
 </p>
 
-[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X)
+<p align="center">
+  <a href="https://doi.org/10.21105/joss.06950">
+    <img src="https://img.shields.io/badge/JOSS%20(Original%20Version)-10.21105/joss.06950-brightgreen?style=flat&logo=journal-of-open-source-software&logoColor=white" alt="JOSS Paper">
+  </a>
+  <a href="https://doi.org/10.1016/j.nucengdes.2024.113105">
+    <img src="https://img.shields.io/badge/Ref%20Paper%201-Nucl.%20Eng.%20Des.-gray?labelColor=blue&style=flat" alt="Reference Paper 1">
+  </a>
+  <a href="https://doi.org/10.1016/j.apm.2024.06.040">
+    <img src="https://img.shields.io/badge/Ref%20Paper%202-Appl.%20Math.%20Mod.-gray?labelColor=blue&style=flat" alt="Reference Paper 2">
+  </a>
+</p>
 
-[![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html) [![Zenodo](https://img.shields.io/badge/Zenodo-purple?style=flat&link=https://zenodo.org/records/15705990)](https://zenodo.org/records/15705990)
+<p align="center">
+  <a href="https://ermete-lab.github.io/ROSE-pyforce/intro.html">
+    <img src="https://img.shields.io/badge/Docs-Read%20the%20Docs-green?style=flat&logo=readthedocs&logoColor=white" alt="Docs">
+  </a>
+  <a href="https://zenodo.org/records/15705990">
+    <img src="https://img.shields.io/badge/Datasets-Zenodo-purple?style=flat&logo=zenodo&logoColor=white" alt="Zenodo">
+  </a>
+  <a href="https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml">
+    <img src="https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg" alt="Testing">
+  </a>
+</p>
 
-
-[![Testing pyforce](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg)](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml) [![JOSS draft paper](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml)
-
-**pyforce: Python Framework data-driven model Order Reduction for multi-physiCs problEms**
+**pyforce: PYthon Framework for data-driven model Order Reduction of multi-physiCs problems**
 
 - [Description](#description)
 - [How to cite *pyforce*](#how-to-cite-pyforce)
@@ -49,17 +66,37 @@ At the moment, the following techniques have been implemented:
 
 This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted in the Nuclear Engineering world.
 
+**⚠️ Important Note on Versions**
+The reference paper published in JOSS [1] describes the original implementation of *pyforce* (v0.1.3), which was built upon the `dolfinx` FEM framework. **This repository hosts the new major version (v1.0.0+)**, which has been completely re-architected using `pyvista` and `numpy`. This new standalone architecture removes strict FEM dependencies, allowing *pyforce* to process results from **any solver** (e.g., OpenFOAM, Ansys, MOOSE) capable of exporting VTK/H5 files.
+
 ## How to cite *pyforce*
 
-If you are going to use *pyforce* in your research work, please cite the following articles.
-The authors would be pleased if you could cite the relevant papers:
+If you use *pyforce* in your research, please cite the **JOSS paper** as the primary software reference.
+**Note:** While the JOSS paper describes the original `dolfinx`-based implementation, it remains the standard citation for the *pyforce* project until the publication of the new methodology.
 
-1. Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040).
-2. Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:[https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105).
+1. **[Software Reference]** S. Riva, C. Introini, and A. Cammi, "pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems," *Journal of Open Source Software*, vol. 11, no. 117, p. 6950, 2026. [https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)
+
+For the original papers, with applications on nuclear reactors (multiphysics modelling), please also cite:
+
+2. **[Model Bias Correction]** S. Riva, C. Introini, and A. Cammi, "Multi-physics model bias correction...", *Applied Mathematical Modelling*, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040)
+3. **[Sensor Positioning and Indirect Reconstruction]** A. Cammi, S. Riva, et al., "Data-driven model order reduction...", *Nuclear Engineering and Design*, 2024. [https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105)
 
 For LaTeX users:
 
 ```bibtex
+
+@article{pyforce_JOSS,
+  doi = {10.21105/joss.06950},
+  url = {[https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)},
+  year = {2026},
+  publisher = {The Open Journal},
+  volume = {11},
+  number = {117},
+  pages = {6950},
+  author = {Stefano Riva and Carolina Introini and Antonio Cammi},
+  title = {pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems},
+  journal = {Journal of Open Source Software}
+}
 
 @article{RIVA2024_AMM,
 title = {Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies},
