@@ -57,6 +57,7 @@ class ReadFromOF():
         # Set case type - decomposed or reconstructed
         if decomposed_case:
             self.reader.reader.SetCaseType(0)  # Decomposed case
+            self.reader.reader.UpdateInformation() # Update information after changing case type
             print('Case Type '+ self.reader.case_type)
             self.decomposed_case = True
         else:
