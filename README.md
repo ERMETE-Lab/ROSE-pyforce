@@ -32,14 +32,11 @@
 
 - [Description](#description)
 - [How to cite *pyforce*](#how-to-cite-pyforce)
-  - [Selected works using *pyforce*](#selected-works-using-pyforce)
+  - [Selected works with *pyforce*](#selected-works-with-pyforce)
 - [Installation](#installation)
 - [Tutorials](#tutorials)
+  - [Basic Demo](#basic-demo)
 - [Authors and contributions](#authors-and-contributions)
-- [Community Guidelines](#community-guidelines)
-  - [Contribute to the Software](#contribute-to-the-software)
-  - [Reporting Issues or Problems](#reporting-issues-or-problems)
-  - [Seeking Support](#seeking-support)
 
 ## Description
 
@@ -56,13 +53,13 @@ The techniques implemented here follow the same underlying idea expressed in the
 
 At the moment, the following techniques have been implemented:
 
-- **Singular Value Decomposition** (randomised), with Projection and Interpolation for the Online Phase
-- **Proper Orthogonal Decomposition** with Projection and Interpolation for the Online Phase
-- **Empirical Interpolation Method**, either regularised with Tikhonov or not
-- **Generalised Empirical Interpolation Method**, either regularised with Tikhonov or not
-- **Parameterised-Background Data-Weak formulation**
-- **SGreedy** algorithm for optimal sensor positioning
-- an **Indirect Reconstruction** algorithm to reconstruct non-observable fields
+- **Singular Value Decomposition** (randomised, hierchical and incremental), with Projection and Interpolation for the Online Phase -> `pyforce.offline.pod`, `pyforce.online.pod`
+- **Proper Orthogonal Decomposition** with Projection and Interpolation for the Online Phase  -> `pyforce.offline.pod`, `pyforce.online.pod`
+- **Empirical Interpolation Method**, either regularised with Tikhonov or not -> `pyforce.offline.eim`, `pyforce.online.eim`
+- **Generalised Empirical Interpolation Method**, either regularised with Tikhonov or not -> `pyforce.offline.geim`, `pyforce.online.geim`
+- **Parameterised-Background Data-Weak formulation** for Data Assimilation -> `pyforce.online.pbdw`
+- **SGreedy** algorithm for optimal sensor positioning -> `pyforce.offline.sgreedy`
+- an **Indirect Reconstruction** algorithm to reconstruct un-observable fields from observable ones -> `pyforce.online.indirect_reconstruction`
 
 This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted in the Nuclear Engineering world.
 
@@ -126,14 +123,14 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 
 ```
 
-### Selected works using *pyforce*
+### Selected works with *pyforce*
 
-In addition to the above references, here are some selected works where *pyforce* has been used:
-
-- M. Lo Verso, S. Riva, C. Introini, E. Cervi, F. Giacobbo, L. Savoldi, M. Di Prinzio, M. Caramello, L. Barucca, and A. Cammi, “Application of a non-intrusive reduced order modeling approach to magnetohydrodynamics,” Physics of Fluids, vol. 36, p. 107167, 10 2024, [doi.org/10.1063/5.0230708](https://doi.org/10.1063/5.0230708).
-- S. Riva, C. Introini, A. Cammi, and J. N. Kutz, “Robust state estimation from partial out-core measurements with shallow recurrent decoder for nuclear reactors,” Progress in Nuclear Energy, vol. 189, p. 105928, 2025, [doi.org/10.1016/j.pnucene.2025.105928](https://doi.org/10.1016/j.pnucene.2025.105928)
-- S. Riva, C. Introini, E. Zio, and A. Cammi, “Data-driven reduced order modelling with malfunctioning sensors recovery applied to the molten salt reactor case,” EPJ Nuclear Sci. Technol., vol. 11, p. 55, 2025, [doi.org/10.1051/epjn/2025054](https://doi.org/10.1051/epjn/2025054)
-- S. Riva, S. Deanesi, C. Introini, S. Lorenzi, and A. Cammi, “Real-time state estimation of neutron flux in molten salt fast reactors from out-core sparse measurements,” Nuclear Science and Engineering, vol. 0, no. 0, pp. 1–14, 2025, [doi.org/10.1080/00295639.2025.2531477](https://doi.org/10.1080/00295639.2025.2531477).
+- S. Riva, S. Deanesi, C. Introini, S. Lorenzi, and A. Cammi, “Neutron flux reconstruction from out-core sparse measurements using data-driven reduced order modelling,” in Proceedings of the International Conference on Physics of Reactors, PHYSOR 2024, p. 1632 – 1641, 2024. doi:10.13182/PHYSOR24-43444.
+- M. Lo Verso, S. Riva, C. Introini, E. Cervi, F. Giacobbo, L. Savoldi, M. Di Prinzio, M. Caramello, L. Barucca, and A. Cammi, “Application of a non-intrusive reduced order modeling approach to magnetohydrodynamics,” Physics of Fluids, vol. 36, p. 107167, 10 2024. doi:10.1063/5.0230708.
+- S. Riva, C. Introini, E. Zio, and A. Cammi, “Impact of malfunctioning sensors on data-driven reduced order modelling: Application to molten salt reactors,” EPJ Web Conf., vol. 302, p. 17003, 2024. doi:10.1051/epjconf/202430217003.
+- C. G. De Lurion De L’Égouthail, L. Loi, S. Riva, C. Introini, and A. Cammi, “Shadowing Effect Correction for the Pavia TRIGA Reactor Using Monte Carlo Data and Reduced Order Modelling Techniques,” in The 33rd International Conference Nuclear Energy for New Europe (NENE2024), (Portoroz, Slovenia), September 2024.
+- S. Riva, C. Introini, A. Cammi, and J. N. Kutz, “Robust state estimation from partial out-core measurements with shallow recurrent decoder for nuclear reactors,” Progress in Nuclear Energy, vol. 189, p. 105928, 2025. URL: https://www.sciencedirect.com/science/article/pii/S0149197025003269, doi:10.1016/j.pnucene.2025.105928
+-  W. Duan, C. Introini, A. Cammi, K. Zhang, S. Dong, and H. Chen, “State prediction and analysis of 3D upper plenum of lead–bismuth fast reactor based on model order reduction under transient accidents,” Nuclear Engineering and Design, vol. 445, p. 114447, 2025. URL: https://www.sciencedirect.com/science/article/pii/S0029549325006247, doi:10.1016/j.nucengdes.2025.114447.
 
 ## Installation
 
@@ -178,19 +175,105 @@ python -m pip install rose-pyforce/
 The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
 
 ## Tutorials
-The *pyforce* package is tested on some tutorials available in the [docs](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html), including fluid dynamics, neutronics and multi-physics problems or available in the `docs/Tutorials` folder. Each tutorial includes a Jupyter notebook:
+The *pyforce* package is tested on some tutorials available in the `docs/Tutorials/` folder, including fluid dynamics, neutronics and multi-physics problems. Each tutorial includes a Jupyter notebook:
 
 1. First steps with *pyforce*: introduction to the package and its basic features.
 2. Introduction to Singular Value Decomposition (SVD) and Proper Orthogonal Decomposition (POD) and application to a fluid dynamics problem using the POD with Interpolation (POD-I) technique.
 3. Presentation of (Generalised) Empirical Interpolation Method ((G)EIM) and application to a bouyancy-driven fluid dynamics problem.
 4. Sensor positioning with (G)EIM and SGreedy algorithm and application of the Parameterised-Background Data-Weak (PBDW) formulation to a neutronics problem.
 
-In addition to these basic tutorials, some advanced tutorials are also available at `docs/Tutorials/Advanced` folder:
-
-5. Reconstruction of Unobservable fields from temperature measurements using Parameter Estimation + POD with Interpolation and Gaussian Process Regression, applied to a bouyancy-driven fluid dynamics problem.
-6. State Estimation in Molten Salt Fast Reactors (MSFR) with failing sensors using GEIM and PBDW techniques.
+In addition to these basic tutorials, additional advanced tutorials are also available at `docs/Tutorials/Advanced` folder.
 
 The snapshots can be downloaded at the following link ... or contact Stefano Riva for further information.
+
+### Basic Demo
+
+**Full code available in the `images/demo/pyforce_demo.ipynb` notebook.**
+
+Consider a grid defined on the $[0,1]^2$ domain and a toy function defined as:
+
+$$
+f(x,y; \mu) = \sin(\pi \mu x) \cdot \cos(\pi \mu y) + \cos(\pi x)\cdot \sin((1-\mu) \pi y^2)
+$$
+
+where $\mu \in [-5,5]$ is a parameter. The following demo shows how to create the grid, define the snapshots, perform a train-test split, compute the SVD, plot the singular values and project a test snapshot onto the reduced space.
+
+Square geometries can be created using `pyvista.ImageData` class. The following code creates a grid with 50x50 elements on the $[0,1]^2$ domain.
+
+```python
+import pyvista as pv
+
+nx = 50
+ny = 50
+nz = 1
+
+grid = pv.ImageData(
+    dimensions=(nx+1, ny+1, nz+1),
+    spacing=(1/nx, 1/ny, 1e-4),
+    origin=(0.0, 0.0, 0.0)
+)
+```
+
+Define the snapshots considering this toy function:
+
+```python
+from pyforce.tools.functions_list import FunctionsList
+import numpy as np
+
+X, Y = grid.points[:, 0], grid.points[:, 1]
+
+mu_values = np.linspace(-5, 5, 100)
+
+def harmonic_oscillator(X, Y, mu):
+    term1 = np.sin(mu * np.pi * X) * np.cos(np.pi * Y)
+    term2 = np.cos(np.pi * X) * np.sin((1 - mu) * np.pi * Y**2)
+
+    return term1 + term2
+
+snapshots = FunctionsList(dofs=len(X))
+
+for mu in mu_values:
+    snapshot = harmonic_oscillator(X, Y, mu)
+    snapshots.append(snapshot)
+```
+<p align="center">
+  <img alt="Snapshots" src="images/demo/pyforce_demo_snapshots.png" width="1000" />
+</p>
+
+Then, split the dataset into training and testing sets:
+
+```python
+from pyforce.tools.functions_list import train_test_split
+
+train_mu, test_mu, train_snaps, test_snaps = train_test_split(mu_values, snapshots, test_size=0.2, random_state=42)
+```
+
+Now, compute the SVD on the training snapshots, retaining 20 modes, and plot the singular values:
+
+```python
+from pyforce.offline.pod import rSVD
+
+svd = rSVD(grid, gdim = 3)
+svd.fit(train_snaps, rank = 20)
+eig_fig = svd.plot_sing_vals()
+```
+
+<p align="center">
+  <img alt="Singular Values" src="images/demo/pyforce_demo_singular_values.png" width="600" />
+</p>
+
+In the end, project a test snapshot onto the reduced space and reconstruct it:
+
+```python
+test_index = 0  # Index of the test snapshot to project
+test_snapshot = test_snaps[test_index]
+reduced_coeffs = svd.project(test_snapshot)
+reconstructed_snapshot = svd.reconstruct(reduced_coeffs)
+```
+
+<p align="center">
+  <img alt="Reconstructed vs Original" src="images/demo/pyforce_demo_reconstruction.png" width="1000" />
+</p>
 
 ## Authors and contributions
 
@@ -201,24 +284,3 @@ The snapshots can be downloaded at the following link ... or contact Stefano Riv
 under the supervision of Dr. Carolina Introini and Prof. Antonio Cammi.
 
 If interested, please contact stefano.riva@polimi.it, carolina.introini@polimi.it, antonio.cammi@polimi.it
-
-## Community Guidelines
-
-We welcome contributions and feedback from the community! Below are the guidelines on how to get involved:
-
-### Contribute to the Software
-If you would like to contribute, please follow these steps:
-
-1. Fork the repository.
-2. Implement your changes. If you're adding new features, we kindly ask that you include an example demonstrating how to use them.
-3. Submit a pull request for review.
-
-### Reporting Issues or Problems
-If you encounter any issues or bugs with *pyforce*, please report them through the GitHub [Issues](https://github.com/ERMETE-Lab/ROSE-pyforce/issues) page. Be sure to include detailed information to help us resolve the problem efficiently.
-
-### Seeking Support
-For support, you can either:
-- Open a discussion on the GitHub [Discussions](https://github.com/ERMETE-Lab/ROSE-pyforce/discussions) page.
-- Send an email directly to: [stefano.riva@polimi.it](mailto:stefano.riva@polimi.it) or [carolina.introini@polimi.it](mailto:carolina.introini@polimi.it)
-
-Thank you for helping improve **pyforce**!
