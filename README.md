@@ -4,12 +4,30 @@
   </a>
 </p>
 
-[![Reference Paper 1](https://img.shields.io/badge/Reference%20Paper%201-10.1016/j.apm.2024.06.040-gray?labelColor=blue&style=flat&link=https://doi.org/10.1016/j.apm.2024.06.040)](https://doi.org/10.1016/j.apm.2024.06.040) [![Reference Paper 2](https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&style=flat&link=https://www.sciencedirect.com/science/article/pii/S002954932400205X)](https://www.sciencedirect.com/science/article/pii/S002954932400205X)
 
-[![Docs](https://img.shields.io/badge/Docs-green?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/intro.html)](https://ermete-lab.github.io/ROSE-pyforce/intro.html) [![Tutorials](https://img.shields.io/badge/Tutorials-red?style=flat&link=https://ermete-lab.github.io/ROSE-pyforce/tutorials.html)](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html) [![Zenodo](https://img.shields.io/badge/Zenodo-purple?style=flat&link=https://zenodo.org/records/15705990)](https://zenodo.org/records/15705990)
+<p align="center">
+  <a href="https://doi.org/10.21105/joss.06950">
+    <img src="https://img.shields.io/badge/JOSS%20-10.21105/joss.06950-brightgreen?style=flat&logo=journal-of-open-source-software&logoColor=white" alt="JOSS Paper">
+  </a>
+  <a href="https://doi.org/10.1016/j.nucengdes.2024.113105">
+    <img src="https://img.shields.io/badge/Ref%20Paper%201-Nucl.%20Eng.%20Des.-gray?labelColor=blue&style=flat" alt="Reference Paper 1">
+  </a>
+  <a href="https://doi.org/10.1016/j.apm.2024.06.040">
+    <img src="https://img.shields.io/badge/Ref%20Paper%202-Appl.%20Math.%20Mod.-gray?labelColor=blue&style=flat" alt="Reference Paper 2">
+  </a>
+</p>
 
-
-[![Testing pyforce](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg)](https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml) [![JOSS draft paper](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/draft-pdf.yml)
+<p align="center">
+  <a href="https://ermete-lab.github.io/ROSE-pyforce/intro.html">
+    <img src="https://img.shields.io/badge/Docs-Read%20the%20Docs-green?style=flat&logo=readthedocs&logoColor=white" alt="Docs">
+  </a>
+  <a href="https://zenodo.org/records/15705990">
+    <img src="https://img.shields.io/badge/Datasets-Zenodo-purple?style=flat&logo=zenodo&logoColor=white" alt="Zenodo">
+  </a>
+  <a href="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml">
+    <img src="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml/badge.svg" alt="Testing">
+  </a>
+</p>
 
 **pyforce: Python Framework data-driven model Order Reduction for multi-physiCs problEms**
 
@@ -48,15 +66,31 @@ This package is aimed to be a valuable tool for other researchers, engineers, an
 
 ## How to cite *pyforce*
 
-If you are going to use *pyforce* in your research work, please cite the following articles.
-The authors would be pleased if you could cite the relevant papers:
+If you use *pyforce* in your research, please cite the **JOSS paper** as the primary software reference.
 
-1. Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040).
-2. Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:[https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105).
+1. **[Software Reference]** S. Riva, C. Introini, and A. Cammi, "pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems," *Journal of Open Source Software*, vol. 11, no. 117, p. 6950, 2026. [https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)
+
+For the original papers, with applications on nuclear reactors (multiphysics modelling), please also cite:
+
+2. **[Model Bias Correction]** S. Riva, C. Introini, and A. Cammi, "Multi-physics model bias correction...", *Applied Mathematical Modelling*, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040)
+3. **[Sensor Positioning and Indirect Reconstruction]** A. Cammi, S. Riva, et al., "Data-driven model order reduction...", *Nuclear Engineering and Design*, 2024. [https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105)
 
 For LaTeX users:
 
 ```bibtex
+
+@article{pyforce_JOSS,
+  doi = {10.21105/joss.06950},
+  url = {[https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)},
+  year = {2026},
+  publisher = {The Open Journal},
+  volume = {11},
+  number = {117},
+  pages = {6950},
+  author = {Stefano Riva and Carolina Introini and Antonio Cammi},
+  title = {pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems},
+  journal = {Journal of Open Source Software}
+}
 
 @article{RIVA2024_AMM,
 title = {Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies},
@@ -88,11 +122,12 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 
 ### Selected works with *pyforce*
 
-- Stefano Riva, Sophie Deanesi, Carolina Introini, Stefano Lorenzi, and Antonio Cammi. Neutron Flux Reconstruction from Out-Core Sparse Measurements using Data-Driven Reduced Order Modelling. In International Conference on Physics of Reactors (PHYSOR24), San Francisco, USA, April 2024.
-- Matteo Lo Verso, Stefano Riva, Carolina Introini, Eric Cervi, Francesca Giacobbo, Laura Savoldi, Marcello Di Prinzio, Marco Caramello, Luciana Barucca, and Antonio Cammi, “Application of a non-intrusive Reduced Order Modelling approach to Magneto-HydroDynamics,” accepted for publication in Physics of Fluids, 2024.
-- Stefano Riva, Carolina Introini, Antonio Cammi, and J. Nathan Kutz, “Robust state estimation from partial out-core measurements with shallow recurrent decoder for nuclear reactors,” 2024. preprint available at [https://arxiv.org/abs/2409.12550](https://arxiv.org/abs/2409.12550).
-- Stefano Riva, Carolina Introini, Enrico Zio, and Antonio Cammi, “Impact of Malfunctioning Sensors on Data-Driven Reduced Order Modelling: Application to Molten Salt Reactors,” EPJ Web Conf., vol. 302, p. 17003, 2024.
-
+- S. Riva, S. Deanesi, C. Introini, S. Lorenzi, and A. Cammi, “Neutron flux reconstruction from out-core sparse measurements using data-driven reduced order modelling,” in Proceedings of the International Conference on Physics of Reactors, PHYSOR 2024, p. 1632 – 1641, 2024. doi:10.13182/PHYSOR24-43444.
+- M. Lo Verso, S. Riva, C. Introini, E. Cervi, F. Giacobbo, L. Savoldi, M. Di Prinzio, M. Caramello, L. Barucca, and A. Cammi, “Application of a non-intrusive reduced order modeling approach to magnetohydrodynamics,” Physics of Fluids, vol. 36, p. 107167, 10 2024. doi:10.1063/5.0230708.
+- S. Riva, C. Introini, E. Zio, and A. Cammi, “Impact of malfunctioning sensors on data-driven reduced order modelling: Application to molten salt reactors,” EPJ Web Conf., vol. 302, p. 17003, 2024. doi:10.1051/epjconf/202430217003.
+- C. G. De Lurion De L’Égouthail, L. Loi, S. Riva, C. Introini, and A. Cammi, “Shadowing Effect Correction for the Pavia TRIGA Reactor Using Monte Carlo Data and Reduced Order Modelling Techniques,” in The 33rd International Conference Nuclear Energy for New Europe (NENE2024), (Portoroz, Slovenia), September 2024.
+- S. Riva, C. Introini, A. Cammi, and J. N. Kutz, “Robust state estimation from partial out-core measurements with shallow recurrent decoder for nuclear reactors,” Progress in Nuclear Energy, vol. 189, p. 105928, 2025. URL: https://www.sciencedirect.com/science/article/pii/S0149197025003269, doi:10.1016/j.pnucene.2025.105928
+-  W. Duan, C. Introini, A. Cammi, K. Zhang, S. Dong, and H. Chen, “State prediction and analysis of 3D upper plenum of lead–bismuth fast reactor based on model order reduction under transient accidents,” Nuclear Engineering and Design, vol. 445, p. 114447, 2025. URL: https://www.sciencedirect.com/science/article/pii/S0029549325006247, doi:10.1016/j.nucengdes.2025.114447.
 
 ## Installation
 The package can be installed using `pip`, make sure all the dependencies are installed (following these [steps](https://ermete-lab.github.io/ROSE-pyforce/installation.html#set-up-a-conda-environment-for-pyforce)). The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
