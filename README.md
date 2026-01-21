@@ -25,7 +25,7 @@
     <img src="https://img.shields.io/badge/Datasets-Zenodo-purple?style=flat&logo=zenodo&logoColor=white" alt="Zenodo">
   </a>
   <a href="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml">
-    <img src="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml/badge.svg" alt="Testing">
+    <img src="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml/badge.svg?branch=main&refresh=1" alt="Testing">
   </a>
 </p>
 
