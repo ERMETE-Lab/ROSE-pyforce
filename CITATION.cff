@@ -1,0 +1,44 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Riva
+  given-names: Stefano
+  orcid: "https://orcid.org/0000-0001-9997-4101"
+- family-names: Introini
+  given-names: Carolina
+  orcid: "https://orcid.org/0000-0003-4682-1683"
+- family-names: Cammi
+  given-names: Antonio
+  orcid: "https://orcid.org/0000-0003-1508-5935"
+contact:
+- family-names: Riva
+  given-names: Stefano
+  orcid: "https://orcid.org/0000-0001-9997-4101"
+doi: 10.5281/zenodo.18189656
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Riva
+    given-names: Stefano
+    orcid: "https://orcid.org/0000-0001-9997-4101"
+  - family-names: Introini
+    given-names: Carolina
+    orcid: "https://orcid.org/0000-0003-4682-1683"
+  - family-names: Cammi
+    given-names: Antonio
+    orcid: "https://orcid.org/0000-0003-1508-5935"
+  date-published: 2026-01-16
+  doi: 10.21105/joss.06950
+  issn: 2475-9066
+  issue: 117
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 6950
+  title: "pyforce: Python Framework for data-driven model Order
+    Reduction of multi-physiCs problEms"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.06950"
+  volume: 11
+title: "pyforce: Python Framework for data-driven model Order Reduction
+  of multi-physiCs problEms"
