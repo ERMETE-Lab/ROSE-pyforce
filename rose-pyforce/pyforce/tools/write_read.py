@@ -4,6 +4,8 @@
 # Latest Doc  Update: 20 January 2026
 
 import warnings
+
+from attr import field
 from .functions_list import FunctionsList
 from .backends import LoopProgress
 
@@ -387,8 +389,6 @@ def convert_point_data_to_cell_data(grid: pv.UnstructuredGrid, snaps: FunctionsL
 class ReadFromOFMultiRegion():
     r"""
     A class used to import data from OpenFOAM - either decomposed or not, multi region.
-
-    The import process is based on pyvista.
         
     Parameters
     ----------
@@ -397,7 +397,7 @@ class ReadFromOFMultiRegion():
     skip_zero_time : bool, optional
         If `True`, the zero time folder is skipped. Default is `False`.
     decomposed_case : bool, optional
-        If `True`, the case is considered as decomposed. Default is `False`.
+        If `True`, the case is considered as decomposed. Default is `False` (pyvista only).
         
     """
     def __init__(self, path: str,
@@ -539,9 +539,12 @@ class ReadFromOFMultiRegion():
 
     def import_field(self, var_name: str,
                      time_instants: list[float] = None,
+                     import_method: str = 'pyvista',
                      verbose: bool = True):
         r"""
         Importing all time instances (**skipping zero folder**) from OpenFOAM directory for all available regions, if not skip.
+        
+        Two methods are available for the import process: `pyvista` and `fluidfoam`.The latter is typically faster.
 
         *Only cell data extraction is supported for multi-region cases: to prevent data misalignment issues.*
 
@@ -549,9 +552,12 @@ class ReadFromOFMultiRegion():
         ----------
         var_name : str
             Name of the field to import.
+        time_instants : list[float], optional
+            List of time instants to read. If `None`, all time instants are read.
+        import_method : str, optional
+            Method to use for importing the data. It can be either 'pyvista' or 'fluidfoam'. Default is 'pyvista'.
         verbose: boolean, (Default = True) 
             If `True`, printing is enabled
-
 
         Returns
         -------
@@ -574,24 +580,113 @@ class ReadFromOFMultiRegion():
             if verbose:
                 bar.update(1)
 
-            try:
-                snaps_region, _ = self._import_region_field(region, var_name,
-                                                    extract_cell_data=True,
-                                                    time_instants=time_instants,
-                                                    verbose=False)
-            except KeyError:
-                if verbose:
-                    warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
-                    continue 
-        
+            if import_method == 'pyvista':
+                try:
+                    snaps_region, _ = self._import_region_field_pyvista(region, var_name,
+                                                        extract_cell_data=True,
+                                                        time_instants=time_instants,
+                                                        verbose=False)
+                except KeyError:
+                    if verbose:
+                        warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
+                        continue 
+
+            elif import_method == 'fluidfoam':
+
+                try: 
+                    snaps_region, _ = self._import_region_field_fluidfoam(region, var_name,
+                                                        time_instants=time_instants,
+                                                        verbose=False)
+
+                except FileNotFoundError:
+                    if verbose:
+                        warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
+                        continue
+
+            else:
+                raise ValueError(f"Unsupported import method '{import_method}'. Use 'pyvista' or 'fluidfoam'.")
+            
             regional_snaps.append(snaps_region)
+
+        print(f"\nSuccessfully imported field '{var_name}' from {len(regional_snaps)} regions")
+        print('Starting concatenation of regional snapshots...')
 
         # Concatenate all regional snapshots
         concatenated_snaps = np.concatenate([snaps.return_matrix() for snaps in regional_snaps], axis=0)
         snaps = FunctionsList(snap_matrix=concatenated_snaps)
         return snaps, np.asarray(time_instants)
+    
+    def _import_region_field_fluidfoam(self, region: str, var_name: str,
+                            time_instants: list[float] = None, verbose: bool = True):
+        
+        if time_instants is None:
+            time_instants = sorted(os.listdir(self.path))
 
-    def _import_region_field(self, region: str, var_name: str,
+        
+        # Process time folders and assert they are valid and in the proper format
+        ## List all directories
+        all_dirs = []
+        for d in os.listdir(self.path):
+            try:
+                float(d)
+                all_dirs.append(d)
+            except ValueError:
+                continue
+
+        ## Map float values to their actual string names on disk
+        ## This creates a dict like {1.0: "1", 1.1: "1.1000"}
+        dir_map = {float(d): d for d in all_dirs}
+
+        ## Handle time_instants selection
+        if time_instants is None:
+            # Use the actual string names, sorted by their float value
+            sorted_floats = sorted(dir_map.keys())
+            times_to_process = [dir_map[f] for f in sorted_floats]
+        else:
+            # Match requested floats to existing directory strings
+            times_to_process = []
+            for t_req in time_instants:
+                if t_req in dir_map:
+                    times_to_process.append(dir_map[t_req])
+                else:
+                    # Handle potential float precision jitter (e.g. 0.10000000001)
+                    closest = min(dir_map.keys(), key=lambda x: abs(x - t_req))
+                    if abs(closest - t_req) < 1e-10: # Define a tolerance
+                        times_to_process.append(dir_map[closest])
+
+        field = list()
+
+        if verbose:
+            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using fluidfoam', final = len(times_to_process))
+
+        for idx_t, t in enumerate(times_to_process):
+
+            if not ((t == '0.orig') or (t == '0') or (t == '0.ss')):
+                d = os.path.join(self.path, t)
+                if os.path.isdir(d):
+                    try: # scalar field
+                        field.append( of.readscalar(self.path, t, var_name, region=region, verbose=False).reshape(-1,1) )
+                    except ValueError:
+                        try: # vector field
+                            field.append(of.readvector(self.path, t, var_name, region=region, verbose=False).T)
+                        except ValueError: # tensor field
+                            try: # tensor field
+                                field.append(of.readtensor(self.path, t, var_name, region=region, verbose=False).T)
+                            except ValueError: # symmetric tensor field
+                                field.append(of.readsymmtensor(self.path, t, var_name, region=region, verbose=False).T)
+
+            if verbose:
+                bar.update(1)
+
+        # Convert list to FunctionsList
+        Nh = field[0].flatten().shape[0]
+        snaps = FunctionsList(dofs=Nh)
+        for f in field:
+            snaps.append(f.flatten())
+
+        return snaps, np.asarray(times_to_process)
+
+    def _import_region_field_pyvista(self, region: str, var_name: str,
                             extract_cell_data: bool = True, time_instants: list[float] = None,
                             verbose: bool = True):
         r"""
