@@ -1,11 +1,10 @@
 # I/O tools
 # Authors: Stefano Riva, Yantao Luo, NRG, Politecnico di Milano
-# Latest Code Update: 20 January 2026
-# Latest Doc  Update: 20 January 2026
+# Latest Code Update: 09 March 2026
+# Latest Doc  Update: 09 March 2026
 
 import warnings
 
-from attr import field
 from .functions_list import FunctionsList
 from .backends import LoopProgress
 
@@ -16,6 +15,7 @@ import glob
 import numpy as np
 import fluidfoam as of
 import pyvista as pv
+import foamlib as fl
 
 ## Routine for importing from OpenFOAM using pyvista and fluidfoam - single region
 class ReadFromOF():
@@ -92,7 +92,7 @@ class ReadFromOF():
         mesh.save(filename + '.vtk')
     
     def import_field(self, var_name: str, 
-                     use_fluidfoam: bool = False, 
+                     import_mode: str = 'pyvista', 
                      extract_cell_data: bool = True,
                      verbose: bool = True):
         r"""
@@ -102,10 +102,8 @@ class ReadFromOF():
         ----------
         var_name : str
             Name of the field to import.
-        use_fluidfoam : boolean, (Default: False)
-            If `True`, the fluidfoam library is used for reading the data (only cell data supported); otherwise, pyvista is used.
-        vector : boolean, (Default: False)
-            Labelling if the field is a vector (needed only is `use_fluidfoam==True`).
+        import_mode : str, (Default: 'pyvista')
+            The mode of import, either 'pyvista' or 'fluidfoam' or 'foamlib'.
         extract_cell_data : boolean, (Default: True)
             If `True`, the cell data from centroids is extracted; otherwise, point data is extracted.
         verbose: boolean, (Default = True) 
@@ -118,12 +116,11 @@ class ReadFromOF():
         time_instants : np.ndarray
             Sorted list of time.
         """
-        
-        if use_fluidfoam:
-            assert self.decomposed_case==False, "Fluidfoam reader does not support decomposed cases."
 
-        if use_fluidfoam and extract_cell_data:
-            field, time_instants = self._import_with_fluidfoam(self.path, var_name, verbose)
+        if import_mode == 'fluidfoam' and extract_cell_data:
+            field, time_instants = self._import_with_fluidfoam(var_name, verbose)
+        elif import_mode == 'foamlib' and extract_cell_data:
+            field, time_instants = self._import_with_foamlib(var_name, verbose)
         else:
             field, time_instants = self._import_with_pyvista(var_name, extract_cell_data, verbose)
 
@@ -133,6 +130,92 @@ class ReadFromOF():
             snaps.append(f.flatten())
 
         return snaps, time_instants
+    
+    def _import_with_foamlib(self, var_name: str, verbose: bool = True, file_list: list[str] = None):
+        """
+        Importing time instances from OpenFOAM directory using foamlib.
+        
+        Parameters
+        ----------
+        var_name : str
+            Name of the field to import.
+        verbose: boolean, (Default = True) 
+            If `True`, printing is enabled
+        file_list : list[str], optional
+            List of folders to read. If `None`, all folders in the case directory are read.
+
+        Returns
+        -------
+        field : list
+            Imported list of functions (each element is a `numpy.ndarray`), sorted in time.
+        time_instants : np.ndarray
+            Sorted list of time.
+        """
+
+        field = list()
+        time_instants = list()
+
+        if file_list is None:
+
+            file_list = [
+                f for f in os.listdir(self.path) 
+                if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
+            ]
+
+            # Sort numerically
+            file_list.sort(key=float)
+
+            # Skip zero time folder if needed
+            if self.reader.skip_zero_time and file_list[0] in ['0']:
+                file_list = file_list[1:]
+
+        if verbose:
+            bar = LoopProgress(msg=f'Importing {var_name} using foamlib', final = len(file_list))
+        
+        for file in file_list:
+        
+            if not ((file == '0.orig') or (file == '0') or (file == '0.ss')):
+
+                # Decomposed case
+                if self.decomposed_case:
+                    n_processors = len(glob.glob(os.path.join(self.path, 'processor*')))
+
+                    _single_time_field = list()
+
+                    for ii in range(n_processors):
+
+                        d = os.path.join(self.path, f'processor{ii}', file)
+                        if os.path.isdir(d):
+
+                            _path_field = os.path.join(d, var_name)
+
+                            _single_time_field.append(
+                                fl.FoamFieldFile(_path_field).internal_field
+                            )
+
+                    # Append time instant and field
+                    time_instants.append(float(file))
+                    field.append( np.concatenate(_single_time_field, axis=0) )
+
+                # Reconstructed case
+                else:
+                    d = os.path.join(self.path, file)
+                    if os.path.isdir(d):
+                        
+                        _path_field = os.path.join(d, var_name)
+
+                        # Read field using foamlib
+                        field.append(
+                            fl.FoamFieldFile(_path_field).internal_field
+                        )
+
+                        # Append time instant
+                        time_instants.append(float(file))
+
+            if verbose:
+                bar.update(1)
+
+        return field, np.asarray(time_instants)
     
     def _import_with_fluidfoam(self, var_name: str, verbose: bool = True, file_list: list[str] = None):
         """
@@ -159,25 +242,91 @@ class ReadFromOF():
         time_instants = list()
 
         if file_list is None:
-            file_list = sorted(os.listdir(self.path))
+
+            file_list = [
+                f for f in os.listdir(self.path) 
+                if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
+            ]
+
+            # Sort numerically
+            file_list.sort(key=float)
+
+            # Skip zero time folder if needed
+            if self.reader.skip_zero_time and file_list[0] in ['0']:
+                file_list = file_list[1:]
+
         if verbose:
             bar = LoopProgress(msg=f'Importing {var_name} using fluidfoam', final = len(file_list))
         
         for file in file_list:
         
             if not ((file == '0.orig') or (file == '0') or (file == '0.ss')):
-                d = os.path.join(self.path, file)
-                if os.path.isdir(d):
-                        try: # scalar field
-                            field.append( of.readscalar(self.path, file, var_name, verbose=False).reshape(-1,1) )
-                        except ValueError:
-                            try: # vector field
-                                field.append(of.readvector(self.path, file, var_name, verbose=False).T)
-                            except ValueError: # tensor field
-                                try: # tensor field
-                                    field.append(of.readtensor(self.path, file, var_name, verbose=False).T)
-                                except ValueError: # symmetric tensor field
-                                    field.append(of.readsymmtensor(self.path, file, var_name, verbose=False).T)
+
+                # Decomposed case
+                if self.decomposed_case:
+                    n_processors = len(glob.glob(os.path.join(self.path, 'processor*')))
+
+                    _single_time_field = list()
+
+                    for ii in range(n_processors):
+
+                        d = os.path.join(self.path, f'processor{ii}')
+                        _tmp = of.readfield(d, file, var_name, verbose=False)
+
+                        # Scalar field
+                        if (_tmp.ndim < 2):
+                            _tmp = _tmp.reshape(-1, 1)
+                        else: # Vector or tensor field
+                            _tmp = _tmp.T
+                            
+                        # Append to the list
+                        _single_time_field.append(_tmp)
+
+                        # Deprecated code - to be removed after testing
+                        # try: # scalar field
+                        #     field.append( of.readscalar(self.path, file, var_name, verbose=False).reshape(-1,1) )
+                        # except ValueError:
+                        #     try: # vector field
+                        #         field.append(of.readvector(self.path, file, var_name, verbose=False).T)
+                        #     except ValueError: # tensor field
+                        #         try: # tensor field
+                        #             field.append(of.readtensor(self.path, file, var_name, verbose=False).T)
+                        #         except ValueError: # symmetric tensor field
+                        #             field.append(of.readsymmtensor(self.path, file, var_name, verbose=False).T)
+
+                    # Append time instant and field
+                    time_instants.append(float(file))
+                    field.append( np.concatenate(_single_time_field, axis=0) )
+
+                # Reconstructed case
+                else:
+                    d = os.path.join(self.path, file)
+                    if os.path.isdir(d):
+                            
+                        _tmp = of.readfield(self.path, file, var_name, verbose=False)
+
+                        # Scalar field
+                        if (_tmp.ndim < 2):
+                            _tmp = _tmp.reshape(-1, 1)
+                        else: # Vector or tensor field
+                            _tmp = _tmp.T
+                            
+                        # Append to the list
+                        field.append(_tmp)
+
+                        # Deprecated code - to be removed after testing
+                        # try: # scalar field
+                        #     field.append( of.readscalar(self.path, file, var_name, verbose=False).reshape(-1,1) )
+                        # except ValueError:
+                        #     try: # vector field
+                        #         field.append(of.readvector(self.path, file, var_name, verbose=False).T)
+                        #     except ValueError: # tensor field
+                        #         try: # tensor field
+                        #             field.append(of.readtensor(self.path, file, var_name, verbose=False).T)
+                        #         except ValueError: # symmetric tensor field
+                        #             field.append(of.readsymmtensor(self.path, file, var_name, verbose=False).T)
+
+                        # Append time instant
                         time_instants.append(float(file))
 
             if verbose:
@@ -246,6 +395,30 @@ class ReadFromOF():
             #     field.append(self.reader.read()['internalMesh'].point_data[var_name])
 
         return field, np.asarray(time_instants)
+
+    def _read_stacked_processor_mesh_fluidfoam(self):
+        """
+        Reads the mesh of a decomposed case using fluidfoam, stacking the meshes of all processors.
+
+        Returns
+        -------
+        mesh : pyvista.UnstructuredGrid
+            The combined mesh of all processors.
+        """
+
+        assert self.decomposed_case, "This method is only applicable for decomposed cases."
+
+        n_processors = len(glob.glob(os.path.join(self.path, 'processor*')))
+
+        blocks_to_merge = []
+        for ii in range(n_processors):
+            d = os.path.join(self.path, f'processor{ii}')
+            mesh = of.readmesh(d, verbose=False)
+            blocks_to_merge.append(mesh)
+
+        combined_mesh = np.concatenate(blocks_to_merge, axis=1)
+
+        return combined_mesh.T
     
 def ImportFunctionsList(filename: str, format: str = 'h5', return_var_name: bool = False):
     """
@@ -460,6 +633,8 @@ class ReadFromOFMultiRegion():
         """
         Returns the combines mesh of regions of the OpenFOAM case.
 
+        Moreover, the cumulative number of cells for each region is stored in `self.ncells_cumulative` to facilitate the data extraction process.
+
         Parameters
         ----------
         regions : str, optional
@@ -478,18 +653,18 @@ class ReadFromOFMultiRegion():
             _regions = self.regions
 
         blocks_to_merge = []
+        self.ncells_cumulative = []
+        self.ncells_cumulative.append(0)
         for region in _regions:
             _mesh = self._region_mesh(region)
             _mesh.clear_data() # remove all the data
             blocks_to_merge.append(_mesh)
 
+            # Update cumulative cell count
+            self.ncells_cumulative.append(self.ncells_cumulative[-1] + _mesh.n_cells)
+
         combined_mesh = pv.MultiBlock(blocks_to_merge).combine(merge_points=True)
         
-        # Equivalent deprecated code:
-        # combined_mesh = blocks_to_merge[0]
-        # for block in blocks_to_merge[1:]:
-        #     combined_mesh += block
-
         return combined_mesh
     
     def save_mesh(self, filename: str, region: str = None):
@@ -538,8 +713,7 @@ class ReadFromOFMultiRegion():
         return valid_regions
 
     def import_field(self, var_name: str,
-                     time_instants: list[float] = None,
-                     import_method: str = 'pyvista',
+                     import_mode: str = 'pyvista',
                      verbose: bool = True):
         r"""
         Importing all time instances (**skipping zero folder**) from OpenFOAM directory for all available regions, if not skip.
@@ -552,9 +726,7 @@ class ReadFromOFMultiRegion():
         ----------
         var_name : str
             Name of the field to import.
-        time_instants : list[float], optional
-            List of time instants to read. If `None`, all time instants are read.
-        import_method : str, optional
+        import_mode : str, optional
             Method to use for importing the data. It can be either 'pyvista' or 'fluidfoam'. Default is 'pyvista'.
         verbose: boolean, (Default = True) 
             If `True`, printing is enabled
@@ -567,36 +739,38 @@ class ReadFromOFMultiRegion():
             Sorted list of time.
         """
 
-        if time_instants is None:
-            time_instants = self.reader.time_values
-
         # Concatenate all regional snapshots
         regional_snaps = []
 
         if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from all regions', final = len(self.regions))
+            bar = LoopProgress(msg=f'Importing {var_name} from all regions - {import_mode}', final = len(self.regions))
 
         for region in self.regions:
             if verbose:
                 bar.update(1)
 
-            if import_method == 'pyvista':
+            if import_mode == 'pyvista':
                 try:
-                    snaps_region, _ = self._import_region_field_pyvista(region, var_name,
-                                                        extract_cell_data=True,
-                                                        time_instants=time_instants,
-                                                        verbose=False)
+                    snaps_region, time_instants = self._import_region_field_pyvista(region, var_name, extract_cell_data=True, verbose=False)
                 except KeyError:
                     if verbose:
                         warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
                         continue 
 
-            elif import_method == 'fluidfoam':
+            elif import_mode == 'fluidfoam':
 
                 try: 
-                    snaps_region, _ = self._import_region_field_fluidfoam(region, var_name,
-                                                        time_instants=time_instants,
-                                                        verbose=False)
+                    snaps_region, time_instants = self._import_region_field_fluidfoam(region, var_name, verbose=False)
+
+                except FileNotFoundError:
+                    if verbose:
+                        warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
+                        continue
+                    
+            elif import_mode == 'foamlib':
+
+                try: 
+                    snaps_region, time_instants = self._import_region_field_foamlib(region, var_name, verbose=False)
 
                 except FileNotFoundError:
                     if verbose:
@@ -604,76 +778,53 @@ class ReadFromOFMultiRegion():
                         continue
 
             else:
-                raise ValueError(f"Unsupported import method '{import_method}'. Use 'pyvista' or 'fluidfoam'.")
+                raise ValueError(f"Unsupported import method '{import_mode}'. Use 'pyvista' or 'fluidfoam or 'foamlib'.")
             
             regional_snaps.append(snaps_region)
-
-        print(f"\nSuccessfully imported field '{var_name}' from {len(regional_snaps)} regions")
-        print('Starting concatenation of regional snapshots...')
 
         # Concatenate all regional snapshots
         concatenated_snaps = np.concatenate([snaps.return_matrix() for snaps in regional_snaps], axis=0)
         snaps = FunctionsList(snap_matrix=concatenated_snaps)
         return snaps, np.asarray(time_instants)
     
-    def _import_region_field_fluidfoam(self, region: str, var_name: str,
-                            time_instants: list[float] = None, verbose: bool = True):
+    def _import_region_field_foamlib(self, region: str, var_name: str,
+                            file_list: list[float] = None, verbose: bool = True):
         
-        if time_instants is None:
-            time_instants = sorted(os.listdir(self.path))
-
-        
-        # Process time folders and assert they are valid and in the proper format
-        ## List all directories
-        all_dirs = []
-        for d in os.listdir(self.path):
-            try:
-                float(d)
-                all_dirs.append(d)
-            except ValueError:
-                continue
-
-        ## Map float values to their actual string names on disk
-        ## This creates a dict like {1.0: "1", 1.1: "1.1000"}
-        dir_map = {float(d): d for d in all_dirs}
-
-        ## Handle time_instants selection
-        if time_instants is None:
-            # Use the actual string names, sorted by their float value
-            sorted_floats = sorted(dir_map.keys())
-            times_to_process = [dir_map[f] for f in sorted_floats]
-        else:
-            # Match requested floats to existing directory strings
-            times_to_process = []
-            for t_req in time_instants:
-                if t_req in dir_map:
-                    times_to_process.append(dir_map[t_req])
-                else:
-                    # Handle potential float precision jitter (e.g. 0.10000000001)
-                    closest = min(dir_map.keys(), key=lambda x: abs(x - t_req))
-                    if abs(closest - t_req) < 1e-10: # Define a tolerance
-                        times_to_process.append(dir_map[closest])
-
         field = list()
+        time_instants = list()
+
+        if file_list is None:
+
+            file_list = [
+                f for f in os.listdir(self.path) 
+                if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
+            ]
+
+            # Sort numerically
+            file_list.sort(key=float)
+
+            # Skip zero time folder if needed
+            if self.reader.skip_zero_time and file_list[0] in ['0']:
+                file_list = file_list[1:]
 
         if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using fluidfoam', final = len(times_to_process))
+            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using foamlib', final = len(file_list))
 
-        for idx_t, t in enumerate(times_to_process):
+        for idx_t, file in enumerate(file_list):
 
-            if not ((t == '0.orig') or (t == '0') or (t == '0.ss')):
-                d = os.path.join(self.path, t)
+            if not ((file == '0.orig') or (file == '0') or (file == '0.ss')):
+                d = os.path.join(self.path, file)
                 if os.path.isdir(d):
-                    try: # scalar field
-                        field.append( of.readscalar(self.path, t, var_name, region=region, verbose=False).reshape(-1,1) )
-                    except ValueError:
-                        try: # vector field
-                            field.append(of.readvector(self.path, t, var_name, region=region, verbose=False).T)
-                        except ValueError: # tensor field
-                            try: # tensor field
-                                field.append(of.readtensor(self.path, t, var_name, region=region, verbose=False).T)
-                            except ValueError: # symmetric tensor field
-                                field.append(of.readsymmtensor(self.path, t, var_name, region=region, verbose=False).T)
+
+                    _path_field = os.path.join(d, region, var_name)
+
+                    # Read field using foamlib
+                    field.append(
+                        fl.FoamFieldFile(_path_field).internal_field
+                    )
+                
+                    # Append time instant
+                    time_instants.append(float(file))
 
             if verbose:
                 bar.update(1)
@@ -684,7 +835,73 @@ class ReadFromOFMultiRegion():
         for f in field:
             snaps.append(f.flatten())
 
-        return snaps, np.asarray(times_to_process)
+        return snaps, np.asarray(time_instants)
+    
+    def _import_region_field_fluidfoam(self, region: str, var_name: str,
+                            file_list: list[float] = None, verbose: bool = True):
+        
+        field = list()
+        time_instants = list()
+
+        if file_list is None:
+
+            file_list = [
+                f for f in os.listdir(self.path) 
+                if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
+            ]
+
+            # Sort numerically
+            file_list.sort(key=float)
+
+            # Skip zero time folder if needed
+            if self.reader.skip_zero_time and file_list[0] in ['0']:
+                file_list = file_list[1:]
+
+        if verbose:
+            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using fluidfoam', final = len(file_list))
+
+        for idx_t, file in enumerate(file_list):
+
+            if not ((file == '0.orig') or (file == '0') or (file == '0.ss')):
+                d = os.path.join(self.path, file)
+                if os.path.isdir(d):
+
+                    _tmp = of.readfield(self.path, file, var_name, region=region, verbose=False)
+
+                    # Scalar field
+                    if (_tmp.ndim < 2):
+                        _tmp = _tmp.reshape(-1, 1)
+                    else: # Vector or tensor field
+                        _tmp = _tmp.T
+
+                    # Append to the list
+                    field.append(_tmp)
+
+                    # Deprecated code - to be removed after testing
+                    # try: # scalar field
+                    #     field.append( of.readscalar(self.path, t, var_name, region=region, verbose=False).reshape(-1,1) )
+                    # except ValueError:
+                    #     try: # vector field
+                    #         field.append(of.readvector(self.path, t, var_name, region=region, verbose=False).T)
+                    #     except ValueError: # tensor field
+                    #         try: # tensor field
+                    #             field.append(of.readtensor(self.path, t, var_name, region=region, verbose=False).T)
+                    #         except ValueError: # symmetric tensor field
+                    #             field.append(of.readsymmtensor(self.path, t, var_name, region=region, verbose=False).T)
+
+                    # Append time instant
+                    time_instants.append(float(file))
+
+            if verbose:
+                bar.update(1)
+
+        # Convert list to FunctionsList
+        Nh = field[0].flatten().shape[0]
+        snaps = FunctionsList(dofs=Nh)
+        for f in field:
+            snaps.append(f.flatten())
+
+        return snaps, np.asarray(time_instants)
 
     def _import_region_field_pyvista(self, region: str, var_name: str,
                             extract_cell_data: bool = True, time_instants: list[float] = None,

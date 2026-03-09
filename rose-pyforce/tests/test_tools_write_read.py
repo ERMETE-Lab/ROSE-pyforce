@@ -67,7 +67,7 @@ def test_import_field_scalar_pressure(setup_of_reader):
     """
     Import scalar field 'p' using pyvista.
     """
-    snaps, times = setup_of_reader.import_field("p", use_fluidfoam=False, verbose=False)
+    snaps, times = setup_of_reader.import_field("p", import_mode='pyvista', verbose=False)
 
     # snaps must be a FunctionsList
     assert isinstance(snaps, FunctionsList)
@@ -88,7 +88,7 @@ def test_import_field_vector_velocity(setup_of_reader):
     Import vector field U.
     Should flatten to (n_cells * 3,)
     """
-    snaps, times = setup_of_reader.import_field("U", use_fluidfoam=False, verbose=False)
+    snaps, times = setup_of_reader.import_field("U", import_mode='pyvista', verbose=False)
     mesh = setup_of_reader.mesh()
 
     expected_dofs = mesh.n_cells * 3
@@ -105,7 +105,7 @@ def test_import_field_point_data(setup_of_reader):
     """
     snaps, times = setup_of_reader.import_field(
         "p",
-        use_fluidfoam=False,
+        import_mode='pyvista',
         extract_cell_data=False,
         verbose=False,
     )

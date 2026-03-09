@@ -33,6 +33,7 @@ dependencies = [
     "h5py",
     "tqdm",
     "fluidfoam",
+    "foamlib",
     "trame-vtk",
     "scikit-learn"
 ]

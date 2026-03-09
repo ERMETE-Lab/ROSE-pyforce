@@ -14,6 +14,7 @@ dependencies:
     - trame-vtk
     - trame-vuetify
     - fluidfoam
+    - foamlib
     - trame-vtk
     - scikit-learn
     - setuptools>=63.0.0

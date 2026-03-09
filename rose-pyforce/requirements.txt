@@ -6,6 +6,7 @@ h5py
 ipykernel
 tqdm
 fluidfoam
+foamlib
 trame-vtk
 scikit-learn
 setuptools
