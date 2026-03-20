@@ -7,6 +7,7 @@ import warnings
 
 from .functions_list import FunctionsList
 from .backends import LoopProgress
+from scipy.spatial import cKDTree
 
 import h5py
 
@@ -949,4 +950,169 @@ class ReadFromOFMultiRegion():
         for f in field:
             snaps.append(f.flatten())
 
-        return snaps, np.asarray(time_instants)        
+        return snaps, np.asarray(time_instants)
+
+    def get_candidate_regions(self, all_grids: pv.UnstructuredGrid, candidate: pv.UnstructuredGrid | list, distance_residual=1e-6):
+        r"""
+        Get target region points and corresponding indices within all regions.
+
+        Parameters
+        ----------
+        all_grids : pv.UnstructuredGrid
+            The grid containing all valid regions.
+        candidate : pv.UnstructuredGrid | list of pv.UnstructuredGrid
+            Target region grid(s). Can be a single grid or a list of grids for multiple regions.
+        distance_residual : float
+            Distance tolerance used during KDTree matching. Default is 1e-6.
+
+        Returns
+        -------
+        candidate_points : np.ndarray of shape (N, 3)
+            Coordinates of the target points, used for training or post-processing.
+        candidate_idx : np.ndarray shape (M,)
+            Indices of target points within `all_grids`, used for training or post-processing.
+        """
+        
+        if isinstance(candidate, pv.UnstructuredGrid):
+            candidate_points = candidate.cell_centers().points
+            
+        elif isinstance(candidate, list):
+            if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate):
+                raise TypeError("candidate list must contain only pv.UnstructuredGrid")
+    
+            candidate_points = np.vstack([rm.cell_centers().points for rm in candidate])
+            
+        else:
+            raise TypeError(f"wrong type candidate: {type(candidate)}")
+            
+        # match points using KDTree
+        all_points = all_grids.cell_centers().points
+        tree = cKDTree(candidate_points)
+        dist, _ = tree.query(all_points)
+    
+        candidate_idx = np.where(dist < distance_residual)[0].tolist()
+        candidate_idx = np.asarray(candidate_idx, dtype=int)
+    
+        return candidate_points, candidate_idx
+
+    def get_candidate_probes(self, all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate):
+        r"""
+        Get target points and corresponding indices within all regions.
+        Step 1: Map the input candidate point(s) to the nearest points in the specified `candidate_grid`.
+        Step 2: Map the points obtained in Step 1 to the corresponding points in `all_grids`.
+        This two-step mapping avoids assigning candidate points to incorrect regions due to differences in mesh discretisation.
+
+        Parameters
+        ----------
+        all_grids : pv.UnstructuredGrid
+            The grid containing all valid regions.
+        candidate_grid: pv.UnstructuredGrid | list of pv.UnstructuredGrid
+            Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
+        candidate : np.ndarray | list of np.ndarray, shape (3,) | (N,3)
+            Target point(s). Can be a single point or a list of points.
+
+        Returns
+        -------
+        candidate_points : np.ndarray of shape (N, 3)
+            Coordinates of the target points, used for training or post-processing.
+        candidate_idx : np.ndarray shape (M,)
+            Indices of target points within `all_grids`, used for training or post-processing.
+        """
+        
+        # constrain candidate points to the specified region ("candidate_grid")
+        if isinstance(candidate_grid, pv.UnstructuredGrid):
+            candidate_region_points = candidate_grid.cell_centers().points
+            
+        elif isinstance(candidate_grid, list):
+            if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate_grid):
+                raise TypeError("candidate_grid list must contain only pv.UnstructuredGrid")
+    
+            candidate_region_points = np.vstack([rm.cell_centers().points for rm in candidate_grid])
+            
+        else:
+            raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
+    
+        tree_region = cKDTree(candidate_region_points)
+        candidate_points = np.atleast_2d(candidate)
+        
+        # check if candidate points are outside the region    
+        xmin, ymin, zmin = candidate_region_points.min(axis=0)
+        xmax, ymax, zmax = candidate_region_points.max(axis=0)
+
+        outside_mask = (
+            (candidate_points[:,0] < xmin) | (candidate_points[:,0] > xmax) |
+            (candidate_points[:,1] < ymin) | (candidate_points[:,1] > ymax) |
+            (candidate_points[:,2] < zmin) | (candidate_points[:,2] > zmax)
+        )
+        
+        if np.any(outside_mask):
+            raise ValueError(f"some candidate(s) are outside the grid bounds: {candidate_points[outside_mask]}")
+        
+        # Step1, get indices and points in the specified region ("candidate_grid")
+        dist, region_idx = tree_region.query(candidate_points)
+        candidate_region_idx = np.asarray(region_idx, dtype=int)
+        candidate_region_selected_points = candidate_region_points[candidate_region_idx]
+        
+        # Step2, get indices and points in all regions ("all_grids")
+        all_points = all_grids.cell_centers().points
+        tree = cKDTree(all_points)
+        
+        dist, idx = tree.query(candidate_region_selected_points)
+        candidate_idx = np.asarray(idx, dtype=int)
+        candidate_points = all_points[candidate_idx]
+
+        return candidate_points, candidate_idx
+        
+    def get_candidate_channel_all_points(self, all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate_xy, tol=1e-6):
+        """
+        Get all points along a channel (fixed XY, any Z) and corresponding indices in all_grids.
+        This returns all points with XY matching the candidate_xy within a tolerance.
+            
+        Parameters
+        ----------
+        all_grids : pv.UnstructuredGrid
+            The global mesh.
+        candidate_grid : pv.UnstructuredGrid | list of pv.UnstructuredGrid
+            Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
+        candidate_xy : np.ndarray or list of np.ndarray, shape (2,) or (N,2)
+            Target XY coordinates of points. Can be a single point or multiple points.
+        tol : float
+            Tolerance for matching XY coordinates. Notice: it should be tuned according to different geometric discretisation.
+            
+        Returns
+        -------
+        candidate_points : np.ndarray, shape (M,3)
+            All points in the global mesh with matching XY.
+        candidate_idx : np.ndarray, shape (M,)
+            Indices of candidate_points in all_grids.
+        """
+        
+        candidate_xy = np.atleast_2d(candidate_xy)
+        
+        # put all "candidate_grid" points in one container
+        if isinstance(candidate_grid, pv.UnstructuredGrid):
+            candidate_region_points = candidate_grid.cell_centers().points
+        elif isinstance(candidate_grid, list):
+            if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate_grid):
+                raise TypeError("candidate_grid list must contain only pv.UnstructuredGrid")
+            candidate_region_points = np.vstack([rm.cell_centers().points for rm in candidate_grid])
+        else:
+            raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
+        
+        # get candidate points based on "candidate_grid"
+        mask = np.zeros(len(candidate_region_points), dtype=bool)
+        for xy in candidate_xy:
+            mask |= (np.abs(candidate_region_points[:,0] - xy[0]) <= tol) & (np.abs(candidate_region_points[:,1] - xy[1]) <= tol)
+        
+        candidate_region_selected_points = candidate_region_points[mask]
+        
+        # map candidate points to all_grids
+        all_points = all_grids.cell_centers().points
+        tree_all = cKDTree(all_points)
+        
+        candidate_idx_list = [tree_all.query_ball_point(p, r=tol) for p in candidate_region_selected_points]
+        candidate_idx = np.unique(np.concatenate(candidate_idx_list))
+        candidate_points = all_points[candidate_idx]
+        
+        return candidate_points, candidate_idx
+        
