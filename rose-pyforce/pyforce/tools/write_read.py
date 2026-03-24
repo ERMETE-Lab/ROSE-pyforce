@@ -1,9 +1,12 @@
 # I/O tools
 # Authors: Stefano Riva, Yantao Luo, NRG, Politecnico di Milano
-# Latest Code Update: 13 March 2026
-# Latest Doc  Update: 13 March 2026
+# Latest Code Update: 24 March 2026
+# Latest Doc  Update: 24 March 2026
 
+import re
 import warnings
+import subprocess
+from pathlib import Path
 
 from .functions_list import FunctionsList
 from .backends import LoopProgress
@@ -96,12 +99,18 @@ class ReadFromOF():
     
     def import_field(self, var_name: str, 
                      import_mode: str = 'pyvista', 
+                     target_times: list[str] = None,
                      extract_cell_data: bool = True,
                      verbose: bool = True,
-                     target_times: list[str] = None,
                      ) -> tuple[FunctionsList, np.ndarray]:
         r"""
-        Importing all time instances (**skipping zero folder**) from OpenFOAM directory.
+        Importing time instances from OpenFOAM directory, if not specified, for all time folders. 
+
+        Three methods are available for the import process: `pyvista`, `fluidfoam`, and `foamlib`. The latter two are typically faster than pyvista, especially for large cases.
+
+        If you want to import specific time instances, provide their folder names in the `target_times` list.
+
+        If you want to import point data instead of cell data, set `extract_cell_data` to `False`, only for pyvista method.
 
         Parameters
         ----------
@@ -109,12 +118,12 @@ class ReadFromOF():
             Name of the field to import.
         import_mode : str, (Default: 'pyvista')
             The mode of import, either 'pyvista' or 'fluidfoam' or 'foamlib'.
+        target_times: list[str], optional
+            List of time folders to import. If `None`, all time instances are imported.
         extract_cell_data : boolean, (Default: True)
             If `True`, the cell data from centroids is extracted; otherwise, point data is extracted.
         verbose: boolean, (Default = True) 
-            If `True`, printing is enabled
-        target_times: list[str], optional
-            List of time folders to import. If `None`, all time instances are imported.
+            If `True`, printing is enabled.
 
         Returns
         -------
@@ -125,11 +134,11 @@ class ReadFromOF():
         """
 
         if import_mode == 'fluidfoam' and extract_cell_data:
-            field, time_instants = self._import_with_fluidfoam(var_name, verbose, target_times=target_times)
+            field, time_instants = self._import_with_fluidfoam(var_name, target_times = target_times, verbose=verbose)
         elif import_mode == 'foamlib' and extract_cell_data:
-            field, time_instants = self._import_with_foamlib(var_name, verbose, target_times=target_times)
+            field, time_instants = self._import_with_foamlib(var_name, target_times = target_times, verbose=verbose)
         elif import_mode == 'pyvista':
-            field, time_instants = self._import_with_pyvista(var_name, extract_cell_data, verbose, target_times=target_times)
+            field, time_instants = self._import_with_pyvista(var_name, extract_cell_data=extract_cell_data, target_times = target_times, verbose=verbose)
         else:
             raise ValueError(f"Unsupported import method '{import_mode}'. Use 'pyvista' or 'fluidfoam' or 'foamlib'.")
 
@@ -164,7 +173,9 @@ class ReadFromOF():
 
         return file_list
         
-    def _import_with_foamlib(self, var_name: str, verbose: bool = True, target_times: list[str] = None):
+    def _import_with_foamlib(self, var_name: str, 
+                             target_times: list[str] = None,
+                             verbose: bool = True) -> tuple[list, np.ndarray]:
         """
         Importing time instances from OpenFOAM directory using foamlib.
         
@@ -172,10 +183,10 @@ class ReadFromOF():
         ----------
         var_name : str
             Name of the field to import.
-        verbose: boolean, (Default = True) 
-            If `True`, printing is enabled
         target_times : list[str], optional
             List of time folders to read. If `None`, all time instants are read.
+        verbose: boolean, (Default = True) 
+            If `True`, printing is enabled
 
         Returns
         -------
@@ -205,13 +216,12 @@ class ReadFromOF():
                 for ii in range(n_processors):
 
                     d = os.path.join(self.path, f'processor{ii}', folder)
-                    if os.path.isdir(d):
+                
+                    _path_field = os.path.join(d, var_name)
 
-                        _path_field = os.path.join(d, var_name)
-
-                        _single_time_field.append(
-                            fl.FoamFieldFile(_path_field).internal_field
-                        )
+                    _single_time_field.append(
+                        fl.FoamFieldFile(_path_field).internal_field
+                    )
 
                 # Append time instant and field
                 time_instants.append(float(folder))
@@ -220,24 +230,25 @@ class ReadFromOF():
             # Reconstructed case
             else:
                 d = os.path.join(self.path, folder)
-                if os.path.isdir(d):
-                    
-                    _path_field = os.path.join(d, var_name)
+                
+                _path_field = os.path.join(d, var_name)
 
-                    # Read field using foamlib
-                    field.append(
-                        fl.FoamFieldFile(_path_field).internal_field
-                    )
+                # Read field using foamlib
+                field.append(
+                    fl.FoamFieldFile(_path_field).internal_field
+                )
 
-                    # Append time instant
-                    time_instants.append(float(folder))
+                # Append time instant
+                time_instants.append(float(folder))
 
             if verbose:
                 bar.update(1)
 
         return field, np.asarray(time_instants)
     
-    def _import_with_fluidfoam(self, var_name: str, verbose: bool = True, target_times: list[str] = None):
+    def _import_with_fluidfoam(self, var_name: str, 
+                               target_times: list[str] = None,
+                               verbose: bool = True) -> tuple[list, np.ndarray]:
         """
         Importing time instances from OpenFOAM directory using fluidfoam.
         
@@ -245,10 +256,10 @@ class ReadFromOF():
         ----------
         var_name : str
             Name of the field to import.
-        verbose: boolean, (Default = True) 
-            If `True`, printing is enabled
         target_times : list[str], optional
             List of time folders to read. If `None`, all time instants are read.
+        verbose: boolean, (Default = True) 
+            If `True`, printing is enabled
 
         Returns
         -------
@@ -293,34 +304,24 @@ class ReadFromOF():
             # Reconstructed case
             else:
                 d = os.path.join(self.path, folder)
-                if os.path.isdir(d):
                         
-                    _tmp = of.readfield(self.path, folder, var_name, verbose=False)
+                _tmp = of.readfield(self.path, folder, var_name, verbose=False)
 
-                    # Append to the list
-                    field.append(reshape_field(_tmp))
+                # Append to the list
+                field.append(reshape_field(_tmp))
 
-                    # Deprecated code - to be removed after testing
-                    # try: # scalar field
-                    #     field.append( of.readscalar(self.path, file, var_name, verbose=False).reshape(-1,1) )
-                    # except ValueError:
-                    #     try: # vector field
-                    #         field.append(of.readvector(self.path, file, var_name, verbose=False).T)
-                    #     except ValueError: # tensor field
-                    #         try: # tensor field
-                    #             field.append(of.readtensor(self.path, file, var_name, verbose=False).T)
-                    #         except ValueError: # symmetric tensor field
-                    #             field.append(of.readsymmtensor(self.path, file, var_name, verbose=False).T)
-
-                    # Append time instant
-                    time_instants.append(float(folder))
+                # Append time instant
+                time_instants.append(float(folder))
 
             if verbose:
                 bar.update(1)
 
         return field, np.asarray(time_instants)
     
-    def _import_with_pyvista(self, var_name: str, extract_cell_data: bool = True, verbose: bool = True, target_times: list[str] = None):
+    def _import_with_pyvista(self, var_name: str, 
+                             extract_cell_data: bool = True, 
+                             target_times: list[str] = None,
+                             verbose: bool = True) -> tuple[list, np.ndarray]:
         """
         Importing time instances from OpenFOAM directory using pyvista.
         
@@ -330,10 +331,10 @@ class ReadFromOF():
             Name of the field to import.
         extract_cell_data : boolean, (Default: True)
             If `True`, the cell data from centroids is extracted; otherwise, point data is extracted.
-        verbose: boolean, (Default = True) 
-            If `True`, printing is enabled
         target_times : list[str], optional
             List of time folders to read. If `None`, all time instants are read.
+        verbose: boolean, (Default = True) 
+            If `True`, printing is enabled
         
         Returns
         -------
@@ -472,7 +473,6 @@ def convert_cell_data_to_point_data(grid: pv.UnstructuredGrid, snaps: FunctionsL
     else:
         vec_dim = 1
         
-
     new_snaps = FunctionsList(dofs=grid.n_points * vec_dim)
 
     for _snap in snaps:
@@ -546,7 +546,12 @@ def convert_point_data_to_cell_data(grid: pv.UnstructuredGrid, snaps: FunctionsL
 class ReadFromOFMultiRegion():
     r"""
     A class used to import data from OpenFOAM - either decomposed or not, multi region.
+    **Note**: "Decomposed" here refers exclusively to parallel MPI domain decomposition (i.e., data split into `processor*` directories), not multi-region setups.
         
+    Either the fluidfoam library (see https://github.com/fluiddyn/fluidfoam) or the foamlib (see https://github.com/gerlero/foamlib) or pyvista are exploited for the import process.
+
+    Both org and com version of OpenFOAM are supported.
+
     Parameters
     ----------
     path : str
@@ -594,8 +599,11 @@ class ReadFromOFMultiRegion():
         # Remove defaultRegion if present
         if 'defaultRegion' in self.regions:
             self.regions.remove('defaultRegion')
+        
+        # Container for zero field, which is used by function import_field
+        self.zero_field_regions = None
 
-    def _region_mesh(self, region: str):
+    def _region_mesh(self, region: str, decomposed_mode: bool = False):
         """
         Returns the mesh of the specified region of the OpenFOAM case.
         
@@ -603,17 +611,60 @@ class ReadFromOFMultiRegion():
         ----------
         region : str
             Name of the region to extract the mesh from.
-        
+        decomposed_mode : bool
+            If True, the mesh is read from processor* folders. Default is False.
+            
         Returns
         -------
         mesh : pyvista.UnstructuredGrid
             The mesh of the specified region of the OpenFOAM case.
         """
-        grid = self.reader.read()[region]['internalMesh']
-        grid.clear_data() # remove all the data
+        if decomposed_mode:
+            case_dir = Path(self.path)
+        
+            # number of processor folders
+            n_processors = len(glob.glob(os.path.join(self.path, "processor*")))
+        
+            # check if vtk exists
+            def vtk_exists():
+                for ii in range(n_processors):
+                    vtk_dir = os.path.join(self.path, f"processor{ii}", "VTK", region)
+                    if not os.path.exists(vtk_dir):
+                        return False
+                return True
+        
+            # generate vtk if missing
+            if not vtk_exists():
+                subprocess.run(
+                    [
+                        "mpirun", "-np", str(n_processors), "foamToVTK",
+                        "-parallel", "-latestTime", "-region", region, "-noPointValues"
+                    ],
+                    cwd=self.path,
+                    check=True
+                )
+        
+            # read meshes
+            meshes = []
+            for ii in range(n_processors):
+                vtk_dir = Path(self.path) / f"processor{ii}" / "VTK" / region
+                files = sorted(vtk_dir.glob(f"processor{ii}_*.vtk"))
+                if not files:
+                    raise FileNotFoundError(f"No VTK files found in {vtk_dir}")
+                meshes.append(pv.read(files[-1]))
+        
+            # merge in processor order
+            grid = meshes[0].copy()
+            for m in meshes[1:]:
+                grid = grid.merge(m, merge_points=False)
+        
+        else:
+            grid = self.reader.read()[region]["internalMesh"]
+        
+        grid.clear_data()  # remove all the data
         return grid
 
-    def mesh(self, regions: list[str] = None):
+    def mesh(self, regions: list[str] = None, decomposed_mode: bool = False):
         """
         Returns the combines mesh of regions of the OpenFOAM case.
 
@@ -623,7 +674,9 @@ class ReadFromOFMultiRegion():
         ----------
         regions : str, optional
             If specified, only the mesh of the given region is returned. If `None`, the combined mesh of all regions is returned.
-
+        decomposed_mode : bool
+            If True, the mesh is read from processor* folders. Default is False.
+            
         Returns
         -------
         mesh : pyvista.UnstructuredGrid
@@ -640,7 +693,7 @@ class ReadFromOFMultiRegion():
         self.ncells_cumulative = []
         self.ncells_cumulative.append(0)
         for region in _regions:
-            _mesh = self._region_mesh(region)
+            _mesh = self._region_mesh(region, decomposed_mode=decomposed_mode)
             _mesh.clear_data() # remove all the data
             blocks_to_merge.append(_mesh)
 
@@ -651,23 +704,27 @@ class ReadFromOFMultiRegion():
         
         return combined_mesh
     
-    def save_mesh(self, filename: str, region: str = None):
+    def save_mesh(self, filename: str, region: str | list[str] = None):
         """
-        Saves the mesh of the OpenFOAM case to a vtk-file.
+        Saves the mesh (either all regions or a specific list) of the OpenFOAM case to a vtk-file.
         
         Parameters
         ----------
         filename : str
             Name of the file to save the mesh.
-        region : str, optional
+        regions : str | list[str], optional
             If specified, only the mesh of the given region is saved. If `None`, the combined mesh of all regions is saved.
         """
         if region is None:
             mesh = self.mesh()
-        else:
+        elif isinstance(region, str):
             mesh = self._region_mesh(region)
-        
-        mesh.save(filename + '.vtk')
+        elif isinstance(region, list):
+            mesh = self.mesh(region)
+        else:
+            raise TypeError(f"Unsupported region type: {type(region)}")
+
+        mesh.save(f"{filename}.vtk")
 
     def _get_valid_regions_for_field(self, var_name: str):
         r"""
@@ -695,16 +752,52 @@ class ReadFromOFMultiRegion():
                 valid_regions.append(region)
 
         return valid_regions
+    
+    def _get_time_directories(self):
+        """"
+        Get the list of time directories in the OpenFOAM case, sorted in time, and skipping zero time if needed.
+
+        Returns
+        -------
+        file_list : list[str]
+            List of time directories in the OpenFOAM case, sorted in time, and skipping zero time if needed.
+        """
+        base_path = self.path if not self.decomposed_case else os.path.join(self.path, 'processor0')
+        
+        file_list = [
+            f for f in os.listdir(base_path)
+            if os.path.isdir(os.path.join(base_path, f))
+            and f.replace('.', '', 1).isdigit()
+        ]
+
+        # Sort numerically
+        file_list.sort(key=float)
+
+        # Skip zero time folder if needed
+        if self.reader.skip_zero_time and file_list[0] in ['0']:
+            file_list = file_list[1:]
+
+        return file_list
 
     def import_field(self, var_name: str,
                      import_mode: str = 'pyvista',
-                     verbose: bool = True):
+                     target_times: list[str] = None,
+                     regions_to_import: str | list[str] = None,
+                     verbose: bool = True,
+                     ) -> tuple[FunctionsList, np.ndarray]:
         r"""
         Importing all time instances (**skipping zero folder**) from OpenFOAM directory for all available regions, if not skip.
         
-        Two methods are available for the import process: `pyvista` and `fluidfoam`.The latter is typically faster.
+        Three methods are available for the import process: `pyvista`, `fluidfoam`, and `foamlib`. The latter two are typically faster than pyvista, especially for large cases.
+
+        If you want to import specific time instances, provide their folder names in the `target_times` list.
 
         *Only cell data extraction is supported for multi-region cases: to prevent data misalignment issues.*
+
+        **Note on parallel-decomposed cases**: For multi-region cases that are also parallel-decomposed, the import process will automatically handle the reconstruction of the field across all processors for each region, there might be visualisation issues for 'foamlib' and 'fluidfoam' if the decomposition is not uniform and more advanced techniques are used. If needed, exploit 'reconstructPar' from OpenFOAM.
+        Decomposition Methods tested:
+            - hierarchical
+            - ...
 
         Parameters
         ----------
@@ -712,6 +805,10 @@ class ReadFromOFMultiRegion():
             Name of the field to import.
         import_mode : str, optional
             Method to use for importing the data. It can be either 'pyvista' or 'fluidfoam'. Default is 'pyvista'.
+        target_times: list[str], optional
+            List of time folders to import. If `None`, all time instances are imported.
+        regions_to_import : str | list[str], optional
+            If specified, only the given region(s) are imported. If `None`, all valid regions for the specified field are imported.
         verbose: boolean, (Default = True) 
             If `True`, printing is enabled
 
@@ -723,44 +820,37 @@ class ReadFromOFMultiRegion():
             Sorted list of time.
         """
 
+        # Determine regions to import
+        if regions_to_import is None:
+            regions_to_import = self._get_valid_regions_for_field(var_name)
+        elif isinstance(regions_to_import, str):
+            regions_to_import = [regions_to_import]
+        elif isinstance(regions_to_import, list):
+            pass
+        else:
+            raise TypeError(f"Unsupported region type: {type(regions_to_import)}")
+        
+        # Check that the specified regions are valid
+        for region in regions_to_import:
+            if region not in self._get_valid_regions_for_field(var_name):
+                raise ValueError(f"Region '{region}' is not available in the case. Available regions: {self._get_valid_regions_for_field(var_name)}")
+
         # Concatenate all regional snapshots
         regional_snaps = []
 
         if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from all regions - {import_mode}', final = len(self.regions))
+            bar = LoopProgress(msg=f'Importing {var_name} from all regions - {import_mode}', final = len(regions_to_import))
 
-        for region in self.regions:
+        for region in regions_to_import:
             if verbose:
                 bar.update(1)
 
             if import_mode == 'pyvista':
-                try:
-                    snaps_region, time_instants = self._import_region_field_pyvista(region, var_name, extract_cell_data=True, verbose=False)
-                except KeyError:
-                    if verbose:
-                        warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
-                        continue 
-
+                snaps_region, time_instants = self._import_region_field_pyvista(var_name, region, target_times = target_times, verbose=False)
             elif import_mode == 'fluidfoam':
-
-                try: 
-                    snaps_region, time_instants = self._import_region_field_fluidfoam(region, var_name, verbose=False)
-
-                except FileNotFoundError:
-                    if verbose:
-                        warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
-                        continue
-                    
+                snaps_region, time_instants = self._import_region_field_fluidfoam(var_name, region, target_times = target_times, verbose=False)
             elif import_mode == 'foamlib':
-
-                try: 
-                    snaps_region, time_instants = self._import_region_field_foamlib(region, var_name, verbose=False)
-
-                except FileNotFoundError:
-                    if verbose:
-                        warnings.warn(f"\nSkipping region '{region}': field '{var_name}' not found.")
-                        continue
-
+                snaps_region, time_instants = self._import_region_field_foamlib(var_name, region, target_times = target_times, verbose=False)
             else:
                 raise ValueError(f"Unsupported import method '{import_mode}'. Use 'pyvista' or 'fluidfoam or 'foamlib'.")
             
@@ -769,180 +859,235 @@ class ReadFromOFMultiRegion():
         # Concatenate all regional snapshots
         concatenated_snaps = np.concatenate([snaps.return_matrix() for snaps in regional_snaps], axis=0)
         snaps = FunctionsList(snap_matrix=concatenated_snaps)
-        return snaps, np.asarray(time_instants)
-    
-    def _import_region_field_foamlib(self, region: str, var_name: str,
-                            file_list: list[float] = None, verbose: bool = True):
-        
-        field = list()
-        time_instants = list()
-
-        if file_list is None:
-
-            file_list = [
-                f for f in os.listdir(self.path) 
-                if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
-            ]
-
-            # Sort numerically
-            file_list.sort(key=float)
-
-            # Skip zero time folder if needed
-            if self.reader.skip_zero_time and file_list[0] in ['0']:
-                file_list = file_list[1:]
-
-        if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using foamlib', final = len(file_list))
-
-        for idx_t, file in enumerate(file_list):
-
-            if not ((file == '0.orig') or (file == '0') or (file == '0.ss')):
-                d = os.path.join(self.path, file)
-                if os.path.isdir(d):
-
-                    _path_field = os.path.join(d, region, var_name)
-
-                    # Read field using foamlib
-                    field.append(
-                        fl.FoamFieldFile(_path_field).internal_field
-                    )
-                
-                    # Append time instant
-                    time_instants.append(float(file))
-
-            if verbose:
-                bar.update(1)
-
-        # Convert list to FunctionsList
-        Nh = field[0].flatten().shape[0]
-        snaps = FunctionsList(dofs=Nh)
-        for f in field:
-            snaps.append(f.flatten())
 
         return snaps, np.asarray(time_instants)
     
-    def _import_region_field_fluidfoam(self, region: str, var_name: str,
-                            file_list: list[float] = None, verbose: bool = True):
+    def _import_region_field_foamlib(self, var_name: str, region: str,
+                                        target_times: list[str] = None, 
+                                        verbose: bool = True) -> tuple[FunctionsList, np.ndarray]:
         
-        field = list()
-        time_instants = list()
-
-        if file_list is None:
-
-            file_list = [
-                f for f in os.listdir(self.path) 
-                if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
-            ]
-
-            # Sort numerically
-            file_list.sort(key=float)
-
-            # Skip zero time folder if needed
-            if self.reader.skip_zero_time and file_list[0] in ['0']:
-                file_list = file_list[1:]
-
-        if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using fluidfoam', final = len(file_list))
-
-        for idx_t, file in enumerate(file_list):
-
-            if not ((file == '0.orig') or (file == '0') or (file == '0.ss')):
-                d = os.path.join(self.path, file)
-                if os.path.isdir(d):
-
-                    _tmp = of.readfield(self.path, file, var_name, region=region, verbose=False)
-
-                    # Scalar field
-                    if (_tmp.ndim < 2):
-                        _tmp = _tmp.reshape(-1, 1)
-                    else: # Vector or tensor field
-                        _tmp = _tmp.T
-
-                    # Append to the list
-                    field.append(_tmp)
-
-                    # Deprecated code - to be removed after testing
-                    # try: # scalar field
-                    #     field.append( of.readscalar(self.path, t, var_name, region=region, verbose=False).reshape(-1,1) )
-                    # except ValueError:
-                    #     try: # vector field
-                    #         field.append(of.readvector(self.path, t, var_name, region=region, verbose=False).T)
-                    #     except ValueError: # tensor field
-                    #         try: # tensor field
-                    #             field.append(of.readtensor(self.path, t, var_name, region=region, verbose=False).T)
-                    #         except ValueError: # symmetric tensor field
-                    #             field.append(of.readsymmtensor(self.path, t, var_name, region=region, verbose=False).T)
-
-                    # Append time instant
-                    time_instants.append(float(file))
-
-            if verbose:
-                bar.update(1)
-
-        # Convert list to FunctionsList
-        Nh = field[0].flatten().shape[0]
-        snaps = FunctionsList(dofs=Nh)
-        for f in field:
-            snaps.append(f.flatten())
-
-        return snaps, np.asarray(time_instants)
-
-    def _import_region_field_pyvista(self, region: str, var_name: str,
-                            extract_cell_data: bool = True, time_instants: list[float] = None,
-                            verbose: bool = True):
-        r"""
-        Importing all time instances (**skipping zero folder**) from OpenFOAM directory for a specific region.
+        """
+        Import time instances from OpenFOAM directory for a specific region using foamlib.
 
         Parameters
         ----------
-        region : str
-            Name of the region to import the field from.
         var_name : str
             Name of the field to import.
-        extract_cell_data : boolean, (Default: True)
-            If `True`, the cell data from centroids is extracted; otherwise, point data is extracted.
-        time_instants : list[float], optional
-            List of time instants to read. If `None`, all time instants are read.
+        region : str
+            Name of the region to import the field from.
+        target_times : list[str], optional
+            List of time folders to read. If `None`, all time instants are read.
         verbose: boolean, (Default = True) 
-            If `True`, printing is enabled  
+            If `True`, printing is enabled
 
         Returns
         -------
-        field : FunctionsList
+        snaps : FunctionsList
+            Imported list of functions (each element is a `numpy.ndarray`), sorted in time.
+        time_instants : np.ndarray
+            Sorted list of time.
+        """
+        
+        field = list()
+        time_instants = list()
+
+        if target_times is None:
+                target_times = self._get_time_directories()
+
+        if verbose:
+            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using foamlib', final = len(target_times))
+
+        # Flag to check if we are dealing with a uniform field
+        uniform_field_flag = False
+
+        for folder in target_times:
+            
+            # Decomposed case
+            if self.decomposed_case:
+                n_processors = len(glob.glob(os.path.join(self.path, 'processor*')))
+
+                _single_time_field = list()
+                
+                for ii in range(n_processors):
+
+                    d = os.path.join(self.path, f'processor{ii}', folder, region)
+
+                    _path_field = os.path.join(d, var_name)
+                    _file = fl.FoamFieldFile(_path_field)
+
+                    _tmp = _file.internal_field
+
+                    if isinstance(_tmp, float): # Check for uniform scalar field, which would cause issues in the concatenation process
+                        assert _file.class_ == 'volScalarField', "Uniform fields are currently only supported for scalar fields, to be extended to vector and tensor fields if needed."
+                        _single_time_field.append(np.array([_tmp]))
+                        uniform_field_flag = True
+                    else:
+                        
+                        # Check for uniform vector field, which would cause issues in the concatenation process - to be extended to tensor fields if needed
+                        if _file.class_ == 'volVectorField' and _tmp.ndim == 1:
+                            _tmp = _tmp.reshape(-1, 3) # reshape to (n_cells, 3) for vector fields
+                            uniform_field_flag = True
+
+                        # Append to the list
+                        _single_time_field.append(
+                            _tmp
+                        )
+
+                # Concatenate fields on different processors for the same time instant
+                field_to_append = np.concatenate(_single_time_field, axis=0)
+
+            # Reconstructed case
+            else:
+                d = os.path.join(self.path, folder, region)
+
+                _path_field = os.path.join(d, var_name)
+
+                # Read field using foamlib
+                _file = fl.FoamFieldFile(_path_field)
+                _tmp = _file.internal_field
+
+                # Append to the list
+                if isinstance(_tmp, float):
+                    field_to_append = np.array([_tmp])
+                    uniform_field_flag = True
+                else:
+                    
+                    # Check for uniform vector field, which would cause issues in the concatenation process - to be extended to tensor fields if needed
+                    if _file.class_ == 'volVectorField' and _tmp.ndim == 1:
+                        _tmp = _tmp.reshape(-1, 3) # reshape to (n_cells, 3) for vector fields
+                        uniform_field_flag = True
+
+                    field_to_append = _tmp
+
+            # Check that we are not dealing with a uniform field (i.e., a single value as for initial conditions), which would cause issues in the concatenation process - scalar and vector fields only for now, to be extended to fields if needed
+            if uniform_field_flag:
+
+                # Get the number of cells in the region mesh
+                n_region_cells = self._region_mesh(region).n_cells
+
+                # Get the shape of the field to append (for vector and tensor fields)
+                fun_shape = field_to_append.shape[1:] if field_to_append.ndim > 1 else ()
+
+                # Assign the uniform value to all cells of the region
+                field_to_append = np.ones((n_region_cells, *fun_shape)) * field_to_append[0] # assign the uniform value to all cells of the region
+
+            # Append time instant
+            time_instants.append(float(folder))
+
+            # Append field
+            field.append(field_to_append)
+
+            if verbose:
+                bar.update(1)
+
+        # Convert list to FunctionsList
+        Nh = field[0].flatten().shape[0]
+        snaps = FunctionsList(dofs=Nh)
+        for f in field:
+            snaps.append(f.flatten())
+
+        return snaps, np.asarray(time_instants)
+    
+    def _import_region_field_fluidfoam(self, var_name: str, region: str, 
+                                        target_times: list[str] = None, 
+                                        verbose: bool = True) -> tuple[list, np.ndarray]:
+        
+        """
+        Import time instances from OpenFOAM directory for a specific region using fluidfoam.
+
+        Parameters
+        ----------
+        var_name : str
+            Name of the field to import.
+        region : str
+            Name of the region to import the field from.
+        target_times : list[str], optional
+            List of time folders to read. If `None`, all time instants are read.
+        verbose: boolean, (Default = True) 
+            If `True`, printing is enabled
+
+        Returns
+        -------
+        snaps : FunctionsList
             Imported list of functions (each element is a `numpy.ndarray`), sorted in time.
         time_instants : np.ndarray
             Sorted list of time.
         """
 
-        if time_instants is None:
-            time_instants = self.reader.time_values
-
         field = list()
+        time_instants = list()
+
+        if target_times is None:
+            target_times = self._get_time_directories()
 
         if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using pyvista', final = len(time_instants))
+            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using fluidfoam', final = len(target_times))
 
-        for idx_t, t in enumerate(time_instants):
+        # Helper function to handle fluidfoam's shape outputs
+        reshape_field = lambda f: f.reshape(-1, 1) if f.ndim < 2 else f.T
+
+        # Flag to check if we are dealing with a uniform field
+        uniform_field_flag = False
+
+        for folder in target_times:
+
+            # Decomposed case
+            if self.decomposed_case:
+                n_processors = len(glob.glob(os.path.join(self.path, 'processor*')))
+
+                _single_time_field = list()
+
+                for ii in range(n_processors):
+
+                    d = os.path.join(self.path, f'processor{ii}')
+
+                    _tmp = of.readfield(d, folder, var_name, region=region, verbose=False)
+
+                    # Reshape the field
+                    _tmp = reshape_field(_tmp)
+
+                    if _tmp.size == 1: # Check for uniform scalar field, which would cause issues in the concatenation process
+                        uniform_field_flag = True
+
+                    # Append to the list
+                    _single_time_field.append(_tmp)
+                
+                # Define field to append
+                field_to_append = np.concatenate(_single_time_field, axis=0)
+            
+            # Reconstructed case
+            else:
+                d = os.path.join(self.path, folder)
+                if os.path.isdir(d):
+                    _tmp = of.readfield(self.path, folder, var_name, region=region, verbose=False)
+
+                    # Reshape the field
+                    field_to_append = reshape_field(_tmp)
+
+                    # Check for uniform scalar field, which would cause issues in the concatenation process
+                    if field_to_append.size == 1:
+                        uniform_field_flag = True
+
+            # Check that we are not dealing with a uniform field (i.e., a single value as for initial conditions), which would cause issues in the concatenation process - scalar and vector fields only for now, to be extended to fields if needed
+            if uniform_field_flag:
+
+                # Get the number of cells in the region mesh
+                n_region_cells = self._region_mesh(region).n_cells
+
+                # Get the shape of the field to append (for vector and tensor fields)
+                fun_shape = field_to_append.shape[1:] if field_to_append.ndim > 1 else ()
+
+                # Assign the uniform value to all cells of the region
+                field_to_append = np.ones((n_region_cells, *fun_shape)) * field_to_append[0] # assign the uniform value to all cells of the region
+
+            # Append time instant
+            time_instants.append(float(folder))
+
+            # Append field
+            field.append(field_to_append)
+
             if verbose:
                 bar.update(1)
-
-            # Set active time
-            self.reader.set_active_time_value(t)
-            grid = self.reader.read()[region]
-            mesh = grid['internalMesh']
-
-            # Extract data
-            if extract_cell_data: # centroids data
-                available = mesh.cell_data.keys()
-                if var_name not in available:
-                    raise KeyError(f"Field '{var_name}' not found at time {t} in region '{region}'. Available fields: {list(available)}")
-                    
-                field.append(mesh.cell_data[var_name])
-            else: # vertices data
-                available = mesh.point_data.keys()
-                if var_name not in available:
-                    raise KeyError(f"Field '{var_name}' not found at time {t} in region '{region}'. Available fields: {list(available)}")
-                field.append(mesh.point_data[var_name])
 
         # Convert list to FunctionsList
         Nh = field[0].flatten().shape[0]
@@ -952,167 +1097,228 @@ class ReadFromOFMultiRegion():
 
         return snaps, np.asarray(time_instants)
 
-    def get_candidate_regions(self, all_grids: pv.UnstructuredGrid, candidate: pv.UnstructuredGrid | list, distance_residual=1e-6):
-        r"""
-        Get target region points and corresponding indices within all regions.
+    def _import_region_field_pyvista(self, var_name: str, region: str,
+                                     target_times: list[str] = None, 
+                                        verbose: bool = True) -> tuple[FunctionsList, np.ndarray]:
+        """
+        Import time instances from OpenFOAM directory for a specific region using pyvista.
 
         Parameters
         ----------
-        all_grids : pv.UnstructuredGrid
-            The grid containing all valid regions.
-        candidate : pv.UnstructuredGrid | list of pv.UnstructuredGrid
-            Target region grid(s). Can be a single grid or a list of grids for multiple regions.
-        distance_residual : float
-            Distance tolerance used during KDTree matching. Default is 1e-6.
+        var_name : str
+            Name of the field to import.
+        region : str
+            Name of the region to import the field from.
+        target_times : list[str], optional
+            List of time folders to read. If `None`, all time instants are read.
+        verbose: boolean, (Default = True) 
+            If `True`, printing is enabled  
 
-        Returns
+        Returns 
         -------
-        candidate_points : np.ndarray of shape (N, 3)
-            Coordinates of the target points, used for training or post-processing.
-        candidate_idx : np.ndarray shape (M,)
-            Indices of target points within `all_grids`, used for training or post-processing.
+        snaps : FunctionsList
+            Imported list of functions (each element is a `numpy.ndarray`), sorted in time.
+        time_instants : np.ndarray
+            Sorted list of time.
         """
-        
-        if isinstance(candidate, pv.UnstructuredGrid):
-            candidate_points = candidate.cell_centers().points
-            
-        elif isinstance(candidate, list):
-            if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate):
-                raise TypeError("candidate list must contain only pv.UnstructuredGrid")
-    
-            candidate_points = np.vstack([rm.cell_centers().points for rm in candidate])
-            
-        else:
-            raise TypeError(f"wrong type candidate: {type(candidate)}")
-            
-        # match points using KDTree
-        all_points = all_grids.cell_centers().points
-        tree = cKDTree(candidate_points)
-        dist, _ = tree.query(all_points)
-    
-        candidate_idx = np.where(dist < distance_residual)[0].tolist()
-        candidate_idx = np.asarray(candidate_idx, dtype=int)
-    
-        return candidate_points, candidate_idx
 
-    def get_candidate_probes(self, all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate):
-        r"""
-        Get target points and corresponding indices within all regions.
-        Step 1: Map the input candidate point(s) to the nearest points in the specified `candidate_grid`.
-        Step 2: Map the points obtained in Step 1 to the corresponding points in `all_grids`.
-        This two-step mapping avoids assigning candidate points to incorrect regions due to differences in mesh discretisation.
+        if target_times is None:
+             target_times = self._get_time_directories()
 
-        Parameters
-        ----------
-        all_grids : pv.UnstructuredGrid
-            The grid containing all valid regions.
-        candidate_grid: pv.UnstructuredGrid | list of pv.UnstructuredGrid
-            Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
-        candidate : np.ndarray | list of np.ndarray, shape (3,) | (N,3)
-            Target point(s). Can be a single point or a list of points.
+        field = list()
+        time_instants = list()
 
-        Returns
-        -------
-        candidate_points : np.ndarray of shape (N, 3)
-            Coordinates of the target points, used for training or post-processing.
-        candidate_idx : np.ndarray shape (M,)
-            Indices of target points within `all_grids`, used for training or post-processing.
-        """
-        
-        # constrain candidate points to the specified region ("candidate_grid")
-        if isinstance(candidate_grid, pv.UnstructuredGrid):
-            candidate_region_points = candidate_grid.cell_centers().points
+        if verbose:
+            bar = LoopProgress(msg=f'Importing {var_name} from region {region} using pyvista', final = len(target_times))
+
+        for folder in target_times:
+
+            t = float(folder)
+
+            # Set active time
+            self.reader.set_active_time_value(t)
+            mesh = self.reader.read()[region]['internalMesh']
+
+            # Extract data
+            if var_name in mesh.cell_data.keys(): # centroids data
+                field.append(mesh.cell_data[var_name])
+            else:
+                raise KeyError(f"Field '{var_name}' not found in region '{region}' at time {t}. Available cell data fields: {list(mesh.cell_data.keys())}")
             
-        elif isinstance(candidate_grid, list):
-            if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate_grid):
-                raise TypeError("candidate_grid list must contain only pv.UnstructuredGrid")
+            time_instants.append(t)
+
+            if verbose:
+                bar.update(1)
+
+        # Convert list to FunctionsList
+        Nh = field[0].flatten().shape[0]
+        snaps = FunctionsList(dofs=Nh)
+        for f in field:
+            snaps.append(f.flatten())
+
+        return snaps, np.asarray(time_instants)
+        
+def get_candidate_regions(all_grids: pv.UnstructuredGrid, candidate: pv.UnstructuredGrid | list, distance_residual=1e-6):
+    r"""
+    Get target region points and corresponding indices within all regions.
+
+    Parameters
+    ----------
+    all_grids : pv.UnstructuredGrid
+        The grid containing all valid regions.
+    candidate : pv.UnstructuredGrid | list of pv.UnstructuredGrid
+        Target region grid(s). Can be a single grid or a list of grids for multiple regions.
+    distance_residual : float
+        Distance tolerance used during KDTree matching. Default is 1e-6.
+
+    Returns
+    -------
+    candidate_points : np.ndarray of shape (N, 3)
+        Coordinates of the target points, used for training or post-processing.
+    candidate_idx : np.ndarray shape (M,)
+        Indices of target points within `all_grids`, used for training or post-processing.
+        
+    """
     
-            candidate_region_points = np.vstack([rm.cell_centers().points for rm in candidate_grid])
-            
-        else:
-            raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
+    if isinstance(candidate, pv.UnstructuredGrid):
+        candidate_points = candidate.cell_centers().points
+        
+    elif isinstance(candidate, list):
+        if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate):
+            raise TypeError("candidate list must contain only pv.UnstructuredGrid")
+
+        candidate_points = np.vstack([rm.cell_centers().points for rm in candidate])
+        
+    else:
+        raise TypeError(f"wrong type candidate: {type(candidate)}")
+        
+    # match points using KDTree
+    all_points = all_grids.cell_centers().points
+    tree = cKDTree(candidate_points)
+    dist, _ = tree.query(all_points)
+
+    candidate_idx = np.where(dist < distance_residual)[0].tolist()
+    candidate_idx = np.asarray(candidate_idx, dtype=int)
+
+    return candidate_points, candidate_idx
+
+def get_candidate_probes(all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate):
+    r"""
+    Get target points and corresponding indices within all regions.
+    Step 1: Map the input candidate point(s) to the nearest points in the specified `candidate_grid`.
+    Step 2: Map the points obtained in Step 1 to the corresponding points in `all_grids`.
+    This two-step mapping avoids assigning candidate points to incorrect regions due to differences in mesh discretisation.
+
+    Parameters
+    ----------
+    all_grids : pv.UnstructuredGrid
+        The grid containing all valid regions.
+    candidate_grid: pv.UnstructuredGrid | list of pv.UnstructuredGrid
+        Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
+    candidate : np.ndarray | list of np.ndarray, shape (3,) | (N,3)
+        Target point(s). Can be a single point or a list of points.
+
+    Returns
+    -------
+    candidate_points : np.ndarray of shape (N, 3)
+        Coordinates of the target points, used for training or post-processing.
+    candidate_idx : np.ndarray shape (M,)
+        Indices of target points within `all_grids`, used for training or post-processing.
+        
+    """
     
-        tree_region = cKDTree(candidate_region_points)
-        candidate_points = np.atleast_2d(candidate)
+    # constrain candidate points to the specified region ("candidate_grid")
+    if isinstance(candidate_grid, pv.UnstructuredGrid):
+        candidate_region_points = candidate_grid.cell_centers().points
         
-        # check if candidate points are outside the region    
-        xmin, ymin, zmin = candidate_region_points.min(axis=0)
-        xmax, ymax, zmax = candidate_region_points.max(axis=0)
+    elif isinstance(candidate_grid, list):
+        if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate_grid):
+            raise TypeError("candidate_grid list must contain only pv.UnstructuredGrid")
 
-        outside_mask = (
-            (candidate_points[:,0] < xmin) | (candidate_points[:,0] > xmax) |
-            (candidate_points[:,1] < ymin) | (candidate_points[:,1] > ymax) |
-            (candidate_points[:,2] < zmin) | (candidate_points[:,2] > zmax)
-        )
+        candidate_region_points = np.vstack([rm.cell_centers().points for rm in candidate_grid])
         
-        if np.any(outside_mask):
-            raise ValueError(f"some candidate(s) are outside the grid bounds: {candidate_points[outside_mask]}")
-        
-        # Step1, get indices and points in the specified region ("candidate_grid")
-        dist, region_idx = tree_region.query(candidate_points)
-        candidate_region_idx = np.asarray(region_idx, dtype=int)
-        candidate_region_selected_points = candidate_region_points[candidate_region_idx]
-        
-        # Step2, get indices and points in all regions ("all_grids")
-        all_points = all_grids.cell_centers().points
-        tree = cKDTree(all_points)
-        
-        dist, idx = tree.query(candidate_region_selected_points)
-        candidate_idx = np.asarray(idx, dtype=int)
-        candidate_points = all_points[candidate_idx]
+    else:
+        raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
 
-        return candidate_points, candidate_idx
+    tree_region = cKDTree(candidate_region_points)
+    candidate_points = np.atleast_2d(candidate)
+    
+    # check if candidate points are outside the region    
+    xmin, ymin, zmin = candidate_region_points.min(axis=0)
+    xmax, ymax, zmax = candidate_region_points.max(axis=0)
+
+    outside_mask = (
+        (candidate_points[:,0] < xmin) | (candidate_points[:,0] > xmax) |
+        (candidate_points[:,1] < ymin) | (candidate_points[:,1] > ymax) |
+        (candidate_points[:,2] < zmin) | (candidate_points[:,2] > zmax)
+    )
+    
+    if np.any(outside_mask):
+        raise ValueError(f"some candidate(s) are outside the grid bounds: {candidate_points[outside_mask]}")
+    
+    # Step1, get indices and points in the specified region ("candidate_grid")
+    dist, region_idx = tree_region.query(candidate_points)
+    candidate_region_idx = np.asarray(region_idx, dtype=int)
+    candidate_region_selected_points = candidate_region_points[candidate_region_idx]
+    
+    # Step2, get indices and points in all regions ("all_grids")
+    all_points = all_grids.cell_centers().points
+    tree = cKDTree(all_points)
+    
+    dist, idx = tree.query(candidate_region_selected_points)
+    candidate_idx = np.asarray(idx, dtype=int)
+    candidate_points = all_points[candidate_idx]
+
+    return candidate_points, candidate_idx
+    
+def get_candidate_channel_all_points(all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate_xy, tol=1e-6):
+    """
+    Get all points along a channel (fixed XY, any Z) and corresponding indices in all_grids.
+    This returns all points with XY matching the candidate_xy within a tolerance.
         
-    def get_candidate_channel_all_points(self, all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate_xy, tol=1e-6):
-        """
-        Get all points along a channel (fixed XY, any Z) and corresponding indices in all_grids.
-        This returns all points with XY matching the candidate_xy within a tolerance.
-            
-        Parameters
-        ----------
-        all_grids : pv.UnstructuredGrid
-            The global mesh.
-        candidate_grid : pv.UnstructuredGrid | list of pv.UnstructuredGrid
-            Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
-        candidate_xy : np.ndarray or list of np.ndarray, shape (2,) or (N,2)
-            Target XY coordinates of points. Can be a single point or multiple points.
-        tol : float
-            Tolerance for matching XY coordinates. Notice: it should be tuned according to different geometric discretisation.
-            
-        Returns
-        -------
-        candidate_points : np.ndarray, shape (M,3)
-            All points in the global mesh with matching XY.
-        candidate_idx : np.ndarray, shape (M,)
-            Indices of candidate_points in all_grids.
-        """
+    Parameters
+    ----------
+    all_grids : pv.UnstructuredGrid
+        The global mesh.
+    candidate_grid : pv.UnstructuredGrid | list of pv.UnstructuredGrid
+        Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
+    candidate_xy : np.ndarray or list of np.ndarray, shape (2,) or (N,2)
+        Target XY coordinates of points. Can be a single point or multiple points.
+    tol : float
+        Tolerance for matching XY coordinates. Notice: it should be tuned according to different geometric discretisation.
         
-        candidate_xy = np.atleast_2d(candidate_xy)
-        
-        # put all "candidate_grid" points in one container
-        if isinstance(candidate_grid, pv.UnstructuredGrid):
-            candidate_region_points = candidate_grid.cell_centers().points
-        elif isinstance(candidate_grid, list):
-            if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate_grid):
-                raise TypeError("candidate_grid list must contain only pv.UnstructuredGrid")
-            candidate_region_points = np.vstack([rm.cell_centers().points for rm in candidate_grid])
-        else:
-            raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
-        
-        # get candidate points based on "candidate_grid"
-        mask = np.zeros(len(candidate_region_points), dtype=bool)
-        for xy in candidate_xy:
-            mask |= (np.abs(candidate_region_points[:,0] - xy[0]) <= tol) & (np.abs(candidate_region_points[:,1] - xy[1]) <= tol)
-        
-        candidate_region_selected_points = candidate_region_points[mask]
-        
-        # map candidate points to all_grids
-        all_points = all_grids.cell_centers().points
-        tree_all = cKDTree(all_points)
-        
-        candidate_idx_list = [tree_all.query_ball_point(p, r=tol) for p in candidate_region_selected_points]
-        candidate_idx = np.unique(np.concatenate(candidate_idx_list))
-        candidate_points = all_points[candidate_idx]
-        
-        return candidate_points, candidate_idx
-        
+    Returns
+    -------
+    candidate_points : np.ndarray, shape (M,3)
+        All points in the global mesh with matching XY.
+    candidate_idx : np.ndarray, shape (M,)
+        Indices of candidate_points in all_grids.
+    """
+    candidate_xy = np.atleast_2d(candidate_xy)
+    
+    # put all "candidate_grid" points in one container
+    if isinstance(candidate_grid, pv.UnstructuredGrid):
+        candidate_region_points = candidate_grid.cell_centers().points
+    elif isinstance(candidate_grid, list):
+        if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate_grid):
+            raise TypeError("candidate_grid list must contain only pv.UnstructuredGrid")
+        candidate_region_points = np.vstack([rm.cell_centers().points for rm in candidate_grid])
+    else:
+        raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
+    
+    # get candidate points based on "candidate_grid"
+    mask = np.zeros(len(candidate_region_points), dtype=bool)
+    for xy in candidate_xy:
+        mask |= (np.abs(candidate_region_points[:,0] - xy[0]) <= tol) & (np.abs(candidate_region_points[:,1] - xy[1]) <= tol)
+    
+    candidate_region_selected_points = candidate_region_points[mask]
+    
+    # map candidate points to all_grids
+    all_points = all_grids.cell_centers().points
+    tree_all = cKDTree(all_points)
+    
+    candidate_idx_list = [tree_all.query_ball_point(p, r=tol) for p in candidate_region_selected_points]
+    candidate_idx = np.unique(np.concatenate(candidate_idx_list))
+    candidate_points = all_points[candidate_idx]
+    
+    return candidate_points, candidate_idx
