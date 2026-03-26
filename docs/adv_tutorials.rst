@@ -21,3 +21,4 @@ Furthermore, some examples on how to interface with other libraries are also pro
     Advanced SVD Methods <Tutorials/Advanced/06_advanced_svd_methods.ipynb>
     Combination with pydmd <Tutorials/Advanced/07_pydmd.ipynb>
     Implementation of SHRED <Tutorials/Advanced/08_shred.ipynb>
+    Multi-Region and Parallel-Decomposed OpenFOAM Import <Tutorials/Advanced/09_multi-region.ipynb>

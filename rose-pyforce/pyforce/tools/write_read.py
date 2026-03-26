@@ -797,7 +797,8 @@ class ReadFromOFMultiRegion():
         **Note on parallel-decomposed cases**: For multi-region cases that are also parallel-decomposed, the import process will automatically handle the reconstruction of the field across all processors for each region, there might be visualisation issues for 'foamlib' and 'fluidfoam' if the decomposition is not uniform and more advanced techniques are used. If needed, exploit 'reconstructPar' from OpenFOAM.
         Decomposition Methods tested:
             - hierarchical
-            - ...
+            - simple
+            - ... (to be extended if needed)
 
         Parameters
         ----------
