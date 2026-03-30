@@ -7,6 +7,8 @@
 import subprocess
 from pathlib import Path
 
+from typing import Union, List
+
 from .functions_list import FunctionsList
 from .backends import LoopProgress
 from scipy.spatial import cKDTree
@@ -618,7 +620,7 @@ class ReadFromOFMultiRegion():
         mesh : pyvista.UnstructuredGrid
             The mesh of the specified region of the OpenFOAM case.
         """
-        
+
         grid = self.reader.read()[region]["internalMesh"]
         grid.clear_data()  # remove all the data
         return grid
@@ -803,7 +805,8 @@ class ReadFromOFMultiRegion():
                      import_mode: str = 'pyvista',
                      target_times: list[str] = None,
                      regions_to_import: str | list[str] = None,
-                     verbose: bool = True, inner_verbose: bool = False
+                     verbose: bool = True, 
+                     inner_verbose: bool = False
                      ) -> tuple[FunctionsList, np.ndarray]:
         r"""
         Importing all time instances (**skipping zero folder**) from OpenFOAM directory for all available regions, if not skip.
@@ -816,9 +819,9 @@ class ReadFromOFMultiRegion():
 
         **Note on parallel-decomposed cases**: For multi-region cases that are also parallel-decomposed, the import process will automatically handle the reconstruction of the field across all processors for each region, there might be visualisation issues for 'foamlib' and 'fluidfoam' if the decomposition is not uniform and more advanced techniques are used. If needed, exploit 'reconstructPar' from OpenFOAM.
         Decomposition Methods tested:
-            - hierarchical
-            - simple
-            - ... (to be extended if needed)
+        * hierarchical
+        * simple
+        * ... (to be extended if needed)
 
         Parameters
         ----------
@@ -855,6 +858,7 @@ class ReadFromOFMultiRegion():
         
         # Check that the specified regions are valid
         for region in regions_to_import:
+
             if region not in self._get_valid_regions_for_field(var_name):
                 raise ValueError(f"Region '{region}' is not available in the case. Available regions: {self._get_valid_regions_for_field(var_name)}")
 
@@ -1182,7 +1186,9 @@ class ReadFromOFMultiRegion():
 
         return snaps, np.asarray(time_instants)
         
-def get_candidate_regions_points(all_grids: pv.UnstructuredGrid, candidate: pv.UnstructuredGrid | list[pv.UnstructuredGrid], tolerance=1e-6):
+def get_candidate_regions_points(all_grids: pv.UnstructuredGrid, 
+                                 candidate: Union[pv.UnstructuredGrid, List[pv.UnstructuredGrid]],
+                                 tolerance=1e-6):
     r"""
     Get target region points and corresponding indices within all regions.
 
@@ -1227,7 +1233,7 @@ def get_candidate_regions_points(all_grids: pv.UnstructuredGrid, candidate: pv.U
     return candidate_points, candidate_idx
 
 def get_candidate_probes(all_grids: pv.UnstructuredGrid, 
-                         candidate_grid: pv.UnstructuredGrid | list[pv.UnstructuredGrid], 
+                         candidate_grid: Union[pv.UnstructuredGrid, List[pv.UnstructuredGrid]],
                          candidate_points: np.ndarray | list[np.ndarray]):
     r"""
     Get target points and corresponding indices within all regions.
@@ -1297,7 +1303,10 @@ def get_candidate_probes(all_grids: pv.UnstructuredGrid,
 
     return candidate_points, candidate_idx
     
-def get_candidate_channel_all_points(all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate_xy, tol=1e-6):
+def get_candidate_channel_all_points(all_grids: pv.UnstructuredGrid, 
+                                    candidate_grid: Union[pv.UnstructuredGrid, List[pv.UnstructuredGrid]],
+                                    candidate_xy: np.ndarray | list[np.ndarray], 
+                                    tol=1e-6):
     """
     Get all points along a channel (fixed XY, any Z) and corresponding indices in all_grids.
     This returns all points with XY matching the candidate_xy within a tolerance.
