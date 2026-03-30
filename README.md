@@ -155,7 +155,7 @@ cd ROSE-pyforce
 then install the package using `pip` (this will work if you already have `python` and `pip` installed, it might not be true for `miniconda` installations):
 
 ```bash
-python -m pip install rose-pyforce/
+python -m pip install -e rose-pyforce/
 ```
 or equivalently
 
