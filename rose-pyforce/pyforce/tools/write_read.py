@@ -3,8 +3,7 @@
 # Latest Code Update: 24 March 2026
 # Latest Doc  Update: 24 March 2026
 
-import re
-import warnings
+# These two might be removed cause it would force user to have OpenFOAM installed
 import subprocess
 from pathlib import Path
 
@@ -619,50 +618,71 @@ class ReadFromOFMultiRegion():
         mesh : pyvista.UnstructuredGrid
             The mesh of the specified region of the OpenFOAM case.
         """
-        if decomposed_mode:
-            case_dir = Path(self.path)
         
-            # number of processor folders
-            n_processors = len(glob.glob(os.path.join(self.path, "processor*")))
-        
-            # check if vtk exists
-            def vtk_exists():
-                for ii in range(n_processors):
-                    vtk_dir = os.path.join(self.path, f"processor{ii}", "VTK", region)
-                    if not os.path.exists(vtk_dir):
-                        return False
-                return True
-        
-            # generate vtk if missing
-            if not vtk_exists():
-                subprocess.run(
-                    [
-                        "mpirun", "-np", str(n_processors), "foamToVTK",
-                        "-parallel", "-latestTime", "-region", region, "-noPointValues"
-                    ],
-                    cwd=self.path,
-                    check=True
-                )
-        
-            # read meshes
-            meshes = []
-            for ii in range(n_processors):
-                vtk_dir = Path(self.path) / f"processor{ii}" / "VTK" / region
-                files = sorted(vtk_dir.glob(f"processor{ii}_*.vtk"))
-                if not files:
-                    raise FileNotFoundError(f"No VTK files found in {vtk_dir}")
-                meshes.append(pv.read(files[-1]))
-        
-            # merge in processor order
-            grid = meshes[0].copy()
-            for m in meshes[1:]:
-                grid = grid.merge(m, merge_points=False)
-        
-        else:
-            grid = self.reader.read()[region]["internalMesh"]
-        
+        grid = self.reader.read()[region]["internalMesh"]
         grid.clear_data()  # remove all the data
         return grid
+
+    # def _region_mesh(self, region: str, decomposed_mode: bool = False):
+    #     """
+    #     Returns the mesh of the specified region of the OpenFOAM case.
+        
+    #     Parameters
+    #     ----------
+    #     region : str
+    #         Name of the region to extract the mesh from.
+    #     decomposed_mode : bool
+    #         If True, the mesh is read from processor* folders. Default is False.
+            
+    #     Returns
+    #     -------
+    #     mesh : pyvista.UnstructuredGrid
+    #         The mesh of the specified region of the OpenFOAM case.
+    #     """
+    #     if decomposed_mode:
+    #         case_dir = Path(self.path)
+        
+    #         # number of processor folders
+    #         n_processors = len(glob.glob(os.path.join(self.path, "processor*")))
+        
+    #         # check if vtk exists
+    #         def vtk_exists():
+    #             for ii in range(n_processors):
+    #                 vtk_dir = os.path.join(self.path, f"processor{ii}", "VTK", region)
+    #                 if not os.path.exists(vtk_dir):
+    #                     return False
+    #             return True
+        
+    #         # generate vtk if missing
+    #         if not vtk_exists():
+    #             subprocess.run(
+    #                 [
+    #                     "mpirun", "-np", str(n_processors), "foamToVTK",
+    #                     "-parallel", "-latestTime", "-region", region, "-noPointValues"
+    #                 ],
+    #                 cwd=self.path,
+    #                 check=True
+    #             )
+        
+    #         # read meshes
+    #         meshes = []
+    #         for ii in range(n_processors):
+    #             vtk_dir = Path(self.path) / f"processor{ii}" / "VTK" / region
+    #             files = sorted(vtk_dir.glob(f"processor{ii}_*.vtk"))
+    #             if not files:
+    #                 raise FileNotFoundError(f"No VTK files found in {vtk_dir}")
+    #             meshes.append(pv.read(files[-1]))
+        
+    #         # merge in processor order
+    #         grid = meshes[0].copy()
+    #         for m in meshes[1:]:
+    #             grid = grid.merge(m, merge_points=False)
+        
+    #     else:
+    #         grid = self.reader.read()[region]["internalMesh"]
+        
+    #     grid.clear_data()  # remove all the data
+    #     return grid
 
     def mesh(self, regions: list[str] = None, decomposed_mode: bool = False):
         """
@@ -783,7 +803,7 @@ class ReadFromOFMultiRegion():
                      import_mode: str = 'pyvista',
                      target_times: list[str] = None,
                      regions_to_import: str | list[str] = None,
-                     verbose: bool = True,
+                     verbose: bool = True, inner_verbose: bool = False
                      ) -> tuple[FunctionsList, np.ndarray]:
         r"""
         Importing all time instances (**skipping zero folder**) from OpenFOAM directory for all available regions, if not skip.
@@ -812,6 +832,8 @@ class ReadFromOFMultiRegion():
             If specified, only the given region(s) are imported. If `None`, all valid regions for the specified field are imported.
         verbose: boolean, (Default = True) 
             If `True`, printing is enabled
+        inner_verbose: boolean, (Default = False)
+            If `True`, verbose mode is enabled for the inner import functions (e.g., `_import_region_field_pyvista`), otherwise only the outer loop progress is printed.
 
         Returns
         -------
@@ -840,22 +862,23 @@ class ReadFromOFMultiRegion():
         regional_snaps = []
 
         if verbose:
-            bar = LoopProgress(msg=f'Importing {var_name} from all regions - {import_mode}', final = len(regions_to_import))
+            bar = LoopProgress(msg=f'Importing {var_name} - {import_mode}', final = len(regions_to_import))
 
         for region in regions_to_import:
-            if verbose:
-                bar.update(1)
 
             if import_mode == 'pyvista':
-                snaps_region, time_instants = self._import_region_field_pyvista(var_name, region, target_times = target_times, verbose=False)
+                snaps_region, time_instants = self._import_region_field_pyvista(var_name, region, target_times = target_times, verbose=inner_verbose)
             elif import_mode == 'fluidfoam':
-                snaps_region, time_instants = self._import_region_field_fluidfoam(var_name, region, target_times = target_times, verbose=False)
+                snaps_region, time_instants = self._import_region_field_fluidfoam(var_name, region, target_times = target_times, verbose=inner_verbose)
             elif import_mode == 'foamlib':
-                snaps_region, time_instants = self._import_region_field_foamlib(var_name, region, target_times = target_times, verbose=False)
+                snaps_region, time_instants = self._import_region_field_foamlib(var_name, region, target_times = target_times, verbose=inner_verbose)
             else:
                 raise ValueError(f"Unsupported import method '{import_mode}'. Use 'pyvista' or 'fluidfoam or 'foamlib'.")
             
             regional_snaps.append(snaps_region)
+
+            if verbose:
+                bar.update(1)
 
         # Concatenate all regional snapshots
         concatenated_snaps = np.concatenate([snaps.return_matrix() for snaps in regional_snaps], axis=0)
@@ -1159,7 +1182,7 @@ class ReadFromOFMultiRegion():
 
         return snaps, np.asarray(time_instants)
         
-def get_candidate_regions(all_grids: pv.UnstructuredGrid, candidate: pv.UnstructuredGrid | list, distance_residual=1e-6):
+def get_candidate_regions_points(all_grids: pv.UnstructuredGrid, candidate: pv.UnstructuredGrid | list[pv.UnstructuredGrid], tolerance=1e-6):
     r"""
     Get target region points and corresponding indices within all regions.
 
@@ -1169,7 +1192,7 @@ def get_candidate_regions(all_grids: pv.UnstructuredGrid, candidate: pv.Unstruct
         The grid containing all valid regions.
     candidate : pv.UnstructuredGrid | list of pv.UnstructuredGrid
         Target region grid(s). Can be a single grid or a list of grids for multiple regions.
-    distance_residual : float
+    tolerance : float
         Distance tolerance used during KDTree matching. Default is 1e-6.
 
     Returns
@@ -1186,24 +1209,26 @@ def get_candidate_regions(all_grids: pv.UnstructuredGrid, candidate: pv.Unstruct
         
     elif isinstance(candidate, list):
         if not all(isinstance(r, pv.UnstructuredGrid) for r in candidate):
-            raise TypeError("candidate list must contain only pv.UnstructuredGrid")
+            raise TypeError("Candidate list must contain only pv.UnstructuredGrid")
 
         candidate_points = np.vstack([rm.cell_centers().points for rm in candidate])
         
     else:
-        raise TypeError(f"wrong type candidate: {type(candidate)}")
+        raise TypeError(f"Wrong type candidate: {type(candidate)}")
         
     # match points using KDTree
     all_points = all_grids.cell_centers().points
     tree = cKDTree(candidate_points)
     dist, _ = tree.query(all_points)
 
-    candidate_idx = np.where(dist < distance_residual)[0].tolist()
+    candidate_idx = np.where(dist < tolerance)[0].tolist()
     candidate_idx = np.asarray(candidate_idx, dtype=int)
 
     return candidate_points, candidate_idx
 
-def get_candidate_probes(all_grids: pv.UnstructuredGrid, candidate_grid: pv.UnstructuredGrid | list, candidate):
+def get_candidate_probes(all_grids: pv.UnstructuredGrid, 
+                         candidate_grid: pv.UnstructuredGrid | list[pv.UnstructuredGrid], 
+                         candidate_points: np.ndarray | list[np.ndarray]):
     r"""
     Get target points and corresponding indices within all regions.
     Step 1: Map the input candidate point(s) to the nearest points in the specified `candidate_grid`.
@@ -1216,7 +1241,7 @@ def get_candidate_probes(all_grids: pv.UnstructuredGrid, candidate_grid: pv.Unst
         The grid containing all valid regions.
     candidate_grid: pv.UnstructuredGrid | list of pv.UnstructuredGrid
         Target region grid(s). Used to ensure the candidate point(s) are belonged to this(these) region(s).
-    candidate : np.ndarray | list of np.ndarray, shape (3,) | (N,3)
+    candidate_points : np.ndarray | list of np.ndarray, shape (N, 3,) | (3,) each
         Target point(s). Can be a single point or a list of points.
 
     Returns
@@ -1242,7 +1267,7 @@ def get_candidate_probes(all_grids: pv.UnstructuredGrid, candidate_grid: pv.Unst
         raise TypeError(f"wrong type candidate_grid: {type(candidate_grid)}")
 
     tree_region = cKDTree(candidate_region_points)
-    candidate_points = np.atleast_2d(candidate)
+    candidate_points = np.atleast_2d(candidate_points)
     
     # check if candidate points are outside the region    
     xmin, ymin, zmin = candidate_region_points.min(axis=0)

@@ -130,7 +130,7 @@ class EIM(OfflineDDROM):
             maxAbsErr[mm-1] = np.abs(residuals_matrix[xm, self.generating_fun[mm]]).max()
 
             if verbose:
-                print(f'  Iteration {(mm+1)+0:03} | Abs Err (Linfty): {maxAbsErr[mm-1]:.2e}', end="\r")
+                print(f'EIM Iteration {(mm+1)+0:03} | Abs Err (Linfty): {maxAbsErr[mm-1]:.2e}', end="\r")
 
             # Find the next magic point
             self.magic_points['idx'].append(
