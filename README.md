@@ -262,13 +262,45 @@ eig_fig = svd.plot_sing_vals()
   <img alt="Singular Values" src="images/demo/pyforce_demo_singular_values.png" width="600" />
 </p>
 
-In the end, project a test snapshot onto the reduced space and reconstruct it:
+Let us try also the Empirical Interpolation Method (EIM) on the same dataset, retaining 20 magic functions and plot the magic sensors:
 
 ```python
+from pyforce.offline.eim import EIM
+
+eim = EIM(grid, gdim = 3)
+eim.fit(train_snaps, Mmax = 20)
+
+magic_points = np.array(eim.magic_points['points'])
+
+fig, axs = plt.subplots(1, 1, figsize=(3, 3))
+
+axs.plot(magic_points[:, 0], magic_points[:, 1], 'ro', markersize=8)
+for ii, (x, y) in enumerate(magic_points[:, :2]):
+    axs.text(x, y, f'{ii+1}', color='red', fontsize=12, ha='right', va='bottom')
+
+axs.set_xlim(0, 1)
+axs.set_ylim(0, 1)
+axs.grid()
+axs.set_xlabel('X-axis')
+axs.set_ylabel('Y-axis')
+```
+<p align="center">
+  <img alt="Snapshots" src="images/demo/pyforce_demo_magic_points.png" width="1000" />
+</p>
+
+In the end, project a test snapshot onto the reduced space and reconstruct it for the SVD and reconstruct it for the EIM:
+
+``` python
 test_index = 0  # Index of the test snapshot to project
 test_snapshot = test_snaps[test_index]
+
+# SVD reconstruction
 reduced_coeffs = svd.project(test_snapshot)
-reconstructed_snapshot = svd.reconstruct(reduced_coeffs)
+reconstructed_snapshot = svd.reconstruct(reduced_coeffs)(0)
+
+# EIM reconstruction
+measures = eim._get_measures(test_snapshot)
+reconstructed_eim = eim.reconstruct(measures)(0)
 ```
 
 <p align="center">

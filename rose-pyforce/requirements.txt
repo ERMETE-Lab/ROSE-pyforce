@@ -10,3 +10,4 @@ foamlib
 trame-vtk
 scikit-learn
 setuptools
+pytest
