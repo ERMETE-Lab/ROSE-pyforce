@@ -604,7 +604,7 @@ class ReadFromOFMultiRegion():
         # Container for zero field, which is used by function import_field
         self.zero_field_regions = None
 
-    def _region_mesh(self, region: str, decomposed_mode: bool = False):
+    def _region_mesh(self, region: str):
         """
         Returns the mesh of the specified region of the OpenFOAM case.
         
@@ -686,7 +686,7 @@ class ReadFromOFMultiRegion():
     #     grid.clear_data()  # remove all the data
     #     return grid
 
-    def mesh(self, regions: list[str] = None, decomposed_mode: bool = False):
+    def mesh(self, regions: list[str] = None):
         """
         Returns the combines mesh of regions of the OpenFOAM case.
 
@@ -696,8 +696,6 @@ class ReadFromOFMultiRegion():
         ----------
         regions : str, optional
             If specified, only the mesh of the given region is returned. If `None`, the combined mesh of all regions is returned.
-        decomposed_mode : bool
-            If True, the mesh is read from processor* folders. Default is False.
             
         Returns
         -------
@@ -715,7 +713,7 @@ class ReadFromOFMultiRegion():
         self.ncells_cumulative = []
         self.ncells_cumulative.append(0)
         for region in _regions:
-            _mesh = self._region_mesh(region, decomposed_mode=decomposed_mode)
+            _mesh = self._region_mesh(region)
             _mesh.clear_data() # remove all the data
             blocks_to_merge.append(_mesh)
 
