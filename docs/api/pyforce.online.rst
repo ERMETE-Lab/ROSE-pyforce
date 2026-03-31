@@ -4,10 +4,18 @@ pyforce.online package
 Submodules
 ----------
 
-pyforce.online.failing\_sensors module
---------------------------------------
+pyforce.online.eim module
+-------------------------
 
-.. automodule:: pyforce.online.failing_sensors
+.. automodule:: pyforce.online.eim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyforce.online.failure\_sens module
+-----------------------------------
+
+.. automodule:: pyforce.online.failure_sens
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,10 +28,18 @@ pyforce.online.geim module
    :undoc-members:
    :show-inheritance:
 
-pyforce.online.indirect\_recon module
--------------------------------------
+pyforce.online.indirect\_reconstruction module
+----------------------------------------------
 
-.. automodule:: pyforce.online.indirect_recon
+.. automodule:: pyforce.online.indirect_reconstruction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyforce.online.online\_base module
+----------------------------------
+
+.. automodule:: pyforce.online.online_base
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,26 +52,10 @@ pyforce.online.pbdw module
    :undoc-members:
    :show-inheritance:
 
-pyforce.online.pod\_interpolation module
-----------------------------------------
+pyforce.online.pod module
+-------------------------
 
-.. automodule:: pyforce.online.pod_interpolation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyforce.online.pod\_projection module
--------------------------------------
-
-.. automodule:: pyforce.online.pod_projection
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyforce.online.tr\_geim module
-------------------------------
-
-.. automodule:: pyforce.online.tr_geim
+.. automodule:: pyforce.online.pod
    :members:
    :undoc-members:
    :show-inheritance:

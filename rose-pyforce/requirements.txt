@@ -1,0 +1,13 @@
+numpy
+scipy
+matplotlib
+pyvista[jupyter]
+h5py
+ipykernel
+tqdm
+fluidfoam
+foamlib
+trame-vtk
+scikit-learn
+setuptools
+pytest

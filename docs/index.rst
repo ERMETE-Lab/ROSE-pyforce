@@ -1,23 +1,46 @@
-.. pyforce documentation master file, created by
-   sphinx-quickstart on Sat Jun 24 16:41:42 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Welcome to pyforce's docs!
+.. =================================
 
-Welcome to pyforce's docs!
-=================================
+.. .. toctree::
+..    :maxdepth: 2
+..    :caption: Contents:
+..    :glob:
+
+..    intro.md
+..    installation.md
+..    theory.md
+..    tutorials
+..    adv_tutorials
+..    API Documentation <api/pyforce>
+..    bibliography
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started:
    :glob:
 
    intro.md
    installation.md
+   migration.md
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide:
+   :glob:
+
    theory.md
    tutorials
+   adv_tutorials
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference:
+   :glob:
+
    API Documentation <api/pyforce>
    bibliography
-
+   contributing.md
+   changelog.md
 
 Indices and tables
 ==================

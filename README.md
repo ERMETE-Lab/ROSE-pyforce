@@ -4,10 +4,9 @@
   </a>
 </p>
 
-
 <p align="center">
   <a href="https://doi.org/10.21105/joss.06950">
-    <img src="https://img.shields.io/badge/JOSS%20-10.21105/joss.06950-brightgreen?style=flat&logo=journal-of-open-source-software&logoColor=white" alt="JOSS Paper">
+    <img src="https://img.shields.io/badge/JOSS%20(Original%20Version)-10.21105/joss.06950-brightgreen?style=flat&logo=journal-of-open-source-software&logoColor=white" alt="JOSS Paper">
   </a>
   <a href="https://doi.org/10.1016/j.nucengdes.2024.113105">
     <img src="https://img.shields.io/badge/Ref%20Paper%201-Nucl.%20Eng.%20Des.-gray?labelColor=blue&style=flat" alt="Reference Paper 1">
@@ -18,37 +17,34 @@
 </p>
 
 <p align="center">
-  <a href="https://ermete-lab.github.io/ROSE-pyforce/intro.html">
+  <a href="https://steriva.github.io/ROSE-pyforce/intro.html">
     <img src="https://img.shields.io/badge/Docs-Read%20the%20Docs-green?style=flat&logo=readthedocs&logoColor=white" alt="Docs">
   </a>
   <a href="https://zenodo.org/records/15705990">
     <img src="https://img.shields.io/badge/Datasets-Zenodo-purple?style=flat&logo=zenodo&logoColor=white" alt="Zenodo">
   </a>
-  <a href="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml">
-    <img src="https://github.com/ERMETE-Lab/ROSE-pyforce/actions/workflows/testing.yml/badge.svg?branch=main&refresh=1" alt="Testing">
+  <a href="https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml">
+    <img src="https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml/badge.svg" alt="Testing">
   </a>
 </p>
 
-**pyforce: Python Framework data-driven model Order Reduction for multi-physiCs problEms**
+**pyforce: PYthon Framework for data-driven model Order Reduction of multi-physiCs problems**
 
 - [Description](#description)
 - [How to cite *pyforce*](#how-to-cite-pyforce)
   - [Selected works with *pyforce*](#selected-works-with-pyforce)
 - [Installation](#installation)
-- [Package Structure](#package-structure)
 - [Tutorials](#tutorials)
-  - [Demo results](#demo-results)
+  - [Basic Demo](#basic-demo)
 - [Authors and contributions](#authors-and-contributions)
-- [Community Guidelines](#community-guidelines)
-  - [Contribute to the Software](#contribute-to-the-software)
-  - [Reporting Issues or Problems](#reporting-issues-or-problems)
-  - [Seeking Support](#seeking-support)
 
 ## Description
 
-*pyforce* is a Python package implementing Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the **Nuclear Engineering** world. These techniques have been implemented upon the [dolfinx](https://github.com/FEniCS/dolfinx) package (currently v0.6.0), part of the [FEniCSx](https://fenicsproject.org/) project, to handle mesh generation, integral calculation and functions storage. The package is part of the **ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)**: mathematical algorithms aimed at reducing the complexity of multi-physics models (for nuclear reactors applications), at searching for optimal sensor positions and at integrating real measures to improve the knowledge on the physical systems.
+*pyforce* is a Python package implementing Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the **Nuclear Engineering** world. The package is part of the **ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)**: mathematical algorithms aimed at reducing the complexity of multi-physics models (for nuclear reactors applications), at searching for optimal sensor positions and at integrating real measures to improve the knowledge on the physical systems.
 
-The techniques implemented here follow the same underlying idea expressed in the following figure: in the offline (training) phase, a dimensionality reduction process retrieves a reduced coordinate system onto which encodes the information of the mathematical model; the sensor positioning algorithm then uses this set to select the optimal location of sensors according to some optimality criterion, which depends on the adopted algorithm. In the online phase, the DA process begins, retrieving a novel set of reduced variables and then computing the reconstructed state through a decoding step.
+With respect to the previous original implementation based on [dolfinx](https://github.com/FEniCS/dolfinx) package (v0.6.0), version 1.0.0 of *pyforce* has been completely re-written using `pyvista` as backend for mesh importing, computing integrals, and visualisation of results; in addition, functions are stored as `numpy` arrays, improving the ease of use of the package. **This choice allows to use *pyforce* with any software solver able to export results in VTK format.**
+
+The techniques implemented here follow the same underlying idea expressed in the following figure: in the offline (training) phase, a dimensionality reduction process retrieves a reduced coordinate system onto which encodes the information of the mathematical model; the sensor positioning algorithm then uses this set to select the optimal location of sensors according to some optimality criterion, which depends on the adopted algorithm. In the online phase, the DA process begins, retrieving a novel set of reduced variables and then computing the reconstructed state through a decoding step [Riva et al. (2024)](https://doi.org/10.1016/j.apm.2024.06.040).
 
 <p align="center">
   <img alt="DDROMstructure" src="images/tie_frighter.svg" width="850" />
@@ -57,23 +53,30 @@ The techniques implemented here follow the same underlying idea expressed in the
 
 At the moment, the following techniques have been implemented:
 
-- **Proper Orthogonal Decomposition** with Projection and Interpolation for the Online Phase -> [`pyforce.offline.POD`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/offline/pod.html#POD), [`pyforce.online.pod_projection`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/online/pod_projection.html#PODproject), [`pyforce.online.pod_interpolation`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/online/pod_interpolation.html#PODI)
-- **Generalised Empirical Interpolation Method**, either regularised with Tikhonov or not -> [`pyforce.offline.geim`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/offline/geim.html#GEIM), [`pyforce.online.geim`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/online/geim.html#GEIM), [`pyforce.online.tr_geim`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/online/tr_geim.html#TRGEIM)
-- **Parameterised-Background Data-Weak formulation** -> [`pyforce.online.pbdw`](https://ermete-lab.github.io/ROSE-pyforce/_modules/pyforce/online/pbdw.html#PBDW)
-- an **Indirect Reconstruction** algorithm to reconstruct non-observable fields -> [`pyforce.online.indirect_recon`](https://ermete-lab.github.io/ROSE-pyforce/api/pyforce.online.html#module-pyforce.online.indirect_recon)
+- **Singular Value Decomposition** (randomised, hierchical and incremental), with Projection and Interpolation for the Online Phase -> `pyforce.offline.pod`, `pyforce.online.pod`
+- **Proper Orthogonal Decomposition** with Projection and Interpolation for the Online Phase  -> `pyforce.offline.pod`, `pyforce.online.pod`
+- **Empirical Interpolation Method**, either regularised with Tikhonov or not -> `pyforce.offline.eim`, `pyforce.online.eim`
+- **Generalised Empirical Interpolation Method**, either regularised with Tikhonov or not -> `pyforce.offline.geim`, `pyforce.online.geim`
+- **Parameterised-Background Data-Weak formulation** for Data Assimilation -> `pyforce.online.pbdw`
+- **SGreedy** algorithm for optimal sensor positioning -> `pyforce.offline.sgreedy`
+- an **Indirect Reconstruction** algorithm to reconstruct un-observable fields from observable ones -> `pyforce.online.indirect_reconstruction`
 
 This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted in the Nuclear Engineering world.
+
+**⚠️ Important Note on Versions**
+The reference paper published in JOSS [1] describes the original implementation of *pyforce* (v0.1.3), which was built upon the `dolfinx` FEM framework. **This repository hosts the new major version (v1.0.0+)**, which has been completely re-architected using `pyvista` and `numpy`. This new standalone architecture removes strict FEM dependencies, allowing *pyforce* to process results from **any solver** (e.g., OpenFOAM, Ansys, MOOSE) capable of exporting VTK/H5 files.
 
 ## How to cite *pyforce*
 
 If you use *pyforce* in your research, please cite the **JOSS paper** as the primary software reference.
+**Note:** While the JOSS paper describes the original `dolfinx`-based implementation, it remains the standard citation for the *pyforce* project until the publication of the new methodology.
 
 1. **[Software Reference]** S. Riva, C. Introini, and A. Cammi, "pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems," *Journal of Open Source Software*, vol. 11, no. 117, p. 6950, 2026. [https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)
 
 For the original papers, with applications on nuclear reactors (multiphysics modelling), please also cite:
 
-2. **[Model Bias Correction]** S. Riva, C. Introini, and A. Cammi, "Multi-physics model bias correction...", *Applied Mathematical Modelling*, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040)
-3. **[Sensor Positioning and Indirect Reconstruction]** A. Cammi, S. Riva, et al., "Data-driven model order reduction...", *Nuclear Engineering and Design*, 2024. [https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105)
+2. **[Model Bias Correction]** S. Riva, C. Introini, and A. Cammi, "Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies", *Applied Mathematical Modelling*, 2024. [https://doi.org/10.1016/j.apm.2024.06.040](https://doi.org/10.1016/j.apm.2024.06.040)
+3. **[Sensor Positioning and Indirect Reconstruction]** A. Cammi, S. Riva, et al., "Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a Circulating Fuel Reactor", *Nuclear Engineering and Design*, 2024. [https://doi.org/10.1016/j.nucengdes.2024.113105](https://doi.org/10.1016/j.nucengdes.2024.113105)
 
 For LaTeX users:
 
@@ -130,107 +133,187 @@ keywords = {Hybrid Data-Assimilation, Generalized Empirical Interpolation Method
 -  W. Duan, C. Introini, A. Cammi, K. Zhang, S. Dong, and H. Chen, “State prediction and analysis of 3D upper plenum of lead–bismuth fast reactor based on model order reduction under transient accidents,” Nuclear Engineering and Design, vol. 445, p. 114447, 2025. URL: https://www.sciencedirect.com/science/article/pii/S0029549325006247, doi:10.1016/j.nucengdes.2025.114447.
 
 ## Installation
-The package can be installed using `pip`, make sure all the dependencies are installed (following these [steps](https://ermete-lab.github.io/ROSE-pyforce/installation.html#set-up-a-conda-environment-for-pyforce)). The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
 
-It is suggested to create a conda environment: at first, clone the repository
+It is recommended to install the package in a conda environment, although it is not strictly required.
+
+The simplest way to install the package is through using `pip`, including all the dependencies.
+
+**Here's how**: at first, clone the repository (this will clone the official one)
+
 ```bash
 git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
-```
-create a conda environment using `environment.yml`
-```bash
 cd ROSE-pyforce
-conda env create -f pyforce/environment.yml
 ```
-activate the environment and then install the package using `pip` (be aware than on PyPI there exists another package named *pyforce*, so be sure to install it from the cloned repository)
+
+*If you want to install the development version*, clone the repo from Steriva's account
+
 ```bash
-conda activate pyforce-env
-cd pyforce/
+git clone --branch development --single-branch https://github.com/Steriva/ROSE-pyforce.git
+cd ROSE-pyforce
+```
+
+then install the package using `pip` (this will work if you already have `python` and `pip` installed, it might not be true for `miniconda` installations):
+
+```bash
+python -m pip install -e rose-pyforce/
+```
+or equivalently
+
+```bash
+cd rose-pyforce
 python -m pip install .
 ```
 
-## Package Structure
-The package **pyforce** comprises 3 subpackages: *offline*, *online* and *tools*. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions (from *dolfinx* directly or mapping from OpenFOAM), some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.
+Another option is also provided adopting the `environment.yml` file as follows (If you face issues with rendering figures with `pyvista`, this might solve the problem):
 
-More details on how the classes are connected to each other (both during the offline and online phases) can be found in the [docs](https://ermete-lab.github.io/ROSE-pyforce/theory.html#package-structure).
+```bash
+conda env create -f pyforce/environment.yml
+conda activate pyforce-env
+python -m pip install rose-pyforce/
+```
+
+The requirements are listed [here](https://github.com/ERMETE-Lab/ROSE-pyforce/blob/main/pyforce/requirements.txt).
 
 ## Tutorials
-The *pyforce* package is tested on some tutorials available in the [docs](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html), including fluid dynamics and neutronics problems.
+The *pyforce* package is tested on some tutorials available in the `docs/Tutorials/` folder, including fluid dynamics, neutronics and multi-physics problems. Each tutorial includes a Jupyter notebook:
 
-1. Laminar Flow over Cylinder (DFG2 benchmark): solved with *dolfinx*;
-2. Multi-Group Neutron Diffusion (ANL11-A2 benchmark): solved in *dolfinx*.
-3. Differentially Heated Cavity (buoyant Navier-Stokes): solved with OpenFOAM-6, as in [ROM4FOAM tutorial](https://ermete-lab.github.io/ROSE-ROM4FOAM/Tutorials/BuoyantCavity/problem.html).
+1. First steps with *pyforce*: introduction to the package and its basic features.
+2. Introduction to Singular Value Decomposition (SVD) and Proper Orthogonal Decomposition (POD) and application to a fluid dynamics problem using the POD with Interpolation (POD-I) technique.
+3. Presentation of (Generalised) Empirical Interpolation Method ((G)EIM) and application to a bouyancy-driven fluid dynamics problem.
+4. Sensor positioning with (G)EIM and SGreedy algorithm and application of the Parameterised-Background Data-Weak (PBDW) formulation to a neutronics problem.
 
-*Coming Soon*: multiphysics (neutronics+thermal-hydraulics) with *dolfinx* and OpenFOAM.
+In addition to these basic tutorials, additional advanced tutorials are also available at `docs/Tutorials/Advanced` folder.
 
-The snapshots can be either generated by the user or be downloaded at the following link [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15705990.svg)](https://zenodo.org/records/15705990)
+The snapshots can be downloaded at the following link ... or contact Stefano Riva for further information.
 
-### Demo results
+### Basic Demo
 
-Two demo results are reported here for a quick overview of the package capabilities, for the POD with Interpolation and for the GEIM with Tikhonov Regularisation. More details can be found in the [docs](https://ermete-lab.github.io/ROSE-pyforce/tutorials.html).
+**Full code available in the `images/demo/pyforce_demo.ipynb` notebook.**
 
-- **POD** with **Interpolation** on the Laminar Flow over Cylinder tutorial: in the following block, a code-block will be reported to show how to generate the POD basis from a set of train snapshots (offline phase) and how to perform the online phase and the state reconstruction
+Consider a grid defined on the $[0,1]^2$ domain and a toy function defined as:
+
+$$
+f(x,y; \mu) = \sin(\pi \mu x) \cdot \cos(\pi \mu y) + \cos(\pi x)\cdot \sin((1-\mu) \pi y^2)
+$$
+
+where $\mu \in [-5,5]$ is a parameter. The following demo shows how to create the grid, define the snapshots, perform a train-test split, compute the SVD, plot the singular values and project a test snapshot onto the reduced space.
+
+Square geometries can be created using `pyvista.ImageData` class. The following code creates a grid with 50x50 elements on the $[0,1]^2$ domain.
+
 ```python
-# Offline Phase
-from pyforce.offline.pod import POD
-pod_off = POD(train_snaps : FunctionsList, var_name,  verbose = True)
-pod_off.compute_basis(train_snaps : FunctionsList, rank)
+import pyvista as pv
 
-...
+nx = 50
+ny = 50
+nz = 1
 
-# Online Phase
-from pyforce.online.pod_interpolation import PODI
-podi = PODI(pod_modes: FunctionsList, coefficients_maps: list, var_name)
-reconstruction = podi.reconstruct(test_snaps: FunctionsList, test_params: list, basis_to_use: int)
+grid = pv.ImageData(
+    dimensions=(nx+1, ny+1, nz+1),
+    spacing=(1/nx, 1/ny, 1e-4),
+    origin=(0.0, 0.0, 0.0)
+)
+```
+
+Define the snapshots considering this toy function:
+
+```python
+from pyforce.tools.functions_list import FunctionsList
+import numpy as np
+
+X, Y = grid.points[:, 0], grid.points[:, 1]
+
+mu_values = np.linspace(-5, 5, 100)
+
+def harmonic_oscillator(X, Y, mu):
+    term1 = np.sin(mu * np.pi * X) * np.cos(np.pi * Y)
+    term2 = np.cos(np.pi * X) * np.sin((1 - mu) * np.pi * Y**2)
+
+    return term1 + term2
+
+snapshots = FunctionsList(dofs=len(X))
+
+for mu in mu_values:
+    snapshot = harmonic_oscillator(X, Y, mu)
+    snapshots.append(snapshot)
 ```
 <p align="center">
-  <img src="images/podi.png" alt="PODI" width="400"/>
+  <img alt="Snapshots" src="images/demo/pyforce_demo_snapshots.png" width="1000" />
 </p>
 
-- **GEIM** with **Tikhonov Regularisation** on the Multi-Group Neutron Diffusion tutorial: in the following block, a code-block will be reported to show how to generate the GEIM basis and sensors from a set of train snapshots (offline phase) and how to perform the online phase and the state reconstruction
-```python
-# Offline Phase
-from pyforce.offline.geim import GEIM
-geim_off = GEIM(mesh: dolfinx.mesh.Mesh, V: FunctionSpace, var_name, sensor_point_spread)
-geim_off.offline(train_snaps : FunctionsList, Max_Sensors: int, verbose = True)
+Then, split the dataset into training and testing sets:
 
-# Online Phase
-from pyforce.online.tr_geim import TRGEIM
-trgeim = TRGEIM(magic_functions: FunctionsList, magic_sensors: FunctionsList, mean_offline_beta_coeffs: np.ndarray, std_offline_beta_coeffs: np.ndarray, var_name)
-trgeim.reconstruct(test_snaps: FunctionsList, M_to_use, noise_value, reg_param = noise_value**2)
+```python
+from pyforce.tools.functions_list import train_test_split
+
+train_mu, test_mu, train_snaps, test_snaps = train_test_split(mu_values, snapshots, test_size=0.2, random_state=42)
+```
+
+Now, compute the SVD on the training snapshots, retaining 20 modes, and plot the singular values:
+
+```python
+from pyforce.offline.pod import rSVD
+
+svd = rSVD(grid, gdim = 3)
+svd.fit(train_snaps, rank = 20)
+eig_fig = svd.plot_sing_vals()
+```
+
+<p align="center">
+  <img alt="Singular Values" src="images/demo/pyforce_demo_singular_values.png" width="600" />
+</p>
+
+Let us try also the Empirical Interpolation Method (EIM) on the same dataset, retaining 20 magic functions and plot the magic sensors:
+
+```python
+from pyforce.offline.eim import EIM
+
+eim = EIM(grid, gdim = 3)
+eim.fit(train_snaps, Mmax = 20)
+
+magic_points = np.array(eim.magic_points['points'])
+
+fig, axs = plt.subplots(1, 1, figsize=(3, 3))
+
+axs.plot(magic_points[:, 0], magic_points[:, 1], 'ro', markersize=8)
+for ii, (x, y) in enumerate(magic_points[:, :2]):
+    axs.text(x, y, f'{ii+1}', color='red', fontsize=12, ha='right', va='bottom')
+
+axs.set_xlim(0, 1)
+axs.set_ylim(0, 1)
+axs.grid()
+axs.set_xlabel('X-axis')
+axs.set_ylabel('Y-axis')
 ```
 <p align="center">
-  <img src="images/geim_anl.png" alt="TR-GEIM" width="400"/>
+  <img alt="Snapshots" src="images/demo/pyforce_demo_magic_points.png" width="1000" />
 </p>
 
+In the end, project a test snapshot onto the reduced space and reconstruct it for the SVD and reconstruct it for the EIM:
+
+``` python
+test_index = 0  # Index of the test snapshot to project
+test_snapshot = test_snaps[test_index]
+
+# SVD reconstruction
+reduced_coeffs = svd.project(test_snapshot)
+reconstructed_snapshot = svd.reconstruct(reduced_coeffs)(0)
+
+# EIM reconstruction
+measures = eim._get_measures(test_snapshot)
+reconstructed_eim = eim.reconstruct(measures)(0)
+```
+
+<p align="center">
+  <img alt="Reconstructed vs Original" src="images/demo/pyforce_demo_reconstruction.png" width="1000" />
+</p>
 
 ## Authors and contributions
 
 **pyforce** is currently developed and mantained at [Nuclear Reactors Group - ERMETE Lab](https://github.com/ERMETE-Lab) by
 
-- Stefano Riva
-- Carolina Introini
+- Dr. Stefano Riva
+- Yantao Luo
 
-under the supervision of Prof. Antonio Cammi.
+under the supervision of Dr. Carolina Introini and Prof. Antonio Cammi.
 
-If interested, please contact stefano.riva@polimi.it, carolina.introini@polimi.it, antonio.cammi@polimi.it
-
-## Community Guidelines
-
-We welcome contributions and feedback from the community! Below are the guidelines on how to get involved:
-
-### Contribute to the Software
-If you would like to contribute, please follow these steps:
-
-1. Fork the repository.
-2. Implement your changes. If you're adding new features, we kindly ask that you include an example demonstrating how to use them.
-3. Submit a pull request for review.
-
-### Reporting Issues or Problems
-If you encounter any issues or bugs with *pyforce*, please report them through the GitHub [Issues](https://github.com/ERMETE-Lab/ROSE-pyforce/issues) page. Be sure to include detailed information to help us resolve the problem efficiently.
-
-### Seeking Support
-For support, you can either:
-- Open a discussion on the GitHub [Discussions](https://github.com/ERMETE-Lab/ROSE-pyforce/discussions) page.
-- Send an email directly to: [stefano.riva@polimi.it](mailto:stefano.riva@polimi.it) or [carolina.introini@polimi.it](mailto:carolina.introini@polimi.it)
-
-Thank you for helping improve **pyforce**!
+If interested, please contact stefano.riva@polimi.it, carolina.introini@polimi.it, antonio.cammi@polimi.it.

@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('../../pyforce'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 author = "Stefano Riva, Carolina Introini, Antonio Cammi"
 project = 'pyforce'
-copyright = f"2024, {author}"
+copyright = f"2025, {author}"
 
 module = importlib.import_module(project)
 version = release = getattr(module, "__version__")
@@ -68,8 +68,8 @@ nbsphinx_execute = 'never'
 here = Path(__file__).parent.resolve()
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints', 'Tutorials/BenchmarkData']
-autodoc_mock_imports = ["dolfinx", "ufl", "petsc4py", "pyvista", "h5py"]
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints', 'Tutorials/Datasets', 'Tutorials/Results']
+autodoc_mock_imports = ["pyvista", "h5py"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -81,5 +81,4 @@ html_theme = 'sphinx_rtd_theme'
 html_logo = "images/pyforce_logo.png"
 html_theme_options = {
     'logo_only': True,
-    'display_version': False,
 }

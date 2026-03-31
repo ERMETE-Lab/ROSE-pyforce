@@ -1,0 +1,20 @@
+name: pyforce-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - IPykernel
+  - pip
+  - pyvista
+  - pip:
+    - scipy
+    - matplotlib
+    - h5py
+    - tqdm
+    - trame-vtk
+    - trame-vuetify
+    - fluidfoam
+    - foamlib
+    - trame-vtk
+    - scikit-learn
+    - setuptools>=63.0.0

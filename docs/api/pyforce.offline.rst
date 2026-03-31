@@ -20,10 +20,10 @@ pyforce.offline.geim module
    :undoc-members:
    :show-inheritance:
 
-pyforce.offline.pbdw module
----------------------------
+pyforce.offline.offline\_base module
+------------------------------------
 
-.. automodule:: pyforce.offline.pbdw
+.. automodule:: pyforce.offline.offline_base
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,10 +44,10 @@ pyforce.offline.sensors module
    :undoc-members:
    :show-inheritance:
 
-pyforce.offline.weak\_greedy module
------------------------------------
+pyforce.offline.sgreedy module
+------------------------------
 
-.. automodule:: pyforce.offline.weak_greedy
+.. automodule:: pyforce.offline.sgreedy
    :members:
    :undoc-members:
    :show-inheritance:
