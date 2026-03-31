@@ -1,6 +1,23 @@
 # Theory and package structure
 This section presents the main ideas behind Reduced Order Modelling (ROM) {cite:p}`Quarteroni2016, MadayChapter2020, Degen2020_conference`, focusing on data-driven paradigm of these techniques. Then, the structure of the package is presented showing how the different classes are connected to each other.
 
+The following table summarises the main acronyms used throughout the documentation.
+
+| Acronym | Full Name                                      | Brief Description |
+|--------|--------------------------------------------------|-------------------|
+| **DA**  | Data Assimilation                               | Methodology to combine model predictions with observational data to improve state estimates. |
+| **DDROM** | Data-Driven Reduced Order Model               | ROM built only from data without requiring explicit knowledge of the governing equations, including state estimation from sparse measurements. |
+| **FOM** | Full Order Model                                | High-fidelity model, typically a discretized PDE, used to generate snapshots for ROM construction. |
+| **GEIM** | Generalized Empirical Interpolation Method     | State estimation method able to reconstruct the state from measurements and place sensors in a greedy way. |
+| **IR** | Indirect Reconstruction                         | Technique to reconstruct non-observable fields from measurements of observable ones using ROM. |
+| **ODE** | Ordinary Differential Equation                   | Mathematical equations involving functions of a single variable and their derivatives. |
+| **PBDW** | Parametrized-Background Data-Weak formulation   | Data assimilation approach combining a background model with experimental measurements in a variational framework. |
+| **PDE** | Partial Differential Equation                    | Mathematical equations involving multivariable functions and their partial derivatives, governing many physical phenomena. |
+| **POD** | Proper Orthogonal Decomposition                  | Technique to extract dominant modes from data/snapshots for reduced modelling. |
+| **RB**  | Reduced Basis                                   | Set of basis functions derived from FOM snapshots to represent solutions in a low-dimensional space. |
+| **ROM** | Reduced Order Model                             | Low-dimensional surrogate model that approximates high-fidelity simulations. |
+| **SVD** | Singular Value Decomposition                    | Matrix factorization method used in POD to identify dominant spatial modes. |
+
 ## What is Reduced Order Modelling?
 In scientific literature, the expression Reduced Order Modelling is related to a set of techniques devoted to the search for an optimal coordinate system onto which some parametric solutions of Partial Differential Equations (PDEs) - typically called High-Fidelity (HF) or Full Order Model (FOM) - can be represented. These methods are very useful in multi-query and real-time scenarios, when quick and efficient solutions of models are required, e.g. optimization, uncertainty quantification and inverse problems {cite:p}`Guo_Veroy2021, Degen2022`. Recently, with the developments in data-driven modelling, a lot of interest in the combination of data and models has been raised. ROM offers new opportunities both to integrate the model with experimental data in real-time and to define methods of sensor positioning, by providing efficient tools to compress the prior knowledge about the system coming from the parametrized mathematical model into low-dimensional forms.
 
