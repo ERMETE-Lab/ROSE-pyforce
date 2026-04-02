@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.online.indirect_reconstruction &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.online.indirect_reconstruction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.online.indirect_reconstruction</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Indirect Reconstruction algorithm tools</span>
+<span class="c1"># Author: Stefano Riva, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 08 October 2025</span>
+<span class="c1"># Latest Doc  Update: 08 October 2025</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">brute</span><span class="p">,</span> <span class="n">shgo</span><span class="p">,</span> <span class="n">differential_evolution</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegralCalculator</span><span class="p">,</span> <span class="n">LoopProgress</span><span class="p">,</span> <span class="n">Timer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.online_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">OnlineDDROM</span><span class="p">,</span> <span class="n">SurrogateModelWrapper</span><span class="p">,</span> <span class="n">OnlineSensors</span>
+
+<span class="c1"># Define Objective Function</span>
+<div class="viewcode-block" id="objective">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.objective">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">mu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">matrix_B</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">target_measure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">SurrogateModelWrapper</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function evaluates the standard loss function :math:`\mathcal{L}_{PE}` to be minimized during the Parameter Estimation phase</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">      \mathcal{L}_{PE}(\boldsymbol{\mu}) = \|B\boldsymbol{\beta}(\boldsymbol{\mu}) - \mathbf{y}\|_2^2 \qquad\qquad</span>
+<span class="sd">      \text{ given }\mathcal{F}_m(\boldsymbol{\mu}) = \beta_m(\boldsymbol{\mu})</span>
+<span class="sd">    </span>
+<span class="sd">    given the maps :math:`\mathcal{F}_m:\boldsymbol{\mu} \rightarrow \beta_m` (:math:`m = 1, \dots, M`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mu : np.ndarray</span>
+<span class="sd">        The input parameter vector :math:`\boldsymbol{\mu} \in \mathbb{R}^{p}`.</span>
+<span class="sd">    matrix_B : np.ndarray</span>
+<span class="sd">        The (G)EIM matrix :math:`B \in \mathbb{R}^{M \times M}`.</span>
+<span class="sd">    target_measure : np.ndarray</span>
+<span class="sd">        The target measurement vector :math:`\mathbf{y} \in \mathbb{R}^{M}`.</span>
+<span class="sd">    maps : SurrogateModelWrapper</span>
+<span class="sd">        The surrogate model wrapper containing the maps :math:`\mathcal{F}_m` from parameters to (G)EIM coefficients.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_measure</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">matrix_B</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Matrix B shape </span><span class="si">{</span><span class="n">matrix_B</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> must be (M, M) with M = </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">maps</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">mu</span><span class="p">)[:</span><span class="n">M</span><span class="p">]</span>  <span class="c1"># shape (M,)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">matrix_B</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span> <span class="o">-</span> <span class="n">target_measure</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span></div>
+
+
+<span class="c1"># Parameter Estimation using scipy optimization tools</span>
+<div class="viewcode-block" id="ParameterEstimation">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParameterEstimation</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">SurrogateModelWrapper</span><span class="p">,</span> <span class="n">bnds</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">gdim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A class to perform Parameter Estimation (PE) exploiting GEIM magic functions and sensors and numerical optimisation starting from a set of measurements :math:`\mathbf{y}\in\mathbb{R}^M`</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \hat{\boldsymbol{\mu}} = \text{arg}\,\min\limits_{\boldsymbol{\mu}\in\mathcal{D}} \mathcal{L}_{PE}(\boldsymbol{\mu})</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid : pv.UnstructuredGrid</span>
+<span class="sd">            The computational grid where the solution is defined.</span>
+<span class="sd">        maps : SurrogateModelWrapper</span>
+<span class="sd">            A surrogate model wrapper containing the maps :math:`\mathcal{F}_m` from parameters to (G)EIM coefficients.</span>
+<span class="sd">        bnds : list</span>
+<span class="sd">            A list of tuples defining the bounds for each parameter in the optimisation problem.</span>
+<span class="sd">        gdim : int, optional (Default = 3)</span>
+<span class="sd">            The geometric dimension of the problem (2D or 3D).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span>
+
+        <span class="c1"># Store surrogate model -&gt; parameters to (G)EIM coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maps</span> <span class="o">=</span> <span class="n">maps</span>
+
+        <span class="c1"># Store bounds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bnds</span><span class="p">)</span> <span class="c1"># Number of parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bnds</span> <span class="o">=</span> <span class="n">bnds</span>
+
+        <span class="c1"># Initialize (G)EIM matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ParameterEstimation.set_magic_functions">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation.set_magic_functions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_magic_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign the magic functions to the GEIM model either from a FunctionsList object or by loading from a folder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        basis : FunctionsList, optional</span>
+<span class="sd">            An instance of `FunctionsList` containing the basis functions.</span>
+<span class="sd">        path_folder : str, optional</span>
+<span class="sd">            The path to the folder containing the basis functions.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments to pass to the loading function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">=</span> <span class="n">basis</span>
+        <span class="k">elif</span> <span class="n">path_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;mf_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">=</span> <span class="n">ImportFunctionsList</span><span class="p">(</span><span class="n">_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either &#39;basis&#39; or &#39;path_folder&#39; must be provided.&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="ParameterEstimation.set_magic_sensors">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation.set_magic_sensors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_magic_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensors</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign the magic sensors to the GEIM model either from a FunctionsList object or by loading from a folder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sensors : FunctionsList, optional</span>
+<span class="sd">            An instance of `FunctionsList` containing the sensor functions.</span>
+<span class="sd">        path_folder : str, optional</span>
+<span class="sd">            The path to the folder containing the sensor functions.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments to pass to the loading function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">sensors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">OnlineSensors</span><span class="p">(</span><span class="n">library</span><span class="o">=</span><span class="n">sensors</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">path_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;ms_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">OnlineSensors</span><span class="p">(</span><span class="n">library</span><span class="o">=</span><span class="n">ImportFunctionsList</span><span class="p">(</span><span class="n">_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either &#39;sensors&#39; or &#39;path_folder&#39; must be provided.&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="ParameterEstimation.compute_B_matrix">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation.compute_B_matrix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_B_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Compute the matrix B used in the GEIM: this matrix is the evaluation of the magic functions at the magic sensors.</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            B_{ij} = v_i(q_j) \qquad i,j = 1, \ldots, M</span>
+
+<span class="sd">        where :math:`\{q_j\}_{j=1}^M` are the magic functions and :math:`\{v_i\}_{i=1}^M` are the magic sensors.</span>
+<span class="sd">    </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">_library</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span> <span class="o">=</span> <span class="n">M</span>
+
+        <span class="k">assert</span> <span class="n">M</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Number of magic sensors </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2"> must be equal to the number of magic functions </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ParameterEstimation.get_measurements">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation.get_measurements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method extracts the measures from the input functions at the magic sensors locations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            Function object to extract the measures from.</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of sensors to use for the extraction. If `None`, all available magic sensors are used.</span>
+<span class="sd">        noise_std : float, optional (Default = 0.0)</span>
+<span class="sd">            Standard deviation of the Gaussian noise to be added to the measurements. Default is 0.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measures :math:`\{y_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+            <span class="n">snaps</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">snaps</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input must be a FunctionsList or a numpy ndarray.&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;Input shape must match the magic functions shape.&quot;</span>
+
+        <span class="n">measures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> <span class="c1"># shape (M, Ns)</span>
+
+        <span class="k">if</span> <span class="n">noise_std</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_std</span><span class="p">,</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">measures</span> <span class="o">+=</span> <span class="n">noise</span>
+
+        <span class="k">return</span> <span class="n">measures</span></div>
+
+    
+<div class="viewcode-block" id="ParameterEstimation.optimise">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation.optimise">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">use_brute</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">grid_elem</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This auxiliary function performs the optimisation process given an input collection of measurements.</span>
+<span class="sd">        </span>
+<span class="sd">        Two options are available:</span>
+<span class="sd">        </span>
+<span class="sd">            - **brute force method** for finding the first guess of the parameter estimation + Least squares</span>
+<span class="sd">            - **differential evolution method** for finding the first guess of the parameter estimation + Least squares</span>
+<span class="sd">            </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measure : np.ndarray</span>
+<span class="sd">            Measurement vector of `M` elements, array-like.</span>
+<span class="sd">        use_brute : bool, optional (Default = True)</span>
+<span class="sd">            brute force method for finding the first guess of the parameter estimation</span>
+<span class="sd">        grid_elem : int, optional (Default = 10)</span>
+<span class="sd">            Number of elements in the grid for the brute force method</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : np.ndarray</span>
+<span class="sd">            Solution of the optimisation (after least squares)</span>
+<span class="sd">        guess : np.ndarray</span>
+<span class="sd">            Solution of the optimisation (before least squares)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">measure</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">M</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mmax</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">use_brute</span><span class="p">:</span>
+            <span class="c1"># defining bounds for optimisation</span>
+            <span class="n">opt_bnds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">):</span>
+                <span class="n">delta_mu</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bnds</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bnds</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">grid_elem</span>
+                <span class="n">opt_bnds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bnds</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bnds</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">delta_mu</span><span class="p">))</span>
+
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">brute</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">opt_bnds</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">],</span> <span class="n">measure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maps</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">differential_evolution</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bnds</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">M</span><span class="p">,</span> <span class="p">:</span><span class="n">M</span><span class="p">],</span> <span class="n">measure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maps</span><span class="p">))</span><span class="o">.</span><span class="n">x</span>
+
+        <span class="k">return</span> <span class="n">sol</span></div>
+
+
+<div class="viewcode-block" id="ParameterEstimation.compute_errors">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.indirect_reconstruction.ParameterEstimation.compute_errors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_param</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">test_snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                        <span class="n">noise_std</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">use_brute</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">grid_elem</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The absolute and relative error of the PE phase, using different measurements coming from the test set, are computed.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_param : np.ndarray</span>
+<span class="sd">            The test parameter set :math:`\{\boldsymbol{\mu}^{(n)}\}_{n=1}^{N_{test}}`, shaped :math:`(N_{test}, p)`.</span>
+<span class="sd">        test_snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            The test snapshots set :math:`\{u^{(n)}\}_{n=1}^{N_{test}}`.</span>
+<span class="sd">        M : int</span>
+<span class="sd">            Number of sensors to use for the generation of the measures.</span>
+<span class="sd">        noise_std : float, optional (Default = 0.0)</span>
+<span class="sd">            Standard deviation of the Gaussian noise to be added to the measurements. </span>
+<span class="sd">        use_brute : bool, optional (Default = True)</span>
+<span class="sd">            If `True`, the brute force method is used for the initial guess in the optimisation. If `False`, differential evolution is used.</span>
+<span class="sd">        grid_elem : int, optional (Default = 10)</span>
+<span class="sd">            Number of elements in the grid for the brute force method.</span>
+<span class="sd">        verbose : bool, optional (Default = False)</span>
+<span class="sd">            If `True`, progress information is printed to the console.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mean_abs_err : np.ndarray</span>
+<span class="sd">            Average absolute error of the parameter estimation</span>
+<span class="sd">        mean_rel_err : np.ndarray</span>
+<span class="sd">            Average relative error of the parameter estimation</span>
+<span class="sd">        computational_time : dict</span>
+<span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+<span class="sd">        mu_PE : list</span>
+<span class="sd">            List containing the estimated parameters after least squares at varying number of measurements</span>
+<span class="sd">        mu_PE_guess : list</span>
+<span class="sd">            List containing the estimated parameters before least squares at varying number of measurements</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">bar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Computing PE errors&quot;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Ns</span><span class="p">)</span>
+
+        <span class="n">mu_PE</span>       <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">))</span>
+
+        <span class="c1"># Variables to store computational time</span>
+        <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Optimisation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+
+        <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
+
+        <span class="c1"># Loop over test parameters</span>
+        <span class="k">for</span> <span class="n">idx_mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                
+                <span class="c1"># Get measurements</span>
+                <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">measure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span>
+                    <span class="n">test_snaps</span><span class="p">(</span><span class="n">idx_mu</span><span class="p">),</span> <span class="n">M</span><span class="o">=</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise_std</span>
+                <span class="p">)</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measures&#39;</span><span class="p">][</span><span class="n">idx_mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+                <span class="c1"># Perform optimisation</span>
+                <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">mu_PE</span><span class="p">[</span><span class="n">idx_mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimise</span><span class="p">(</span>
+                    <span class="n">measure</span><span class="o">=</span><span class="n">measure</span><span class="p">,</span> <span class="n">use_brute</span><span class="o">=</span><span class="n">use_brute</span><span class="p">,</span> <span class="n">grid_elem</span><span class="o">=</span><span class="n">grid_elem</span>
+                <span class="p">)</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Optimisation&#39;</span><span class="p">][</span><span class="n">idx_mu</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Compute errors</span>
+        <span class="n">abs_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mu_PE</span> <span class="o">-</span> <span class="n">test_param</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># shape (M, p)</span>
+        <span class="n">rel_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mu_PE</span> <span class="o">-</span> <span class="n">test_param</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_param</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:])</span> <span class="o">+</span> <span class="mf">1e-12</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># shape (M, p)</span>
+
+        <span class="c1"># Store results</span>
+        <span class="n">Results</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Results&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean_abs_err&#39;</span><span class="p">,</span> <span class="s1">&#39;mean_rel_err&#39;</span><span class="p">,</span> <span class="s1">&#39;computational_time&#39;</span><span class="p">,</span> <span class="s1">&#39;mu_PE&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">Results</span><span class="p">(</span><span class="n">mean_abs_err</span><span class="o">=</span><span class="n">abs_err</span><span class="p">,</span> <span class="n">mean_rel_err</span><span class="o">=</span><span class="n">rel_err</span><span class="p">,</span> <span class="n">computational_time</span><span class="o">=</span><span class="n">computational_time</span><span class="p">,</span> <span class="n">mu_PE</span><span class="o">=</span><span class="n">mu_PE</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

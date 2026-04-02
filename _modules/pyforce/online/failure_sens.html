@@ -1,0 +1,588 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.online.failure_sens &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.online.failure_sens</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.online.failure_sens</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Online Phase: Failing sensors</span>
+<span class="c1"># Author: Stefano Riva, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 24 October 2025</span>
+<span class="c1"># Latest Doc  Update: 24 October 2025</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegralCalculator</span><span class="p">,</span> <span class="n">LoopProgress</span><span class="p">,</span> <span class="n">Timer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImportFunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.online_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">OnlineDDROM</span><span class="p">,</span> <span class="n">OnlineSensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pbdw</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBDW</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FailingGEIM">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failure_sens.FailingGEIM">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FailingGEIM</span><span class="p">(</span><span class="n">GEIM</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for the online phase of GEIM with failing sensors.</span>
+<span class="sd">    Inherits from GEIM class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : pv.UnstructuredGrid</span>
+<span class="sd">        The computational grid.</span>
+<span class="sd">    gdim : int, optional</span>
+<span class="sd">        Geometrical dimension of the problem (default is 3).</span>
+<span class="sd">    varname : str, optional</span>
+<span class="sd">        Name of the variable in the grid (default is &#39;u&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">gdim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">)</span>
+    
+
+<div class="viewcode-block" id="FailingGEIM.get_measurements">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failure_sens.FailingGEIM.get_measurements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                         <span class="n">drift_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method extracts the measures from the input functions at the magic sensors locations. It allows also to add Gaussian noise to the measurements.</span>
+
+<span class="sd">        Moreover, the drift failure of the sensor can be simulated by providing a drift_dict with the following keys:</span>
+<span class="sd">        </span>
+<span class="sd">        - &#39;kappa&#39; : float</span>
+<span class="sd">            Shift from the average value of the sensor.</span>
+<span class="sd">        - &#39;rho&#39; : float, optional </span>
+<span class="sd">            High frequency oscillation amplitude.</span>
+<span class="sd">        - &#39;idx_failed&#39; : list of int, optional</span>
+<span class="sd">            List of indices of the failed sensors.</span>
+<span class="sd">        - &#39;mu_failure&#39; : int, optional (Default = 0)</span>
+<span class="sd">            Starting index of the failure in the snapshots.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            Function object to extract the measures from.</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of sensors to use for the extraction. If `None`, all available magic sensors are used.</span>
+<span class="sd">        noise_std : float, optional (Default = 0.0)</span>
+<span class="sd">            Standard deviation of the Gaussian noise to be added to the measurements. Default is 0.</span>
+<span class="sd">        drift_dict : dict, optional (Default = None)</span>
+<span class="sd">            Dictionary containing the parameters for the drift failure simulation.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measures :math:`\{y_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+            <span class="n">snaps</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">snaps</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input must be a FunctionsList or a numpy ndarray.&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;Input shape must match the magic functions shape.&quot;</span>
+
+        <span class="n">measures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> <span class="c1"># shape (M, Ns)</span>
+
+        <span class="k">if</span> <span class="n">noise_std</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_std</span><span class="p">,</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">measures</span> <span class="o">+=</span> <span class="n">noise</span>
+
+        <span class="c1"># Handle sensor drift failure</span>
+        <span class="k">if</span> <span class="n">drift_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s1">&#39;kappa&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">,</span> <span class="s2">&quot;&#39;drift_dict&#39; must contain the key &#39;kappa&#39;.&quot;</span>
+            <span class="n">kappa</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;kappa&#39;</span><span class="p">]</span>
+
+            <span class="k">assert</span> <span class="s1">&#39;rho&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">,</span> <span class="s2">&quot;&#39;drift_dict&#39; must contain the key &#39;rho&#39;.&quot;</span>
+            <span class="n">rho</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">]</span>
+
+            <span class="k">assert</span> <span class="s1">&#39;idx_failed&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">,</span> <span class="s2">&quot;&#39;drift_dict&#39; must contain the key &#39;idx_failed&#39;.&quot;</span>
+            <span class="n">idx_failed</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;&#39;idx_failed&#39; must contain indices between 0 and </span><span class="si">{</span><span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+            <span class="k">if</span> <span class="s1">&#39;mu_failure&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">:</span>
+                <span class="n">mu_failure</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;mu_failure&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mu_failure</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">drift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">measures</span><span class="p">[</span><span class="n">idx_failed</span><span class="p">,</span> <span class="n">mu_failure</span><span class="p">:]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="c1"># Apply the drift to the failed sensors</span>
+            <span class="n">measures</span><span class="p">[</span><span class="n">idx_failed</span><span class="p">,</span> <span class="n">mu_failure</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">drift</span>
+
+        <span class="k">return</span> <span class="n">measures</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_solve_hardfailure_trgeim_linear_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+                                                <span class="n">regularization_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+                                                <span class="n">hard_failure_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the reduced coefficients :math:`\{\beta_m\}_{m=1}^{M}}` with as many magic functions/points (synthetic) as the input measures :math:`M`</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            y_m = u(\vec{x}_m) \qquad m = 1, \dots, M_{max}</span>
+
+<span class="sd">        from the following Tikhonov-regularized linear system</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            (\mathbb{B}^T\mathbb{B} + \lambda \mathbb{T}^T\mathbb{T})\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y}+\lambda \mathbb{T}^T\mathbb{T}\langle \boldsymbol{\beta}\rangle</span>
+<span class="sd">        where :math:`\mathbb{T}` is the Tikhonov matrix, :math:`\langle \boldsymbol{\beta}\rangle` is the mean of the training reduced coefficients, and :math:`\lambda` is the regularization parameter.</span>
+
+<span class="sd">        This method is able to handle hard failures by removing the failed sensors from the linear system after the failure occurs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measurements vector :math:`\{y_m\}_{m=1}^{M_{max}}` of the function `u` at the sensors locations.</span>
+<span class="sd">        regularization_params : dict</span>
+<span class="sd">            Dictionary containing the regularization parameters. It must contain the following keys:</span>
+<span class="sd">            - &#39;type&#39;: str, the type of regularization.</span>
+<span class="sd">            - &#39;lambda&#39;: float, the regularization parameter.</span>
+<span class="sd">        hard_failure_dict : dict</span>
+<span class="sd">            Dictionary containing the parameters for the hard failure simulation. It must contain the following keys:</span>
+<span class="sd">            - &#39;idx_failed&#39;: list of int, list of indices of the failed sensors.</span>
+<span class="sd">            - &#39;mu_failure&#39;: int, starting index of the failure in the snapshots.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        beta_coeff : np.ndarray</span>
+<span class="sd">            Array of coefficients for the interpolant :math:`\{\beta_m\}_{m=1}^{M_{max}}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">),</span> <span class="s2">&quot;The number of measures must be equal to the number of magic functions&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tikhonov</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tikhonov matrices not set. Please call &#39;set_tikhonov_matrices&#39; method first.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Extract quantities for the linear system</span>
+        <span class="n">_m</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">lambda_reg</span> <span class="o">=</span> <span class="n">regularization_params</span><span class="p">[</span><span class="s1">&#39;lambda&#39;</span><span class="p">]</span>
+        <span class="n">_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">_m</span><span class="p">,</span> <span class="p">:</span><span class="n">_m</span><span class="p">]</span>
+        <span class="n">_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tikhonov</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">][:</span><span class="n">_m</span><span class="p">,</span> <span class="p">:</span><span class="n">_m</span><span class="p">]</span>
+        <span class="n">_beta_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tikhonov</span><span class="p">[</span><span class="s1">&#39;beta_mean&#39;</span><span class="p">][:</span><span class="n">_m</span><span class="p">]</span>
+
+        <span class="c1"># Assemble the linear system</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">_B</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">_B</span> <span class="o">+</span> <span class="n">lambda_reg</span> <span class="o">*</span> <span class="p">(</span><span class="n">_T</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">_T</span><span class="p">)</span>
+        <span class="n">rhs</span> <span class="o">=</span> <span class="n">_B</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">measures</span><span class="p">[:</span><span class="n">_m</span><span class="p">]</span> <span class="o">+</span> <span class="n">lambda_reg</span> <span class="o">*</span> <span class="p">(</span><span class="n">_T</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">_T</span> <span class="o">@</span> <span class="n">_beta_mean</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+
+        <span class="n">beta_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">_m</span><span class="p">,</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&lt;</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;mu_failure&#39;</span><span class="p">]:</span>
+                <span class="n">beta_coeff</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">rhs</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">rhs</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">],</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                                <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+                              <span class="p">)</span>
+                <span class="n">_beta_sol</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">_A</span><span class="p">,</span> <span class="n">_rhs</span><span class="p">)</span>
+
+                <span class="n">idx_sol</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_m</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">]:</span>
+                        <span class="n">beta_coeff</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">beta_coeff</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="n">_beta_sol</span><span class="p">[</span><span class="n">idx_sol</span><span class="p">]</span>
+                        <span class="n">idx_sol</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">beta_coeff</span>
+    
+<div class="viewcode-block" id="FailingGEIM.estimate">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failure_sens.FailingGEIM.estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">measures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                        <span class="n">regularization_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">hard_failure_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate the state using the GEIM given the measures at the sensor locations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measures :math:`\{y_m\}_{m=1}^{M_{max}}`, shaped :math:`(M_{max},N_s)`.</span>
+<span class="sd">        regularization_params : dict, optional (Default = None)</span>
+<span class="sd">            Dictionary containing the regularization parameters. If `None`, no regularization is applied.</span>
+<span class="sd">            At the moment, the only supported regularization is Tikhonov from `Introini et al. (2023) &lt;https://doi.org/10.1016/j.cma.2022.115773&gt;`_.</span>
+<span class="sd">        hard_failure_dict : dict, optional (Default = None)</span>
+<span class="sd">            Dictionary containing the parameters for the hard failure simulation.</span>
+<span class="sd">            If provided, the method will handle hard failures by removing the corresponding sensors from the estimation process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        estimation : FunctionsList</span>
+<span class="sd">            An instance of `FunctionsList` containing the estimated state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The number of measures </span><span class="si">{</span><span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> must be less than or equal to the number of magic sensors </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">regularization_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hard_failure_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">regularization_params</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">:</span>
+                <span class="n">beta_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_trgeim_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">regularization_params</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Regularization type </span><span class="si">{</span><span class="n">regularization_params</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> not recognized: available types: &#39;tikhonov&#39;.&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">hard_failure_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            
+            <span class="k">assert</span> <span class="n">regularization_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Regularization parameters must be provided for hard failure handling.&quot;</span>
+            <span class="k">assert</span> <span class="n">regularization_params</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s2">&quot;Only Tikhonov regularization is supported for hard failure handling.&quot;</span>
+            
+            <span class="n">beta_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_hardfailure_trgeim_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">regularization_params</span><span class="p">,</span> <span class="n">hard_failure_dict</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">beta_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_geim_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">)</span>
+        
+        <span class="n">estimation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruct</span><span class="p">(</span><span class="n">beta_coeff</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">estimation</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FailingPBDW">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failure_sens.FailingPBDW">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FailingPBDW</span><span class="p">(</span><span class="n">PBDW</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for the online phase of PBDW with failing sensors.</span>
+<span class="sd">    Inherits from PBDW class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : pv.UnstructuredGrid</span>
+<span class="sd">        The computational grid.</span>
+<span class="sd">    gdim : int, optional</span>
+<span class="sd">        Geometrical dimension of the problem (default is 3).</span>
+<span class="sd">    varname : str, optional</span>
+<span class="sd">        Name of the variable in the grid (default is &#39;u&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">gdim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="FailingPBDW.get_measurements">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failure_sens.FailingPBDW.get_measurements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">drift_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method extracts the measures from the input functions at the magic sensors locations. It allows also to add Gaussian noise to the measurements.</span>
+
+<span class="sd">        Moreover, the drift failure of the sensor can be simulated by providing a drift_dict with the following keys:</span>
+<span class="sd">        </span>
+<span class="sd">        - &#39;kappa&#39; : float</span>
+<span class="sd">            Shift from the average value of the sensor.</span>
+<span class="sd">        - &#39;rho&#39; : float, optional </span>
+<span class="sd">            High frequency oscillation amplitude.</span>
+<span class="sd">        - &#39;idx_failed&#39; : list of int, optional</span>
+<span class="sd">            List of indices of the failed sensors.</span>
+<span class="sd">        - &#39;mu_failure&#39; : int, optional (Default = 0)</span>
+<span class="sd">            Starting index of the failure in the snapshots.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            Function object to extract the measures from.</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of sensors to use for the extraction. If `None`, all available magic sensors are used.</span>
+<span class="sd">        noise_std : float, optional (Default = 0.0)</span>
+<span class="sd">            Standard deviation of the Gaussian noise to be added to the measurements. Default is 0.</span>
+<span class="sd">        drift_dict : dict, optional (Default = None)</span>
+<span class="sd">            Dictionary containing the parameters for the drift failure simulation.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measures :math:`\{y_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+            <span class="n">snaps</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">snaps</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input must be a FunctionsList or a numpy ndarray.&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;Input shape must match the magic functions shape.&quot;</span>
+
+        <span class="n">measures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> <span class="c1"># shape (M, Ns)</span>
+
+        <span class="k">if</span> <span class="n">noise_std</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noise_std</span><span class="p">,</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">measures</span> <span class="o">+=</span> <span class="n">noise</span>
+
+        <span class="c1"># Handle sensor drift failure</span>
+        <span class="k">if</span> <span class="n">drift_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s1">&#39;kappa&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">,</span> <span class="s2">&quot;&#39;drift_dict&#39; must contain the key &#39;kappa&#39;.&quot;</span>
+            <span class="n">kappa</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;kappa&#39;</span><span class="p">]</span>
+
+            <span class="k">assert</span> <span class="s1">&#39;rho&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">,</span> <span class="s2">&quot;&#39;drift_dict&#39; must contain the key &#39;rho&#39;.&quot;</span>
+            <span class="n">rho</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">]</span>
+
+            <span class="k">assert</span> <span class="s1">&#39;idx_failed&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">,</span> <span class="s2">&quot;&#39;drift_dict&#39; must contain the key &#39;idx_failed&#39;.&quot;</span>
+            <span class="n">idx_failed</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">idx_failed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;&#39;idx_failed&#39; must contain indices between 0 and </span><span class="si">{</span><span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+            <span class="k">if</span> <span class="s1">&#39;mu_failure&#39;</span> <span class="ow">in</span> <span class="n">drift_dict</span><span class="p">:</span>
+                <span class="n">mu_failure</span> <span class="o">=</span> <span class="n">drift_dict</span><span class="p">[</span><span class="s1">&#39;mu_failure&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mu_failure</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">drift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">measures</span><span class="p">[</span><span class="n">idx_failed</span><span class="p">,</span> <span class="n">mu_failure</span><span class="p">:]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="c1"># Apply the drift to the failed sensors</span>
+            <span class="n">measures</span><span class="p">[</span><span class="n">idx_failed</span><span class="p">,</span> <span class="n">mu_failure</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">drift</span>
+
+        <span class="k">return</span> <span class="n">measures</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_solve_hardfailure_pbdw_linear_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">xi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                                <span class="n">hard_failure_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the reduced coefficients :math:`\{\alpha_n\}_{n=1}^{N}}` and :math:`\{\theta_m\}_{m=1}^{M}}` with as many basis sensors as the input measures :math:`M`. The following linear system is solved</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \left[ </span>
+<span class="sd">                \begin{array}{ccc}</span>
+<span class="sd">                    \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\</span>
+<span class="sd">                    \mathbb{K}^T &amp; &amp; 0</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right] \cdot</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \boldsymbol{\theta} \\ \\ \boldsymbol{\alpha}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">                \right]   =</span>
+<span class="sd">                \left[ </span>
+<span class="sd">                \begin{array}{c}</span>
+<span class="sd">                    \mathbf{y} \\ \\ \mathbf{0}</span>
+<span class="sd">                \end{array}</span>
+<span class="sd">            \right]</span>
+
+<span class="sd">        given :math:`\mathbf{y}\in\mathbb{R}^M` as the measurements vector.</span>
+
+<span class="sd">        This method is able to handle hard failures by removing the failed sensors from the linear system after the failure occurs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measurements vector :math:`\{y_m\}_{m=1}^{M_{max}}` of the function `u` at the sensors locations.</span>
+<span class="sd">        xi : float, optional (Default = 0.0)</span>
+<span class="sd">            Regularization parameter for the regularization. Default is 0.0</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        beta_coeff : np.ndarray</span>
+<span class="sd">            Array of coefficients for the interpolant :math:`\{\beta_m\}_{m=1}^{M_{max}}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">),</span> <span class="s2">&quot;The number of measures must be larger than or equal to the number of basis functions&quot;</span>
+        <span class="k">assert</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">_library</span><span class="p">),</span> <span class="s2">&quot;The number of measures must be less than or equal to the number of sensors&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_A</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_K</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_Z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_matrices</span><span class="p">()</span>
+
+        <span class="n">_m</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_A</span><span class="p">[:</span><span class="n">_m</span><span class="p">,</span> <span class="p">:</span><span class="n">_m</span><span class="p">]</span> <span class="o">+</span> <span class="n">xi</span> <span class="o">*</span> <span class="n">_m</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">_m</span><span class="p">)</span>
+        <span class="n">_K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_K</span><span class="p">[:</span><span class="n">_m</span><span class="p">]</span>
+        <span class="n">_Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_Z</span>
+
+        <span class="c1"># Assemble the full linear system</span>
+        <span class="n">sys_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+            <span class="p">[</span><span class="n">_A</span><span class="p">,</span> <span class="n">_K</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_K</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">_Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+        <span class="p">])</span>
+        
+        <span class="c1"># Right-hand side</span>
+        <span class="n">rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">measures</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">_Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Solve the linear system</span>
+        <span class="n">_coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">_A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">_Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+            <span class="k">if</span> <span class="n">mu</span> <span class="o">&lt;</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;mu_failure&#39;</span><span class="p">]:</span>
+                <span class="n">_coeffs</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sys_matrix</span><span class="p">,</span> <span class="n">rhs</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_rhs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">rhs</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">],</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">_sys_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">sys_matrix</span><span class="p">,</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                                        <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+                                        <span class="p">)</span>
+                <span class="n">_coeff_sol</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">_sys_matrix</span><span class="p">,</span> <span class="n">_rhs</span><span class="p">)</span>
+
+                <span class="n">idx_sol</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">_Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">hard_failure_dict</span><span class="p">[</span><span class="s1">&#39;idx_failed&#39;</span><span class="p">]:</span>
+                        <span class="n">_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">mu</span><span class="p">]</span> <span class="o">=</span> <span class="n">_coeff_sol</span><span class="p">[</span><span class="n">idx_sol</span><span class="p">]</span>
+                        <span class="n">idx_sol</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">theta_coeff</span> <span class="o">=</span> <span class="n">_coeffs</span><span class="p">[:</span><span class="n">_m</span><span class="p">]</span>
+        <span class="n">alpha_coeff</span> <span class="o">=</span> <span class="n">_coeffs</span><span class="p">[</span><span class="n">_m</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">alpha_coeff</span><span class="p">,</span> <span class="n">theta_coeff</span>
+    
+<div class="viewcode-block" id="FailingPBDW.estimate">
+<a class="viewcode-back" href="../../../api/pyforce.online.html#pyforce.online.failure_sens.FailingPBDW.estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">measures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">xi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="n">hard_failure_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate the state using the PBDW given the measures at the sensor locations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measures :math:`\{y_m\}_{m=1}^{M}`, shaped :math:`(M, N_s)`.</span>
+<span class="sd">        xi : float, optional (Default = 0.0)</span>
+<span class="sd">            Regularization parameter for the regularization. Default is 0.0</span>
+<span class="sd">        hard_failure_dict : dict, optional (Default = None)</span>
+<span class="sd">            Dictionary containing the parameters for the hard failure simulation.</span>
+<span class="sd">            If provided, the method will handle hard failures by removing the corresponding sensors from the estimation process.-</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        estimation : FunctionsList</span>
+<span class="sd">            An instance of `FunctionsList` containing the estimated state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_A</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_K</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_Z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_matrices</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">hard_failure_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">alpha_coeffs</span><span class="p">,</span> <span class="n">theta_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_hardfailure_pbdw_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">xi</span><span class="o">=</span><span class="n">xi</span><span class="p">,</span> <span class="n">hard_failure_dict</span><span class="o">=</span><span class="n">hard_failure_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alpha_coeffs</span><span class="p">,</span> <span class="n">theta_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_pbdw_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">xi</span><span class="o">=</span><span class="n">xi</span><span class="p">)</span>
+
+        <span class="n">estimation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruct</span><span class="p">(</span><span class="n">alpha_coeffs</span><span class="p">,</span> <span class="n">theta_coeffs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">estimation</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

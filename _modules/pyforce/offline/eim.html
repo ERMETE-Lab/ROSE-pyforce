@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyforce.offline.eim &mdash; pyforce 0.1.0 documentation</title>
+  <title>pyforce.offline.eim &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -41,14 +41,24 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -76,53 +86,53 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyforce.offline.eim</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Offline Phase: Empirical Interpolation Method</span>
-<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 04 November 2024</span>
-<span class="c1"># Latest Doc  Update: 04 November 2024</span>
+<span></span><span class="c1"># Offline Phase: Empirical Interpolation Method (EIM) - including discrete empirical interpolation method (DEIM)</span>
+<span class="c1"># Author: Stefano Riva, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 07 October 2025</span>
+<span class="c1"># Latest Doc  Update: 07 October 2025</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
-    
-<span class="c1"># EIM: offline</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegralCalculator</span><span class="p">,</span> <span class="n">LoopProgress</span><span class="p">,</span> <span class="n">Timer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.offline_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">OfflineDDROM</span>
+
 <div class="viewcode-block" id="EIM">
 <a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EIM</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EIM</span><span class="p">(</span><span class="n">OfflineDDROM</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class is used to perform the offline phase of the Empirical Interpolation Method (EIM) to a scalar field.</span>
-<span class="sd">    Given a list of training snapshots, this class generates the magic functions and points through a greedy algorithm.</span>
+<span class="sd">    A class implementing the Empirical Interpolation Method (EIM) for dimensionality reduction and sensor placement.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    mesh : np.ndarray</span>
-<span class="sd">        Mesh Points shaped as :math:`\mathcal{N}_h\times gdim`, given :math:`gdim` be the number of independent coordinates (1,2 or 3).</span>
-<span class="sd">    name : str</span>
-<span class="sd">        Name of the snapshots (e.g., temperature T)</span>
-<span class="sd">    </span>
+<span class="sd">    grid: pv.UnstructuredGrid</span>
+<span class="sd">        The computational grid.</span>
+<span class="sd">    gdim: int, optional (default=3)</span>
+<span class="sd">        The geometric dimension of the problem. It can be either 2 or 3.</span>
+<span class="sd">    varname: str, optional (default=&#39;u&#39;)</span>
+<span class="sd">        The name of the variable to analyse. Default is &#39;u&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        
-<div class="viewcode-block" id="EIM.offline">
-<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.offline">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">offline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">_xm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EIM.fit">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_snaps</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">_xm_idx</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The greedy algorithm chooses the magic functions and magic points by minimising the reconstruction error.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        train_snap : FunctionsList</span>
+<span class="sd">        train_snaps : FunctionsList</span>
 <span class="sd">            List of snapshots serving as training set.</span>
 <span class="sd">        Mmax : int</span>
 <span class="sd">            Integer input indicating the maximum number of functions and sensors to define</span>
-<span class="sd">        _xm : list, optional (default = None)</span>
-<span class="sd">            User-defined available indices positions for the points (sensors), if `None` the positions are all mesh elements.</span>
+<span class="sd">        _xm_idx : list, optional (default = None)</span>
+<span class="sd">            User-defined available indices for the points (sensors), if `None` the indices are all mesh elements.</span>
 <span class="sd">        verbose : boolean, optional (Default = False) </span>
 <span class="sd">            If `True`, print of the progress is enabled.</span>
 <span class="sd">            </span>
@@ -135,176 +145,509 @@
 <span class="sd">        beta_coeff : np.ndarray</span>
 <span class="sd">            Matrix of the reduced coefficients :math:`\{ \beta_m \}_{m=1}^M`, obtained by greedy procedure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">)</span>
+
+        <span class="c1"># Select if the user provided cell field data or point field data</span>
+        <span class="k">if</span> <span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span> <span class="o">=</span> <span class="s1">&#39;cell&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">elif</span> <span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span> <span class="o">=</span> <span class="s1">&#39;point&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span> <span class="ow">or</span> <span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The shape of the input functions (</span><span class="si">{</span><span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span><span class="si">}</span><span class="s2">) seems to be a vector field, not supported: only scalar fields are allowed.&quot;</span><span class="p">)</span>
+            
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The shape of the input functions (</span><span class="si">{</span><span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span><span class="si">}</span><span class="s2">) does not match the number of cells (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="si">}</span><span class="s2">) or points (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="si">}</span><span class="s2">) of the grid.&quot;</span><span class="p">)</span>
+        
+
+        <span class="n">Ns_train</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">)</span>
 
         <span class="c1"># Generate sensor library</span>
-        <span class="k">if</span> <span class="n">_xm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">xm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_xm_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">_xm</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Indices are out of range&quot;</span>
-            <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">_xm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Indices are out of range&quot;</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">_xm</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;List of positions not compatible with the mesh points&quot;</span>
-            
-            <span class="n">xm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_xm</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-            
-        <span class="n">beta_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">train_snap</span><span class="p">),</span> <span class="n">Mmax</span><span class="p">))</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+            <span class="n">xm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_xm_idx</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Initialize arrays</span>
+        <span class="n">beta_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mmax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_snaps</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">train_snaps</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;idx&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(),</span> 
+            <span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="p">}</span>    
         <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;idx&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(),</span> <span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">()}</span>
-        
-        <span class="n">maxAbsErr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="n">maxRelErr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        
-        <span class="n">snap_matrix</span> <span class="o">=</span> <span class="n">train_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
-        
-        <span class="c1"># Generating the first magic function and associated point</span>
+
+        <span class="c1"># Initialize errors</span>
+        <span class="n">maxAbsErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Mmax</span><span class="p">)</span>
+
+        <span class="c1"># Convert snaps to matrix</span>
+        <span class="n">snaps_matrix</span> <span class="o">=</span> <span class="n">train_snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+
+        <span class="c1"># Generating the first magic function and associated point from the function maximizing the L_inf norm</span>
         <span class="n">mm</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">snap_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span> <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">xm</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span> <span class="n">snap_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]))]</span> <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">]]</span> <span class="p">)</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">snap_matrix</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span> <span class="o">/</span> <span class="p">(</span><span class="n">snap_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]])</span>  <span class="p">)</span>
-        
-        <span class="c1"># Generate the first interpolant</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">xm</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]])</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">],</span> <span class="p">:]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">snaps_matrix</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span> <span class="o">/</span> <span class="n">snaps_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Generate the first interpolant </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mmax</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[</span><span class="n">mm</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">(</span><span class="n">mm</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">]]</span>
-        
-        <span class="n">beta_coeff</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">snap_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">]]</span>
-        <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span> <span class="o">@</span> <span class="n">beta_coeff</span><span class="p">[:,:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-        
-        <span class="k">assert</span> <span class="n">interpolant</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">snap_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;Interpolant shape mismatch with snap_matrix&quot;</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[</span><span class="n">mm</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">[</span><span class="n">mm</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">]]</span>
+
+        <span class="n">beta_coeff</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">snaps_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">]]</span>
+        <span class="n">interpolants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruct_from_coeffs</span><span class="p">(</span><span class="n">beta_coeff</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Main Loop</span>
         <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">):</span>
-            <span class="n">residual_matrix</span> <span class="o">=</span> <span class="n">snap_matrix</span> <span class="o">-</span> <span class="n">interpolant</span>
-            
-            <span class="c1"># Find the next maximum error</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">residual_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span> <span class="p">)</span>
-            <span class="n">maxAbsErr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">residual_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]))</span> <span class="p">)</span>
-            <span class="n">maxRelErr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">snap_matrix</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]])</span> <span class="p">)</span>
+            <span class="n">residuals_matrix</span> <span class="o">=</span> <span class="n">snaps_matrix</span> <span class="o">-</span> <span class="n">interpolants</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+
+            <span class="c1"># Find the next point with maximum residual</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residuals_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Assign maximum errors</span>
+            <span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residuals_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Iteration </span><span class="si">{</span><span class="nb">iter</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1"> | Abs Err: </span><span class="si">{</span><span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> | Rel Err: </span><span class="si">{</span><span class="n">maxRelErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;EIM Iteration </span><span class="si">{</span><span class="p">(</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1"> | Abs Err (Linfty): </span><span class="si">{</span><span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Find the next magic point</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">xm</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span> <span class="n">residual_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]))]</span> <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">]]</span> <span class="p">)</span>
-        
+            <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">xm</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residuals_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]])</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">],</span> <span class="p">:]</span>
+            <span class="p">)</span>
+
             <span class="c1"># Generate the next magic function</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">residual_matrix</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span> <span class="o">/</span> <span class="n">residual_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span> <span class="p">)</span>
-            
-            <span class="c1"># Build matrix B</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]]</span>
-            
-            <span class="c1"># Create interpolants    </span>
-            <span class="k">for</span> <span class="n">muI</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
-                <span class="n">rhs</span> <span class="o">=</span> <span class="n">snap_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">],</span> <span class="n">muI</span><span class="p">]</span>
-                <span class="n">beta_coeff</span><span class="p">[</span><span class="n">muI</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-                
-            <span class="n">interpolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span> <span class="o">@</span> <span class="n">beta_coeff</span><span class="p">[:,:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-            
-            <span class="k">assert</span> <span class="n">interpolant</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">snap_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;Interpolant shape mismatch with snap_matrix&quot;</span>
-        
-        <span class="n">residual_matrix</span> <span class="o">=</span> <span class="n">snap_matrix</span> <span class="o">-</span> <span class="n">interpolant</span>
-            
-        <span class="c1"># Find the next maximum error</span>
-        <span class="n">last_gen_fun</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">residual_matrix</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
-        
-        <span class="n">maxAbsErr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">residual_matrix</span><span class="p">[:,</span> <span class="n">last_gen_fun</span><span class="p">])</span> <span class="p">)</span>
-        <span class="n">maxRelErr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">snap_matrix</span><span class="p">[:,</span> <span class="n">last_gen_fun</span><span class="p">])</span> <span class="p">)</span>
-        
+            <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">residuals_matrix</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span> <span class="o">/</span> <span class="n">residuals_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][</span><span class="n">mm</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="n">mm</span><span class="p">]]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Update matrix B</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]]</span>
+
+            <span class="c1"># Solve for the reduced coefficients</span>
+            <span class="k">for</span> <span class="n">mu_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns_train</span><span class="p">):</span>
+                <span class="n">beta_coeff</span><span class="p">[:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">mu_i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_eim_linear_system</span><span class="p">(</span><span class="n">snaps_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">],</span> <span class="n">mu_i</span><span class="p">])</span>
+
+            <span class="c1"># Update the interpolant</span>
+            <span class="n">interpolants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruct_from_coeffs</span><span class="p">(</span><span class="n">beta_coeff</span><span class="p">[:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Final error assignment</span>
+        <span class="n">residuals_matrix</span> <span class="o">=</span> <span class="n">snaps_matrix</span> <span class="o">-</span> <span class="n">interpolants</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residuals_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residuals_matrix</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generating_fun</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Iteration </span><span class="si">{</span><span class="nb">iter</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1"> | Abs Err: </span><span class="si">{</span><span class="n">maxAbsErr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> | Rel Err: </span><span class="si">{</span><span class="n">maxRelErr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Iteration </span><span class="si">{</span><span class="p">(</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1"> | Abs Err (Linfty): </span><span class="si">{</span><span class="n">maxAbsErr</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> - EIM done&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">maxAbsErr</span><span class="p">,</span> <span class="n">maxRelErr</span><span class="p">,</span> <span class="n">beta_coeff</span></div>
+        <span class="k">return</span> <span class="n">maxAbsErr</span><span class="p">,</span> <span class="n">beta_coeff</span></div>
 
-
-<div class="viewcode-block" id="EIM.reconstruct">
-<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.reconstruct">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    
+<div class="viewcode-block" id="EIM.compute_lebesgue_constant">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.compute_lebesgue_constant">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_lebesgue_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the reduced coefficients :math:`\{\beta_m\}_{m=1}^{M_{max}}` with &#39;Mmax&#39; magic functions/points (synthetic) and returns the vector measurement from the snapshots :math:`u`</span>
+<span class="sd">        This method computes the Lebesgue constant associated with the selected magic points.</span>
+
+<span class="sd">        The procedure exploits the Lagrange basis functions, depicted in `Tiglio and Villanueva (2021) &lt;https://iopscience.iop.org/article/10.1088/1361-6382/abf894&gt;`_.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Lambda : float</span>
+<span class="sd">            The Lebesgue constant.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;magic_functions&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model has not been fitted yet. Please call the &#39;fit&#39; method before computing the Lebesgue constant.&quot;</span><span class="p">)</span>
+
+        <span class="n">Lambda</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">_mf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()[:,:</span><span class="n">mm</span><span class="p">]</span>
+            <span class="n">_matrix_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">mm</span><span class="p">,</span> <span class="p">:</span><span class="n">mm</span><span class="p">]</span>
+            <span class="n">lagrange_fun</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">_matrix_B</span><span class="p">,</span> <span class="n">_mf</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="c1"># sum of absolute values at each point</span>
+            <span class="n">leb_at_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">lagrange_fun</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># max over domain</span>
+            <span class="n">Lambda</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">leb_at_x</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">Lambda</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reconstruct_from_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method reconstructs the function `u` from the reduced coefficients :math:`\{\beta_m\}_{m=1}^M` using the magic functions :math:`\{q_m\}_{m=1}^M`.</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            u(\cdot;\,\boldsymbol{\mu}) = \sum_{k=1}^N \beta_k(\boldsymbol{\mu}) q_k(\cdot)</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coeffs : np.ndarray</span>
+<span class="sd">            Reduced coefficients :math:`\{\beta_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        u : FunctionsList</span>
+<span class="sd">            Reconstructed functions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">),</span> <span class="s2">&quot;The number of coefficients must be lower to the number of magic functions&quot;</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+
+        <span class="n">reconstructed_snaps</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">reconstructed_snaps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[:,</span> <span class="n">nn</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">reconstructed_snaps</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_solve_eim_linear_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the reduced coefficients :math:`\{\beta_m\}_{m=1}^{M}}` with as many magic functions/points (synthetic) as the input measures :math:`M`.</span>
 <span class="sd">        </span>
 <span class="sd">        .. math::</span>
 <span class="sd">            y_m = u(\vec{x}_m) \qquad m = 1, \dots, M_{max}</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        snap : np.ndarray</span>
-<span class="sd">            Function from which the measuremets are computed.</span>
-<span class="sd">        Mmax: int</span>
-<span class="sd">            Maximum number of sensors to use</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measurements vector :math:`\{y_m\}_{m=1}^{M_{max}}` of the function `u` at the sensors locations.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        ----------</span>
 <span class="sd">        beta_coeff : np.ndarray</span>
 <span class="sd">            Array of coefficients for the interpolant :math:`\{\beta_m\}_{m=1}^{M_{max}}`</span>
-<span class="sd">        Measure : np.ndarray</span>
-<span class="sd">            Array with the evaluation of the `snap` :math:`u` at the sensors locations</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># Computing the measurement vector</span>
-        <span class="n">measure</span> <span class="o">=</span> <span class="n">snap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]]</span>
-        
-        <span class="c1"># Solve the linear system</span>
-        <span class="n">beta_coeff</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">Mmax</span><span class="p">,</span> <span class="p">:</span><span class="n">Mmax</span><span class="p">],</span> <span class="n">measure</span><span class="p">[:</span><span class="n">Mmax</span><span class="p">],</span> <span class="n">lower</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">),</span> <span class="s2">&quot;The number of measures must be equal to the number of magic functions&quot;</span>
 
-        <span class="k">return</span> <span class="n">beta_coeff</span><span class="p">,</span> <span class="n">measure</span></div>
+        <span class="n">_m</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">beta_coeff</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">[:</span><span class="n">_m</span><span class="p">,</span> <span class="p">:</span><span class="n">_m</span><span class="p">],</span> <span class="n">measures</span><span class="p">[:</span><span class="n">_m</span><span class="p">],</span> <span class="n">lower</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="EIM.test_error">
-<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.test_error">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_snap</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">beta_coeff</span>
+    
+<div class="viewcode-block" id="EIM.reconstruct">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.reconstruct">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measures</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The absolute and relative error on the test set is computed, by solving the EIM system</span>
-<span class="sd">        </span>
+<span class="sd">        This method reconstructs the state by obtaining the reduced coefficients :math:`\{\beta_m\}_{m=1}^M` from the input measures :math:`\{y_m\}_{m=1}^M` by solving the EIM linear system</span>
+
 <span class="sd">        .. math::</span>
-<span class="sd">            \mathbb{B}\boldsymbol{\beta} = \mathbf{y}</span>
-<span class="sd">        </span>
+<span class="sd">            \mathbb{B} \boldsymbol{\beta} = \mathbf{y}</span>
+
+<span class="sd">        where</span>
+<span class="sd">        - :math:`\mathbb{B}` is the matrix of magic functions</span>
+<span class="sd">        - :math:`\boldsymbol{\beta}` are the reduced coefficients</span>
+<span class="sd">        - :math:`\mathbf{y}` are the input measures</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_snap : FunctionsList</span>
-<span class="sd">            List of functions belonging to the test set to reconstruct with EIM</span>
-<span class="sd">        Mmax : int, optional (default = None)</span>
-<span class="sd">            Maximum number of magic functions to use (if None is set to the number of magic functions/points)</span>
-<span class="sd">            </span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Input measures :math:`\{y_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+
 <span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        u : FunctionsList</span>
+<span class="sd">            Reconstructed functions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">beta_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_eim_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruct_from_coeffs</span><span class="p">(</span><span class="n">beta_coeff</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EIM.reduce">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.reduce">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method can be used to generate the reduced coefficients based on the magic functions and points, by extracting the measures from the input functions and solve the associated EIM linear system.</span>
+
+<span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        meanAbsErr : np.ndarray</span>
-<span class="sd">            Average absolute error measured in :math:`l^2`</span>
-<span class="sd">        meanRelErr : np.ndarray</span>
-<span class="sd">            Average relative error measured in :math:`l^2`</span>
-<span class="sd">        beta_coeffs</span>
-<span class="sd">            Matrix of the reduced coefficients, obtained by the solving the EIM linear system</span>
+<span class="sd">        snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            Function object to project onto the reduced space of dimension `M`.</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of magic functions/points to use for the projection. If `None`, all available magic functions/points are used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        beta_coeff : np.ndarray</span>
+<span class="sd">            Reduced coefficients :math:`\{\beta_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># Check on the input M, maximum number of sensors to use</span>
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">M</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">),</span> <span class="s2">&quot;M cannot be larger than the number of magic functions available&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+            <span class="n">snaps</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">snaps</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="c1"># shape (Nh, 1)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input must be a FunctionsList or a numpy ndarray.&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;Input shape must match the SVD modes shape.&quot;</span>
+
+        <span class="n">measures</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][:</span><span class="n">M</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_eim_linear_system</span><span class="p">(</span><span class="n">measures</span><span class="p">)</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_measures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method extracts the measures from the input functions at the magic points locations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            Function object to extract the measures from.</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of magic points to use for the extraction. If `None`, all available magic points</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        measures : np.ndarray</span>
+<span class="sd">            Measures :math:`\{y_m\}_{m=1}^M`, shaped :math:`(M,N_s)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+            <span class="n">snaps</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">snaps</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input must be a FunctionsList or a numpy ndarray.&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;Input shape must match the SVD modes shape.&quot;</span>
+
+        <span class="n">measures</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">][:</span><span class="n">M</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">measures</span>
+
+<div class="viewcode-block" id="EIM.compute_errors">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.compute_errors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snaps</span><span class="p">:</span> <span class="n">FunctionsList</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the errors between the original snapshots and the reconstructed ones.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snaps : FunctionsList or np.ndarray</span>
+<span class="sd">            Original snapshots to compare with.</span>
+<span class="sd">        Mmax : int, optional</span>
+<span class="sd">            Maximum number of sensors and magic functions to use for the reconstruction. If None, all reduced basis is used.</span>
+<span class="sd">        verbose : bool, optional</span>
+<span class="sd">            If True, print progress messages. Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mean_abs_err : np.ndarray</span>
+<span class="sd">            Average absolute error measured in :math:`L^2`.</span>
+<span class="sd">        mean_rel_err : np.ndarray</span>
+<span class="sd">            Average relative error measured in :math:`L^2`.</span>
+<span class="sd">        computational_time : dict</span>
+<span class="sd">            Dictionary with the CPU time of the most relevant operations during the online phase.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">FunctionsList</span><span class="p">):</span>
+            <span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The shape of the snapshots must match the shape of the magic functions.&quot;</span>
+
+            <span class="c1"># Convert FunctionsList to numpy array for processing</span>
+            <span class="n">snaps</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">Ns</span> <span class="o">=</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">snaps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The shape of the snapshots must match the shape of the magic functions.&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input must be a FunctionsList or a numpy ndarray.&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">Mmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">Mmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">Mmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The maximum number of measures must not be higher than &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; --&gt; set equal to &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">)))</span>
-            <span class="n">Mmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="p">)</span>
+            <span class="n">Mmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">Mmax</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Mmax=</span><span class="si">{</span><span class="n">Mmax</span><span class="si">}</span><span class="s2"> must be less than or equal to the number of magic functions, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
 
-        <span class="n">Ns_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_snap</span><span class="p">)</span>
-        <span class="n">absErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns_test</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
-        <span class="n">relErr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">absErr</span><span class="p">)</span>
+        <span class="n">abs_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
+        <span class="n">rel_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
 
-        <span class="n">beta_coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mmax</span><span class="p">,</span> <span class="n">Ns_test</span><span class="p">))</span>
-        
-        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns_test</span><span class="p">):</span>
-            <span class="n">beta_coeffs</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="n">test_snap</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">Mmax</span><span class="p">)</span>
+        <span class="c1"># Variables to store computational time</span>
+        <span class="n">computational_time</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measurements&#39;</span><span class="p">]</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
+        <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span>          <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">))</span>
+
+        <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing L2 norm of snapshot&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">_snap_norm</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mu_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+
+            <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">_snap_norm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">calculator</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">snaps</span><span class="p">[:,</span> <span class="n">mu_i</span><span class="p">])</span>
+            <span class="p">)</span>
             
-        <span class="n">snaps_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">test_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu_i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps_norm</span><span class="p">)</span> <span class="o">==</span> <span class="n">Ns_test</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> 
+            <span class="n">progressBar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Computing errors - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="n">Mmax</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mmax</span><span class="p">):</span>
-            <span class="n">absErr</span><span class="p">[:,</span><span class="n">mm</span><span class="p">]</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_fun</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()[:,</span> <span class="p">:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">beta_coeffs</span><span class="p">[:</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">test_snap</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">relErr</span><span class="p">[:,</span><span class="n">mm</span><span class="p">]</span>  <span class="o">=</span> <span class="n">absErr</span><span class="p">[:,</span><span class="n">mm</span><span class="p">]</span> <span class="o">/</span> <span class="n">snaps_norm</span>
 
-        <span class="k">return</span> <span class="n">absErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">relErr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">beta_coeffs</span></div>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> 
+                <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">percentage</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">_measures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_measures</span><span class="p">(</span><span class="n">snaps</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">mm</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># shape (M, Ns)</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Measurements&#39;</span><span class="p">][:,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">reconstructed_snaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="n">_measures</span><span class="p">)</span>
+            <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">][:,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">mu_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+                <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">_resid</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[:,</span> <span class="n">mu_i</span><span class="p">]</span> <span class="o">-</span> <span class="n">reconstructed_snaps</span><span class="p">(</span><span class="n">mu_i</span><span class="p">)</span>
+                <span class="n">abs_err</span><span class="p">[</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculator</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">_resid</span><span class="p">)</span>
+                <span class="n">rel_err</span><span class="p">[</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs_err</span><span class="p">[</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">/</span> <span class="n">_snap_norm</span><span class="p">[</span><span class="n">mu_i</span><span class="p">]</span>
+                <span class="n">computational_time</span><span class="p">[</span><span class="s1">&#39;Errors&#39;</span><span class="p">][</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">mm</span><span class="p">]</span> <span class="o">+=</span> <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="n">Results</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Results&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean_abs_err&#39;</span><span class="p">,</span> <span class="s1">&#39;mean_rel_err&#39;</span><span class="p">,</span> <span class="s1">&#39;computational_time&#39;</span><span class="p">])</span>
+        <span class="n">_res</span> <span class="o">=</span> <span class="n">Results</span><span class="p">(</span><span class="n">mean_abs_err</span> <span class="o">=</span> <span class="n">abs_err</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">mean_rel_err</span> <span class="o">=</span> <span class="n">rel_err</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">computational_time</span> <span class="o">=</span> <span class="n">computational_time</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_res</span></div>
+
+
+
+<div class="viewcode-block" id="EIM.save">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.EIM.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the magic functions and points to a specified path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path_folder : str</span>
+<span class="sd">            The folder path where the model will be saved.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments for saving options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Save the magic functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magic_functions</span><span class="o">.</span><span class="n">store</span><span class="p">(</span> <span class="sa">f</span><span class="s1">&#39;mf_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                                    <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;mf_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>
+                                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;magic_points_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">.npy&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_points</span><span class="p">)</span></div>
 </div>
+
+
+<div class="viewcode-block" id="deim">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.eim.deim">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deim</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> 
+         <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+         <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span>
+         <span class="n">_xm_idx</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+         <span class="n">path_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function implements the Discrete Empirical Interpolation Method (DEIM) for selecting magic points from a given set of basis functions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basis_functions : FunctionsList</span>
+<span class="sd">        The list of basis functions from which to select magic points.</span>
+<span class="sd">    Mmax : int</span>
+<span class="sd">        The maximum number of magic points to select.</span>
+<span class="sd">    varname : str, optional</span>
+<span class="sd">        The name of the variable for which the magic points are being selected. Default is &#39;u&#39;.</span>
+<span class="sd">    _xm_idx : list, optional</span>
+<span class="sd">        A list of indices to consider for magic point selection. If None, all indices are considered.</span>
+<span class="sd">    path_folder : str, optional</span>
+<span class="sd">        The folder path where the selected magic points will be saved. If None, the points are simply returned.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    magic_pt : np.ndarray</span>
+<span class="sd">        An array of selected magic point indices.</span>
+<span class="sd">    P : np.ndarray</span>
+<span class="sd">        The DEIM selection matrix (observation operator).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">modes</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+
+    <span class="c1"># Define available indices</span>
+    <span class="k">if</span> <span class="n">_xm_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">modes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xm</span> <span class="o">=</span> <span class="n">_xm_idx</span>
+
+    <span class="c1"># Initialize DEIM arrays</span>
+    <span class="n">magic_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Mmax</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Mmax</span><span class="p">,</span> <span class="n">modes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="c1"># First DEIM point</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">modes</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+    <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">xm</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">magic_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xm</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+    <span class="c1"># DEIM loop</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DEIM iteration </span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">Mmax</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Avoid warnings for numerical issues</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+            <span class="c1"># Solve linear system</span>
+            <span class="n">PtU</span> <span class="o">=</span> <span class="p">(</span><span class="n">P</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">@</span> <span class="n">modes</span><span class="p">[:,</span> <span class="p">:</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="n">magic_pt</span><span class="p">[:</span><span class="n">j</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">PtU</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+            <span class="c1"># Compute the residual</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">modes</span><span class="p">[</span><span class="n">xm</span><span class="p">,</span> <span class="p">:</span><span class="n">j</span><span class="p">]</span> <span class="o">@</span> <span class="n">c</span>
+
+            <span class="c1"># Select the next DEIM point</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+            <span class="n">P</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">xm</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">magic_pt</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">xm</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">path_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;magic_points_deim_</span><span class="si">{</span><span class="n">varname</span><span class="si">}</span><span class="s1">.npy&#39;</span><span class="p">),</span> <span class="n">magic_pt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">magic_pt</span><span class="p">,</span> <span class="n">P</span></div>
 
 </pre></div>
 
@@ -315,7 +658,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

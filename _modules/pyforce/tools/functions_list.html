@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyforce.tools.functions_list &mdash; pyforce 0.1.0 documentation</title>
+  <title>pyforce.tools.functions_list &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -41,14 +41,24 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -77,16 +87,17 @@
              
   <h1>Source code for pyforce.tools.functions_list</h1><div class="highlight"><pre>
 <span></span><span class="c1"># List of functions for storage</span>
-<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 24 May 2024</span>
-<span class="c1"># Latest Doc  Update: 24 May 2024</span>
+<span class="c1"># Author: Stefano Riva, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 07 October 2025</span>
+<span class="c1"># Latest Doc  Update: 07 October 2025</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span> <span class="k">as</span> <span class="n">sk_split</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">petsc4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_function</span> <span class="k">as</span> <span class="n">pf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span> <span class="k">as</span> <span class="n">clc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="c1"># Class to define a list of function, useful to collect snapshots and basis functions</span>
 <div class="viewcode-block" id="FunctionsList">
@@ -97,22 +108,28 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    function_space : FunctionSpace, optional</span>
-<span class="sd">        Functional Space onto which the Function are defined. If not provided, `dofs` must be specified.</span>
-<span class="sd">    dofs : int, optional</span>
-<span class="sd">        Degrees of freedom of the functions :math:`\mathcal{N}_h`. Required if `function_space` is not provided.</span>
+<span class="sd">    dofs : int</span>
+<span class="sd">        Degrees of freedom of the functions :math:`\mathcal{N}_h`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _list : list</span>
+<span class="sd">        List containing the functions as `np.ndarray`.</span>
+<span class="sd">    fun_shape : int</span>
+<span class="sd">        Number of degrees of freedom of the functions :math:`\mathcal{N}_h`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_space</span> <span class="p">:</span> <span class="n">FunctionSpace</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dofs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span> <span class="o">=</span> <span class="n">function_space</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dofs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">snap_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">:</span>
-            <span class="n">tmp_fun</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">=</span> <span class="n">tmp_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">dofs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">=</span> <span class="n">dofs</span>
+        <span class="c1"># If dofs is not given, it must be inferred from the snap_matrix</span>
+        <span class="k">if</span> <span class="n">dofs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">snap_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either dofs or snap_matrix must be provided.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">snap_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">=</span> <span class="n">snap_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_from_matrix</span><span class="p">(</span><span class="n">snap_matrix</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either `function_space` or `dofs` must be provided.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">=</span> <span class="n">dofs</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -120,19 +137,37 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
     
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defining the class as indexable.</span>
+<span class="sd">        If idx is an integer, return the corresponding element.</span>
+<span class="sd">        If idx is a slice, return a new FunctionsList with the sliced elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="n">new_list</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+            <span class="n">new_list</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">new_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Defining the length of the class as the length of the stored list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defining the iterator of the class as the iterator of the stored list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FunctionsList.append">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.append">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dofs_fun</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extend the current list by adding a new function.</span>
-<span class="sd">        The dolfinx.fem.Function element is stored in a list as a numpy array, to avoid problems when the number of elements becomes large.</span>
-<span class="sd">        The input can be either a `np.ndarray` or a `dolfinx.fem.Function`, in the latter case it is mapped to `np.ndarray`.</span>
+<span class="sd">        The snapshot is stored in a list as a numpy array, to avoid problems when the number of elements becomes large.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -140,18 +175,30 @@
 <span class="sd">            Functions to be appended.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The input function dofs_fun has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dofs_fun</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs_fun</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FunctionsList.build_from_matrix">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.build_from_matrix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_from_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the list from a matrix :math:`S\in\mathbb{R}^{\mathcal{N}_h\times N_s}`.</span>
+<span class="sd">        The matrix is transposed to match the shape of the functions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matrix : np.ndarray</span>
+<span class="sd">            Matrix containing the functions as columns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="s2">&quot;The input matrix has &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;, instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">matrix</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span></div>
 
 
 <div class="viewcode-block" id="FunctionsList.delete">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete a single element in position `idx`.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -165,7 +212,7 @@
 <div class="viewcode-block" id="FunctionsList.copy">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Defining the copy of the `_list` of elements</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
@@ -179,28 +226,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="FunctionsList.shape">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the shape of the list as a tuple `(dofs, number of functions)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">))</span></div>
+
+
 <div class="viewcode-block" id="FunctionsList.sort">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.sort">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">       </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sorting the list according to order - iterable of indices.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sort the list according to the given order (list of indices).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        order : list</span>
 <span class="sd">            List of indices for the sorting.</span>
-<span class="sd">       </span>
-<span class="sd">       &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The order vector (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span><span class="si">}</span><span class="s2">) must have the same length as the list (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span></div>
 
-       <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-       <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-
-       <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">),</span> <span class="s2">&quot;The order vector (&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;) must have the same length of the list (&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;)&quot;</span>
-       <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)):</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">ii</span><span class="p">]])</span></div>
-
-    
+        
 <div class="viewcode-block" id="FunctionsList.return_matrix">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.return_matrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">return_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -211,36 +262,9 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">)</span><span class="o">.</span><span class="n">T</span></div>
 
 
-<div class="viewcode-block" id="FunctionsList.map">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.map">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Mapping the element in position `idx` into a `dolfinx.fem.Function`.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        idx : int</span>
-<span class="sd">            Integers indicating the position inside the `_list`.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        eval_fun : Function</span>
-<span class="sd">            Evaluated dofs into a Function</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Function space not defined.&quot;</span><span class="p">)</span>
-            
-        <span class="n">eval_fun</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">eval_fun</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">loc</span><span class="p">:</span>
-            <span class="n">loc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">eval_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">eval_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">scatter_forward</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">eval_fun</span></div>
-
-
 <div class="viewcode-block" id="FunctionsList.lin_combine">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.lin_combine">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">lin_combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">use_numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lin_combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Linearly combine functions (`a_i = vec[i]`) in the list :math:`\{\phi_i\}_{i=0}^N`:</span>
 
@@ -253,27 +277,17 @@
 <span class="sd">        ----------</span>
 <span class="sd">        vec : np.ndarray</span>
 <span class="sd">            Iterable containing the coefficients of the linear combination.</span>
-<span class="sd">        use_numpy : boolean, optional (Default=True)</span>
-<span class="sd">            If `True` the functions are treated as `np.ndarray`, otherwise the formulation in `dolfinx` is used.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        combination : np.ndarray or Function</span>
 <span class="sd">            Function object storing the result of the linear combination</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">use_numpy</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">:</span>
-            <span class="n">combination</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,)</span>
-            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">)):</span>
-                <span class="n">combination</span> <span class="o">+=</span> <span class="n">vec</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">combination</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">combination</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">with</span> <span class="n">combination</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">localForm</span><span class="p">()</span> <span class="k">as</span> <span class="n">loc</span><span class="p">:</span>
-                <span class="n">loc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">)):</span>
-                <span class="n">combination</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">axpy</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span>
-            <span class="n">combination</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">ghostUpdate</span><span class="p">(</span><span class="n">addv</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">InsertMode</span><span class="o">.</span><span class="n">INSERT</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">PETSc</span><span class="o">.</span><span class="n">ScatterMode</span><span class="o">.</span><span class="n">FORWARD</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">combination</span></div>
+
+        <span class="n">combination</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">)):</span>
+            <span class="n">combination</span> <span class="o">+=</span> <span class="n">vec</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">combination</span></div>
 
         
 <div class="viewcode-block" id="FunctionsList.min">
@@ -312,9 +326,227 @@
 <span class="sd">            Maximum values of the functions in the list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FunctionsList.mean">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.mean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the mean of the functions in the list along the specified axis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axis : int, optional (Default=None)</span>
+<span class="sd">            Axis along which to compute the mean. If None, computes the mean over the entire array.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mean_values : np.ndarray</span>
+<span class="sd">            Mean values of the functions in the list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FunctionsList.std">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.std">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the standard deviation of the functions in the list along the specified axis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axis : int, optional (Default=None)</span>
+<span class="sd">            Axis along which to compute the standard deviation. If None, computes the standard deviation over the entire array.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        std_values : np.ndarray</span>
+<span class="sd">            Standard deviation values of the functions in the list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FunctionsList.store">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.store">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+              <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;h5&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store the functions in the list to a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var_name : str</span>
+<span class="sd">            Name of the variable.</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Name of the file to save.</span>
+<span class="sd">        order : list, optional (Default=None)</span>
+<span class="sd">            List of integers containing the ordered indices.</span>
+<span class="sd">        format : str, optional (Default=&#39;h5&#39;)</span>
+<span class="sd">            Format of the file to save. It can be either &#39;h5&#39; or &#39;npz&#39;.</span>
+<span class="sd">        compression : bool, optional (Default=True)</span>
+<span class="sd">            If `True`, the data is compressed when saved in h5/npz format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">_data_to_store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_data_to_store</span> <span class="o">=</span> <span class="n">_data_to_store</span><span class="p">[:,</span> <span class="n">order</span><span class="p">]</span>
+
+        <span class="n">fmt</span> <span class="o">=</span> <span class="nb">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;h5&#39;</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.h5&#39;</span>
+        <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;npz&#39;</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.npz&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported format </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">. Use &#39;h5&#39; or &#39;npz&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check if file exists and delete it</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="c1"># Saving procedure in the proper format</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;h5&#39;</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="s1">&#39;gzip&#39;</span> <span class="k">if</span> <span class="n">compression</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">var_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">_data_to_store</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="n">comp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;npz&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">compression</span><span class="p">:</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">var_name</span><span class="p">:</span> <span class="n">_data_to_store</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">var_name</span><span class="p">:</span> <span class="n">_data_to_store</span><span class="p">})</span></div>
+
+                
+<div class="viewcode-block" id="FunctionsList.plot">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">idx_to_plot</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                  <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                  <span class="n">clim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span><span class="p">,</span>
+                  <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">720</span><span class="p">],</span>
+                  <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a function from the list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid : pyvista.UnstructuredGrid</span>
+<span class="sd">            The PyVista grid on which the function will be plotted.</span>
+<span class="sd">        idx_to_plot : int</span>
+<span class="sd">            Index of the function to plot.</span>
+<span class="sd">        varname : str</span>
+<span class="sd">            The name to assign to the data in the PyVista grid (default is &#39;u&#39;).</span>
+<span class="sd">        clim : tuple, optional</span>
+<span class="sd">            The color limits for the plot. If None, the limits will be automatically determined from the data.</span>
+<span class="sd">        cmap : str, optional</span>
+<span class="sd">            The colormap to use for the plot (default is &#39;jet&#39;). Other options include &#39;viridis&#39;, &#39;plasma&#39;, &#39;inferno&#39;, etc.</span>
+<span class="sd">        resolution : list, optional</span>
+<span class="sd">            The resolution of the plot in pixels (default is [1080, 720]).</span>
+<span class="sd">        zoom : float, optional</span>
+<span class="sd">            The zoom level for the plot (default is 1.0).   </span>
+<span class="sd">        title : str, optional</span>
+<span class="sd">            The title of the plot. If None, no title will be displayed.</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments passed to the PyVista plotting functions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">:</span>
+            <span class="n">snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx_to_plot</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="o">*</span> <span class="mi">2</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx_to_plot</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="o">*</span> <span class="mi">3</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx_to_plot</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">pl</span> <span class="o">=</span> <span class="n">pf</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">snap</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">,</span>
+           <span class="n">clim</span><span class="o">=</span><span class="n">clim</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="n">pl</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">pl</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">clear_cell_data</span><span class="p">()</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">clear_point_data</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="FunctionsList.plot_sequence">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.FunctionsList.plot_sequence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span>
+                      <span class="n">sampling</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                      <span class="n">varname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                      <span class="n">clim</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span><span class="p">,</span>
+                      <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">720</span><span class="p">],</span>
+                      <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">title_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+                      <span class="n">view</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;xy&#39;</span><span class="p">,</span>
+                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a sequence of functions from the list with a specified sampling rate.  </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters  </span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid : pyvista.UnstructuredGrid</span>
+<span class="sd">            The PyVista grid on which the functions will be plotted.    </span>
+<span class="sd">        sampling : int, optional (Default = 1)</span>
+<span class="sd">            The sampling rate for the functions to be plotted. If `sampling=1`, all functions are plotted; if `sampling=2`, every second function is plotted, and so on.</span>
+<span class="sd">        varname : str, optional (Default = &#39;u&#39;)</span>
+<span class="sd">            The name to assign to the data in the PyVista grid.</span>
+<span class="sd">        clim : tuple, optional</span>
+<span class="sd">            The color limits for the plot. If None, the limits will be automatically determined from the data.</span>
+<span class="sd">        cmap : str, optional (Default = &#39;jet&#39;)</span>
+<span class="sd">            The colormap to use for the plot. Other options include &#39;viridis&#39;, &#39;plasma&#39;, &#39;inferno&#39;, etc.</span>
+<span class="sd">        resolution : list, optional (Default = [1080, 720])</span>
+<span class="sd">            The resolution of the plot in pixels.</span>
+<span class="sd">        title : str, optional</span>
+<span class="sd">            The title of the plot. If None, no title will be displayed.</span>
+<span class="sd">        title_size : int, optional (Default = 20)</span>
+<span class="sd">            The font size of the title.</span>
+<span class="sd">        view : str, optional (Default = &#39;xy&#39;)</span>
+<span class="sd">            The view direction for the plot. Options include &#39;xy&#39;, &#39;xz&#39;, &#39;yz&#39;.</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments passed to the PyVista plotting functions.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns </span>
+<span class="sd">        ------- </span>
+<span class="sd">        pv.Plotter</span>
+<span class="sd">            The PyVista plotter object used for the visualization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pl</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampling</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">),</span> <span class="n">sampling</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">:</span>
+                <span class="n">snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="o">*</span> <span class="mi">2</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="o">*</span> <span class="mi">3</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">snap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                
+            <span class="n">grid</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">snap</span>
+            <span class="n">grid</span><span class="o">.</span><span class="n">set_active_scalars</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span>
+
+            <span class="n">pl</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="n">varname</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="n">clim</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">view</span> <span class="o">==</span> <span class="s1">&#39;xy&#39;</span><span class="p">:</span>
+                <span class="n">pl</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">view</span> <span class="o">==</span> <span class="s1">&#39;xz&#39;</span><span class="p">:</span>
+                <span class="n">pl</span><span class="o">.</span><span class="n">view_xz</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">view</span> <span class="o">==</span> <span class="s1">&#39;yz&#39;</span><span class="p">:</span>
+                <span class="n">pl</span><span class="o">.</span><span class="n">view_yz</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">pl</span><span class="o">.</span><span class="n">add_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">title</span><span class="si">}{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+            <span class="n">pl</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">,</span> <span class="n">auto_close</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span></div>
 </div>
 
-
+            
 <div class="viewcode-block" id="train_test_split">
 <a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.functions_list.train_test_split">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">train_test_split</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">fun_list</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.33</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
@@ -353,12 +585,8 @@
     <span class="n">test_params</span>  <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     
     <span class="c1"># Store results - Y</span>
-    <span class="k">if</span> <span class="n">fun_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">train_fun</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">function_space</span> <span class="o">=</span> <span class="n">fun_list</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
-        <span class="n">test_fun</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">function_space</span> <span class="o">=</span> <span class="n">fun_list</span><span class="o">.</span><span class="n">fun_space</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">train_fun</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span><span class="o">=</span><span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
-        <span class="n">test_fun</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span><span class="o">=</span><span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+    <span class="n">train_fun</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+    <span class="n">test_fun</span>  <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">fun_list</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
     
     <span class="k">for</span> <span class="n">train</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
         <span class="n">train_fun</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>    
@@ -376,7 +604,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

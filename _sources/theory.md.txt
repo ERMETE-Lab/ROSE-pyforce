@@ -43,7 +43,7 @@ Data-Driven Reduced Order Modelling (DDROM) {cite:p}`RMP_2024, DDMOR_CFR` is a s
 
 The techniques implemented here follow the same underlying idea expressed in the Figure \ref{fig:darom}. They all share the typical offline/online paradigm of ROM techniques: the former is computationally expensive and it is performed only once, whereas the latter is cheap from the computational point of view and allows to have quick and reliable evaluations of the state of the system by merging background model knowledge and real evaluations of quantities of interest {cite:p}`MadayPBDW`.
 
-During the offline (also called training) phase, a *high-fidelity* or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collection of snapshots $\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}$, given $\mathcal{N}_h$ the dimension of the spatial mesh, which are dependent on some parameters $\boldsymbol{\mu}_n$; then, these snapshots are used to generate a reduced representation through a set of basis functions $\{\psi_n(\mathbf{x})\}$ of size $N$, in this way the degrees of freedom are decreased from $\mathcal{N}_h$ to $N$, provided that $\mathcal{N}_h>>N$. This allows for an approximation of any solution of the FOM as follows
+During the offline (also called training) phase, a *high-fidelity* or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collections of snapshots $\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}$, given $\mathcal{N}_h$ the dimension of the spatial mesh, which are dependent on some parameters $\boldsymbol{\mu}_n$; then, these snapshots are used to generate a reduced representation through a set of basis functions $\{\psi_n(\mathbf{x})\}$ of size $N$, in this way the degrees of freedom are decreased from $\mathcal{N}_h$ to $N$, provided that $\mathcal{N}_h>>N$. This allows for an approximation of any solution of the FOM as follows
 
 ```{math}
 u_{FOM}(\mathbf{x} ; \boldsymbol{\mu}) \simeq \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})
@@ -55,10 +55,10 @@ The online phase aims to obtain a quick and reliable way a solution of the FOM f
 
 ## Package structure
 
-The package **pyforce** comprises 3 subpackages: *offline*, *online* and *tools*. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions (from *dolfinx* directly or mapping from OpenFOAM), some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.
+The package **pyforce** comprises 3 subpackages: *offline*, *online* and *tools*. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions, some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.
 
 ### Offline Phase
-Once the snapshots have been generated and collected into the class `FunctionsList`, the aim of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.
+Once the snapshots have been generated and collected into the class `FunctionsList`, the aims of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.
 
 ![Offline Phase](images/offline_classes.svg)
 

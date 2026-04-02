@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensor Placement algorithms and the Parameterised Background Data-Weak (PBDW) approach &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Advanced Tutorials" href="../adv_tutorials.html" />
+    <link rel="prev" title="(Generalised) Empirical Interpolation Method - (G)EIM" href="02_eim_methods.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Basic Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_first_steps.html">First Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_svd_methods.html">SVD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_eim_methods.html">(G)EIM Methods</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Sensor Placement and PBDW</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Import-dolfinx-(v6)-case-from-npz-files">Import dolfinx (v6) case from npz files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Sensor-placement-algorithms">Sensor placement algorithms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#EIM-sensor-placement">EIM sensor placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GEIM-sensor-placement">GEIM sensor placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SGreedy-sensor-placement">SGreedy sensor placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Comparison-of-the-positions">Comparison of the positions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Online-Phase:-prediction-of-unknown-states">Online Phase: prediction of unknown states</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#EIM-state-estimation">EIM state estimation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GEIM-state-estimation">GEIM state estimation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PBDW-state-estimation">PBDW state estimation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Comparison-of-the-results">Comparison of the results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Basic Tutorials</a></li>
+      <li class="breadcrumb-item active">Sensor Placement algorithms and the Parameterised Background Data-Weak (PBDW) approach</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Tutorials/03_sensor_placement.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Sensor-Placement-algorithms-and-the-Parameterised-Background-Data-Weak-(PBDW)-approach">
+<h1>Sensor Placement algorithms and the Parameterised Background Data-Weak (PBDW) approach<a class="headerlink" href="#Sensor-Placement-algorithms-and-the-Parameterised-Background-Data-Weak-(PBDW)-approach" title="Link to this heading"></a></h1>
+<p>This notebook presents some sensor placement algorithms implemented in the <em>pyforce</em> library, such as the Empirical Interpolation Method (EIM), the Generalised Empirical Interpolation Method (GEIM) and the SGreedy algorithm. These algorithms are used to select the optimal locations for sensors in order to reconstruct a field of interest from a limited number of measurements. The EIM and GEIM are based on the idea of selecting the most informative points in the domain, while the SGreedy algorithm
+is based on a greedy approach that iteratively selects the best sensor location based on a given criterion.</p>
+<p>Once sensors are placed, they can be used to predict unknown states from a test set using the EIM, GEIM and the Parameterised Background Data-Weak (PBDW) approach, this latter technique is based on the combination of a reduced model and the observations from sensors and can be considered a general framework for data assimilation and reduced order modelling.</p>
+<p>In this tutorial, you will learn:</p>
+<ul class="simple">
+<li><p>How to import data from <em>dolfinx</em></p></li>
+<li><p>How to use the EIM and GEIM algorithms for sensor placement</p></li>
+<li><p>How to use the SGreedy algorithm for sensor placement</p></li>
+<li><p>How to use the EIM, GEIM and PBDW approaches for state estimation</p></li>
+</ul>
+<p>The data for this tutorial comes from a <a class="reference external" href="https://github.com/ERMETE-Lab/MP-OFELIA">OFELIA</a> tutorial, the ANL11A2 reactor inspired from the benchmark of Argonne National Laboratory <a class="reference external" href="https://www.osti.gov/servlets/purl/12030251/">https://www.osti.gov/servlets/purl/12030251/</a> in which two-group neutron diffusion is used to model the neutron economy in a portion of a 2D PWR reactor core. The data have been generated using the <a class="reference external" href="https://fenicsproject.org/">dolfinx-v6</a> package, using solvers implemented within OFELIA. The interested reader can
+refer to the <a class="reference external" href="https://ermete-lab.github.io/MP-OFELIA/">OFELIA documentation</a> for more details about the mathematical model and the numerical methods used to solve it.</p>
+<section id="Import-dolfinx-(v6)-case-from-npz-files">
+<h2>Import dolfinx (v6) case from npz files<a class="headerlink" href="#Import-dolfinx-(v6)-case-from-npz-files" title="Link to this heading"></a></h2>
+<p>The data are parametric with respect to the fast diffusion coefficient in the reflection and the thermal absorption cross section in a rod region. The snaphots of the fast and thermal fluxes are stored in an <code class="docutils literal notranslate"><span class="pre">npz</span></code> file, which can be loaded using <code class="docutils literal notranslate"><span class="pre">numpy.load</span></code>.</p>
+<p>Each variable is stored as a 2D array, where each column represents a snapshot at a given parameter value, and each row represents a spatial point in the domain.</p>
+<p>The code below works for all the variables in the dataset, and it will be chosen just one of them for the sensor placement.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;Datasets/ANL11A2_dolfinx6/anl11a2.npz&#39;</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">var_names</span> <span class="o">=</span> <span class="n">_data</span><span class="o">.</span><span class="n">files</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available variables: </span><span class="si">{</span><span class="n">var_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="n">field</span> <span class="o">=</span> <span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># selected field</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">snap_matrix</span><span class="o">=</span><span class="n">_data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;Datasets/ANL11A2_dolfinx6/params_anl11a2.npy&#39;</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parameters_key</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;D_1_refl&#39;</span><span class="p">,</span> <span class="s1">&#39;k_eff&#39;</span><span class="p">,</span> <span class="s1">&#39;xs_a_2_rod&#39;</span><span class="p">]</span> <span class="c1"># Column names</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Available variables: [&#39;phi_1&#39;, &#39;phi_2&#39;]
+</pre></div></div>
+</div>
+<p>The parameters include the fast diffusion coefficient in the reflector, <span class="math notranslate nohighlight">\(D_{1,ref}\)</span>, the thermal absorption cross section in a rod region, <span class="math notranslate nohighlight">\(\Sigma_{a,2,rod}\)</span>, and the associated effective multiplication factor calculation with neutron diffusion theory, <span class="math notranslate nohighlight">\(k_{eff}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span>
+    <span class="n">parameters</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span>
+<span class="p">)</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$D_{1,ref}$ (cm)&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\Sigma_{a,2,rod}$ (cm$^{-1}$)&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$k_</span><span class="si">{eff}</span><span class="s1">$&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x16bfba6e0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_03_sensor_placement_5_1.png" src="../_images/Tutorials_03_sensor_placement_5_1.png" />
+</div>
+</div>
+<p>Let us also load the grid from a VTK file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;Datasets/ANL11A2_dolfinx6/mesh_anl11a2.vtk&#39;</span><span class="p">)</span>
+<span class="n">gdim</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">grid</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table style='width: 100%;'>
+<tr><th>UnstructuredGrid</th><th>Information</th></tr>
+<tr><td>N Cells</td><td>13380</td></tr>
+<tr><td>N Points</td><td>6869</td></tr>
+<tr><td>X Bounds</td><td>0.000e+00, 1.700e+02</td></tr>
+<tr><td>Y Bounds</td><td>0.000e+00, 1.300e+02</td></tr>
+<tr><td>Z Bounds</td><td>0.000e+00, 0.000e+00</td></tr>
+<tr><td>N Arrays</td><td>0</td></tr>
+</table></div>
+</div>
+<p>Let us make a plot of the snapshots</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># field = &#39;phi_1&#39;</span>
+<span class="c1"># dataset[field].plot_sequence(grid, sampling = 20, title=field+&#39; id = &#39;, title_size=15, resolution=[700,600], cmap=&#39;jet&#39;, varname=field)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us split the dataset into a training and a test set</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">train_params</span><span class="p">,</span> <span class="n">test_params</span><span class="p">,</span> <span class="n">train_snaps</span><span class="p">,</span> <span class="n">test_snaps</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">parameters</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Sensor-placement-algorithms">
+<h2>Sensor placement algorithms<a class="headerlink" href="#Sensor-placement-algorithms" title="Link to this heading"></a></h2>
+<p>In this section, the focus will be on the implementation of sensor placement algorithms: in particular, it will be shown how to place sensors based on some candidate locations (constrained to a portion of the domain).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">is_external</span><span class="p">(</span><span class="n">point</span><span class="p">):</span>
+    <span class="c1"># if np.linalg.norm(point) &gt;= 150:</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">50</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">&lt;=</span><span class="mi">140</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="n">candidate_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">))</span>
+<span class="n">candidate_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">candidate_idx</span> <span class="k">if</span> <span class="n">is_external</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
+<span class="n">candidate_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">candidate_idx</span><span class="p">]</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mf">4.5</span><span class="p">))</span>
+
+<span class="n">mark_size</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="n">gdim</span><span class="p">],</span> <span class="s1">&#39;ks&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">mark_size</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mesh points&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">candidate_points</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">candidate_points</span><span class="p">],</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">mark_size</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Candidate points&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x (cm)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y (cm)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;y (cm)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_03_sensor_placement_13_1.png" src="../_images/Tutorials_03_sensor_placement_13_1.png" />
+</div>
+</div>
+<p>Sensors in the reactor core are not allowed, so we will place sensors only in the reflector region. The candidate locations are represented by the blue points in the figure above.</p>
+<p>The EIM, the GEIM and the SGreedy algorithms can be used to place sensors in the reflector region and they will be discussed below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Mmax</span> <span class="o">=</span> <span class="mi">15</span>
+</pre></div>
+</div>
+</div>
+<section id="EIM-sensor-placement">
+<h3>EIM sensor placement<a class="headerlink" href="#EIM-sensor-placement" title="Link to this heading"></a></h3>
+<p>This algorithm has already been presented in the previous tutorial. The sensor selection is based on a greedy approach, aimed at reducing the interpolation error.</p>
+<p>In the previous tutorial, no constraint was imposed on the sensor locations, while here we will use only the candidate locations in the reflector region: the EIM algorithm requires the indices of the candidate locations as input through the <code class="docutils literal notranslate"><span class="pre">_xm</span></code> argument.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.eim</span><span class="w"> </span><span class="kn">import</span> <span class="n">EIM</span>
+
+<span class="n">eim_offline</span> <span class="o">=</span> <span class="n">EIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+<span class="n">train_eim_coeffs</span> <span class="o">=</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">train_snaps</span><span class="p">,</span> <span class="n">Mmax</span> <span class="o">=</span> <span class="n">Mmax</span><span class="p">,</span>
+                                   <span class="n">_xm_idx</span> <span class="o">=</span> <span class="n">candidate_idx</span><span class="p">,</span>
+                                   <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  Iteration 015 | Abs Err (Linfty): 3.03e-05 - EIM done
+</pre></div></div>
+</div>
+</section>
+<section id="GEIM-sensor-placement">
+<h3>GEIM sensor placement<a class="headerlink" href="#GEIM-sensor-placement" title="Link to this heading"></a></h3>
+<p>As already mentioned in the previous tutorial, the GEIM algorithm is a generalization of the EIM algorithm, which allows to use linear functionals as sensors.</p>
+<p>Similar to the EIM algorithm, the GEIM algorithm can be constrained to use only a subset of candidate locations. This is done by providing the candidate locations through the <code class="docutils literal notranslate"><span class="pre">xm_list</span></code> entry (not indices but the actual points) of the <code class="docutils literal notranslate"><span class="pre">sensor_params</span></code> dictionary.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span>
+
+<span class="n">geim_offline</span> <span class="o">=</span> <span class="n">GEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">sensors_type</span><span class="o">=</span><span class="s1">&#39;Gaussian&#39;</span><span class="p">)</span>
+
+<span class="n">sens_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="c1"># spread of the Gaussian kernels - hyperparameter to be tuned according to the physical system</span>
+     <span class="s1">&#39;xm_list&#39;</span><span class="p">:</span> <span class="n">candidate_points</span><span class="p">[::</span><span class="mi">20</span><span class="p">],</span> <span class="c1"># downsampled candidate points for computational efficiency</span>
+<span class="p">}</span>
+
+<span class="n">train_geim_coeff</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">train_snaps</span><span class="p">,</span> <span class="n">Mmax</span> <span class="o">=</span> <span class="n">Mmax</span><span class="p">,</span>
+                                    <span class="n">sensor_params</span><span class="o">=</span><span class="n">sens_params</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Creating Gaussian Sensor Library: 100.000 / 100.00% - 0.000832 s/it
+GEIM Iteration 15/15 - MaxAbsErr: 3.4007e-03 - MaxRelErr: 6.2898e-05
+</pre></div></div>
+</div>
+</section>
+<section id="SGreedy-sensor-placement">
+<h3>SGreedy sensor placement<a class="headerlink" href="#SGreedy-sensor-placement" title="Link to this heading"></a></h3>
+<p>The SGreedy algorithm is still considered a greedy approach, generalised to any reduced basis and any linear functional as sensor. In particular, the SGreedy algorithm requires a reduced basis spanning an associated reduced space as input, which can be obtained through a POD of the training snapshots (for instance), then the sensors are selected to maximise the amount of information provided by the sensors spanning an update space of dimension <code class="docutils literal notranslate"><span class="pre">Mmax</span></code>.</p>
+<p>At this purpose, let us perform a randomised SVD of the training snapshots.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">rSVD</span>
+
+<span class="n">svd_offline</span> <span class="o">=</span> <span class="n">rSVD</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+<span class="n">svd_offline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">train_snaps</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SVD of phi_1 snapshots calculated in 0.071107 seconds (cpu).
+</pre></div></div>
+</div>
+<p>Let us plot the singular values</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">svd_fig</span> <span class="o">=</span> <span class="n">svd_offline</span><span class="o">.</span><span class="n">plot_sing_vals</span><span class="p">()</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">svd_fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_03_sensor_placement_24_0.png" src="../_images/Tutorials_03_sensor_placement_24_0.png" />
+</div>
+</div>
+<p>Once the basis is computed, we can use it to perform the SGreedy sensor placement. The initialization of the class is similar to the previous cases.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.sgreedy</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGREEDY</span>
+
+<span class="n">sgreedy_placement</span> <span class="o">=</span> <span class="n">SGREEDY</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The training of the SGreedy algorithm, through the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method, requires the basis functions spanning the reduced space (using only the first 5 modes), the maximum number of sensors to be placed, and the sensor parameters (similar to the GEIM case).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sens_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="c1"># spread of the Gaussian kernels - hyperparameter to be tuned according to the physical system</span>
+     <span class="s1">&#39;xm_list&#39;</span><span class="p">:</span> <span class="n">candidate_points</span><span class="p">[::</span><span class="mi">20</span><span class="p">],</span> <span class="c1"># downsampled candidate points for computational efficiency</span>
+<span class="p">}</span>
+
+<span class="n">rank_svd</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">sgreedy_placement</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">basis_functions</span><span class="o">=</span> <span class="n">svd_offline</span><span class="o">.</span><span class="n">svd_modes</span><span class="p">[:</span><span class="n">rank_svd</span><span class="p">],</span>
+    <span class="n">Mmax</span> <span class="o">=</span> <span class="n">Mmax</span><span class="p">,</span>
+    <span class="n">sensor_params</span><span class="o">=</span><span class="n">sens_params</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Creating Gaussian Sensor Library: 100.000 / 100.00% - 0.000824 s/it
+SGREEDY: m = 14, n = 06 | beta_n,m = 0.164205
+</pre></div></div>
+</div>
+</section>
+<section id="Comparison-of-the-positions">
+<h3>Comparison of the positions<a class="headerlink" href="#Comparison-of-the-positions" title="Link to this heading"></a></h3>
+<p>In the following figure we are going to observe the center of mass of each sensor placed by the three algorithms, along with the candidate locations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;ko&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x (cm)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y (cm)&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]],</span> <span class="s1">&#39;bs&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;EIM magic points&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(),</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="p">))],</span>
+            <span class="p">[</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(),</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="p">))],</span>
+            <span class="s1">&#39;g^&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;GEIM magic points&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sgreedy_placement</span><span class="o">.</span><span class="n">sensor_centers</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sgreedy_placement</span><span class="o">.</span><span class="n">sensor_centers</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;SGreedy sensors&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;EIM sensor placement&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;GEIM sensor placement&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;SGreedy sensor placement&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;SGreedy sensor placement&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_03_sensor_placement_30_1.png" src="../_images/Tutorials_03_sensor_placement_30_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Online-Phase:-prediction-of-unknown-states">
+<h2>Online Phase: prediction of unknown states<a class="headerlink" href="#Online-Phase:-prediction-of-unknown-states" title="Link to this heading"></a></h2>
+<p>The EIM and GEIM have already been presented in the previous tutorial, while the output of the SGreedy algorithm can be used for the Parameterised Background Data-Weak (PBDW) approach, which is a state estimation technique based on the combination of a reduced model and the observations from sensors. This method includes any data-driven reduced order model, such as EIM and GEIM, as a special case: this framework is based on the assumption that the true state can be approximated by a linear
+combination of a reduced basis (the background space) and an update space spanned by the Riesz representers of the sensors.</p>
+<p>In this section, the EIM, GEIM and PBDW approaches will be used to predict unknown states from the test set, using only the sensors placed in the previous section.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noise_std</span> <span class="o">=</span> <span class="mf">0.025</span>
+</pre></div>
+</div>
+</div>
+<section id="EIM-state-estimation">
+<h3>EIM state estimation<a class="headerlink" href="#EIM-state-estimation" title="Link to this heading"></a></h3>
+<p>The EIM state estimation is based on the interpolation of the unknown state using the sensors placed by the EIM algorithm.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.eim</span><span class="w"> </span><span class="kn">import</span> <span class="n">EIM</span> <span class="k">as</span> <span class="n">OnlineEIM</span>
+
+<span class="n">eim_online</span> <span class="o">=</span> <span class="n">OnlineEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+<span class="n">eim_online</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+<span class="n">eim_online</span><span class="o">.</span><span class="n">set_magic_points</span><span class="p">(</span><span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_points</span><span class="p">)</span>
+
+<span class="c1"># Assemble Tikhonov regularization matrix</span>
+<span class="n">eim_online</span><span class="o">.</span><span class="n">set_tikhonov_matrices</span><span class="p">(</span><span class="n">beta_coeffs</span><span class="o">=</span><span class="n">train_eim_coeffs</span><span class="p">)</span>
+
+<span class="c1"># Prediction with EIM</span>
+<span class="n">test_eim_measures</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise_std</span><span class="p">)</span>
+<span class="n">eim_prediction</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">test_eim_measures</span><span class="p">,</span> <span class="n">regularization_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">noise_std</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="GEIM-state-estimation">
+<h3>GEIM state estimation<a class="headerlink" href="#GEIM-state-estimation" title="Link to this heading"></a></h3>
+<p>The GEIM state estimation is based on the interpolation of the unknown state using the sensors placed by the GEIM algorithm.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span> <span class="k">as</span> <span class="n">OnlineGEIM</span>
+
+<span class="n">geim_online</span> <span class="o">=</span> <span class="n">OnlineGEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_magic_sensors</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+
+<span class="c1"># Assemble Tikhonov regularization matrix</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_tikhonov_matrices</span><span class="p">(</span><span class="n">beta_coeffs</span><span class="o">=</span><span class="n">train_geim_coeff</span><span class="p">)</span>
+
+<span class="c1"># Prediction with GEIM</span>
+<span class="n">test_geim_measures</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise_std</span><span class="p">)</span>
+<span class="n">geim_prediction</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">test_geim_measures</span><span class="p">,</span> <span class="n">regularization_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">noise_std</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="PBDW-state-estimation">
+<h3>PBDW state estimation<a class="headerlink" href="#PBDW-state-estimation" title="Link to this heading"></a></h3>
+<p>The Parameterised-Background Data-Weak (PBDW) approach is a state estimation technique that combines a reduced model with observations from sensors. This technique can work with a variety of reduced basis and basis sensors, even randomly placed sensors (expecting not optimal results). This class has been implemented in the <code class="docutils literal notranslate"><span class="pre">PBDW</span></code> class within the <code class="docutils literal notranslate"><span class="pre">pyforce.online.pbdw</span></code> module.</p>
+<p>The initialization of the class is similar to the previous cases.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.pbdw</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBDW</span>
+
+<span class="n">pbdw_online</span> <span class="o">=</span> <span class="n">PBDW</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Similar to GEIM, we have to set the reduced basis and the sensors: in this case, the SVD basis and the SGreedy sensors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pbdw_online</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">svd_offline</span><span class="o">.</span><span class="n">svd_modes</span><span class="p">[:</span><span class="n">rank_svd</span><span class="p">])</span>
+<span class="n">pbdw_online</span><span class="o">.</span><span class="n">set_basis_sensors</span><span class="p">(</span><span class="n">sgreedy_placement</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The state is estimated from the following linear expansion with respect to the reduced basis and the Riesz representers of the sensors:</p>
+<div class="math notranslate nohighlight">
+\[u \simeq \sum_{n=1}^N \alpha_n \zeta_n + \sum_{m=1}^M \theta_m g_m\]</div>
+<p>where <span class="math notranslate nohighlight">\(\zeta_n\)</span> are the basis functions spanning the reduced space, <span class="math notranslate nohighlight">\(g_m\)</span> are the Riesz representers of the sensors, and <span class="math notranslate nohighlight">\(\alpha_n\)</span> and <span class="math notranslate nohighlight">\(\theta_m\)</span> are the coefficients to be determined. These coefficients are the solution of the following linear system:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[
+    \begin{array}{ccc}
+        \xi \cdot M \cdot \mathbb{I} + \mathbb{A} &amp; &amp; \mathbb{K}  \\  &amp; &amp; \\
+        \mathbb{K}^T &amp; &amp; 0
+    \end{array}
+    \right] \cdot
+    \left[
+    \begin{array}{c}
+        \boldsymbol{\theta} \\ \\ \boldsymbol{\alpha}
+    \end{array}
+    \right]   =
+    \left[
+    \begin{array}{c}
+        \mathbf{y} \\ \\ \mathbf{0}
+    \end{array}
+\right]\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\xi\)</span> is a regularization parameter, <span class="math notranslate nohighlight">\(M\)</span> is the mass matrix, <span class="math notranslate nohighlight">\(\mathbb{I}\)</span> is the identity matrix, <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> are the measurements from the sensors and the other matrices are defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}
+\mathbb{A}_{ij} &amp;= (g_i, g_j)_{L^2} \qquad i,j = 1, \ldots, M \\
+\mathbb{K}_{ji} &amp;= (\zeta_i, g_j)_{L^2} \qquad i = 1, \ldots, N \quad j = 1, \ldots, M
+\end{split}\end{split}\]</div>
+<p>The matrices can be assembled with the <code class="docutils literal notranslate"><span class="pre">compute_matrices</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pbdw_online</span><span class="o">.</span><span class="n">compute_matrices</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Let us now estimate the state using the PBDW approach.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pbdw_measures</span> <span class="o">=</span> <span class="n">pbdw_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise_std</span><span class="p">)</span>
+<span class="n">pbdw_prediction</span> <span class="o">=</span> <span class="n">pbdw_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">pbdw_measures</span><span class="p">,</span> <span class="n">xi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Comparison-of-the-results">
+<h3>Comparison of the results<a class="headerlink" href="#Comparison-of-the-results" title="Link to this heading"></a></h3>
+<p>Let us compare the results obtained with the three approaches: EIM, GEIM and PBDW.</p>
+<p>At first let us compare the average relative error over the test set.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegralCalculator</span><span class="p">,</span> <span class="n">LoopProgress</span>
+
+<span class="n">errors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EIM&#39;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s1">&#39;GEIM&#39;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s1">&#39;PBDW&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+
+<span class="n">calculator</span> <span class="o">=</span> <span class="n">IntegralCalculator</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="n">gdim</span><span class="p">)</span>
+<span class="n">bar</span> <span class="o">=</span> <span class="n">LoopProgress</span><span class="p">(</span><span class="n">final</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Computing errors&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">mu</span><span class="p">,</span> <span class="n">snap</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">):</span>
+    <span class="n">_snap_norm</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span>
+
+    <span class="c1"># EIM error</span>
+    <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;EIM&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">calculator</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">snap</span> <span class="o">-</span> <span class="n">eim_prediction</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span> <span class="o">/</span> <span class="n">_snap_norm</span>
+    <span class="p">)</span>
+
+    <span class="c1"># GEIM error</span>
+    <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;GEIM&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">calculator</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">snap</span> <span class="o">-</span> <span class="n">geim_prediction</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span> <span class="o">/</span> <span class="n">_snap_norm</span>
+    <span class="p">)</span>
+
+    <span class="c1"># PBDW error</span>
+    <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;PBDW&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">calculator</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">snap</span> <span class="o">-</span> <span class="n">pbdw_prediction</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span> <span class="o">/</span> <span class="n">_snap_norm</span>
+    <span class="p">)</span>
+
+    <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">errors</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">errors</span><span class="o">.</span><span class="n">keys</span><span class="p">()],</span>
+        <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">])</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Average relative error&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors: 245.000 / 245.00 - 0.004157 s/it
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Average relative error&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_03_sensor_placement_46_2.png" src="../_images/Tutorials_03_sensor_placement_46_2.png" />
+</div>
+</div>
+<p>Let us make a contour plot of the estimation with respect to the true solution for a given parameter in the test set.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mu_to_plot</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;managua_r&#39;</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">test_snaps</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">*</span><span class="mf">1.1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+
+<span class="c1"># FOM</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">test_snaps</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;FOM solution&#39;</span><span class="p">)</span>
+
+<span class="c1"># EIM</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">eim_prediction</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;EIM estimation&#39;</span><span class="p">)</span>
+
+<span class="c1"># GEIM</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">geim_prediction</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;GEIM estimation&#39;</span><span class="p">)</span>
+
+<span class="c1"># PBDW</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">pbdw_prediction</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;PBDW estimation&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="c1">## Residuals</span>
+<span class="n">res_eim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">]</span> <span class="o">-</span> <span class="n">eim_prediction</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">])</span>
+<span class="n">res_geim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">]</span> <span class="o">-</span> <span class="n">geim_prediction</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">])</span>
+<span class="n">res_pbdw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_snaps</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">]</span> <span class="o">-</span> <span class="n">pbdw_prediction</span><span class="p">[</span><span class="n">mu_to_plot</span><span class="p">])</span>
+<span class="n">levels_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">res_eim</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">res_geim</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">res_pbdw</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">cmap_res</span> <span class="o">=</span> <span class="s1">&#39;magma_r&#39;</span>
+
+<span class="c1"># EIM residual</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">res_eim</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels_res</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_res</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;EIM residual&#39;</span><span class="p">)</span>
+
+<span class="c1"># GEIM residual</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">res_geim</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels_res</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_res</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;GEIM residual&#39;</span><span class="p">)</span>
+
+<span class="c1"># PBDW residual</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">res_pbdw</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels_res</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_res</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;PBDW residual&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:]:</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_03_sensor_placement_48_0.png" src="../_images/Tutorials_03_sensor_placement_48_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="02_eim_methods.html" class="btn btn-neutral float-left" title="(Generalised) Empirical Interpolation Method - (G)EIM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../adv_tutorials.html" class="btn btn-neutral float-right" title="Advanced Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

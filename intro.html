@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to pyforce’s documentation &mdash; pyforce 0.1.0 documentation</title>
+  <title>Welcome to pyforce’s documentation &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation notes" href="installation.html" />
-    <link rel="prev" title="Welcome to pyforce’s docs!" href="index.html" /> 
+    <link rel="prev" title="Indices and tables" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,7 +44,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Welcome to <em>pyforce</em>’s documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#description">Description</a></li>
@@ -52,10 +52,20 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="theory.html">Theory and package structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -86,30 +96,58 @@
 <h1>Welcome to <em>pyforce</em>’s documentation<a class="headerlink" href="#welcome-to-pyforce-s-documentation" title="Link to this heading"></a></h1>
 <p><strong>Authors</strong>: Stefano Riva, Carolina Introini, Antonio Cammi</p>
 <p><img alt="pyforce" src="_images/immy_pyforce2.png" /></p>
-<p><a class="reference external" href="https://doi.org/10.1016/j.apm.2024.06.040"><img alt="Reference Paper 1" src="https://img.shields.io/badge/Reference%20Paper%201-10.1016/j.apm.2024.06.040-gray?labelColor=blue&amp;style=flat&amp;link=https://doi.org/10.1016/j.apm.2024.06.040" /></a> <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S002954932400205X"><img alt="Reference Paper 2" src="https://img.shields.io/badge/Reference%20Paper%202-10.1016/j.nucengdes.2024.113105-gray?labelColor=blue&amp;style=flat&amp;link=https://www.sciencedirect.com/science/article/pii/S002954932400205X" /></a></p>
+<p><a class="reference external" href="https://doi.org/10.21105/joss.06950"><img alt="JOSS Paper" src="https://img.shields.io/badge/JOSS%20Paper-10.21105/joss.06950-brightgreen?style=flat&amp;logo=journal-of-open-source-software&amp;logoColor=white" /></a>
+<a class="reference external" href="https://doi.org/10.1016/j.nucengdes.2024.113105"><img alt="Reference Paper 1" src="https://img.shields.io/badge/Ref%20Paper%201-Nucl.%20Eng.%20Des.-gray?labelColor=blue&amp;style=flat&amp;link=https://doi.org/10.1016/j.nucengdes.2024.113105" /></a> <a class="reference external" href="https://doi.org/10.1016/j.apm.2024.06.040"><img alt="Reference Paper 2" src="https://img.shields.io/badge/Ref%20Paper%202-Appl.%20Math.%20Mod.-gray?labelColor=blue&amp;style=flat&amp;link=https://doi.org/10.1016/j.apm.2024.06.040" /></a></p>
+<p><a class="reference external" href="https://zenodo.org/records/15705990"><img alt="Zenodo" src="https://img.shields.io/badge/Zenodo-purple?style=flat&amp;link=https://zenodo.org/records/15705990" /></a></p>
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
-<p><em>pyforce</em> (Python Framework for data-driven model Order Reduction of multi-physiCs problEms) is a Python package implementing some Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the <strong>nuclear engineering</strong> world. These techniques have been implemented upon the <a class="reference external" href="https://github.com/FEniCS/dolfinx">dolfinx</a> package (currently v0.6.0), part of the <a class="reference external" href="https://fenicsproject.org/">FEniCSx</a> project, to handle mesh generation, integral calculation and functions storage. The package is part of the <strong>ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)</strong> which is one of the main research topics investigated at the <a class="reference external" href="https://github.com/ERMETE-Lab#reduced-order-modelling-with-data-driven-techniques-for-multi-physics-problems-rose-">ERMETE-Lab</a>: in particular, the focus of the research activities is on mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, searching for optimal sensor positions and integrating experimental data to improve the knowledge on the physical systems.</p>
+<p><em>pyforce</em> (<strong>Py</strong>thon <strong>F</strong>ramework for data-driven model <strong>O</strong>rder <strong>R</strong>eduction of multi-physi<strong>C</strong>s probl<strong>E</strong>ms) is a Python package implementing Data-Driven Reduced Order Modelling (DDROM) techniques for applications to multi-physics problems, mainly set in the <strong>nuclear engineering</strong> world.</p>
+<blockquote>
+<div><p><strong>⚠️ Note on Versioning</strong>
+This documentation describes <strong>pyforce v1.0+</strong>, which uses <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> and <code class="docutils literal notranslate"><span class="pre">numpy</span></code> for solver-independent mesh handling and integral calculations. The original implementation (described in the JOSS paper) was built upon <code class="docutils literal notranslate"><span class="pre">dolfinx</span></code>. While the architecture has evolved, the underlying methodology remains consistent.</p>
+</div></blockquote>
+<p>The package is part of the <strong>ROSE (Reduced Order modelling with data-driven techniques for multi-phySics problEms)</strong> framework which is one of the main research topics investigated at the <a class="reference external" href="https://github.com/ERMETE-Lab#reduced-order-modelling-with-data-driven-techniques-for-multi-physics-problems-rose-">ERMETE-Lab</a>: in particular, the focus of the research activities is on mathematical algorithms aimed at reducing the complexity of multi-physics models with a focus on nuclear reactor applications, searching for optimal sensor positions and integrating experimental data to improve the knowledge on the physical systems.</p>
 <p>At the moment, the following techniques have been implemented:</p>
 <ul class="simple">
+<li><p><strong>Singular Value Decomposition</strong> (randomised), with Projection and Interpolation for the Online Phase</p></li>
 <li><p><strong>Proper Orthogonal Decomposition</strong> with Projection and Interpolation for the Online Phase</p></li>
-<li><p><strong>Generalised Empirical Interpolation Method</strong>, either with or without Tikhonov’s regularisation</p></li>
+<li><p><strong>Empirical Interpolation Method</strong>, either regularised with Tikhonov or not</p></li>
+<li><p><strong>Generalised Empirical Interpolation Method</strong>, either regularised with Tikhonov or not</p></li>
 <li><p><strong>Parameterised-Background Data-Weak formulation</strong></p></li>
+<li><p><strong>SGreedy</strong> algorithm for optimal sensor positioning</p></li>
 <li><p>an <strong>Indirect Reconstruction</strong> algorithm to reconstruct non-observable fields</p></li>
 </ul>
 <p>This package is aimed to be a valuable tool for other researchers, engineers, and data scientists working in various fields, not only restricted to the nuclear engineering world. This documentation includes a brief introduction to the world of Reduced Order Modelling and dimensionality reduction, the API documentation and some examples of how to use the various modules of the package.</p>
-<p>This work has been carried out at the <a class="reference external" href="https://github.com/ERMETE-Lab">Nuclear Reactors Group - ERMETE Lab</a> at <a class="reference external" href="https://polimi.it">Politecnico di Milano</a>, under the supervision of Prof. Antonio Cammi.</p>
+<p>This work has been carried out at the <a class="reference external" href="https://github.com/ERMETE-Lab">Nuclear Reactors Group - ERMETE Lab</a> at <a class="reference external" href="https://polimi.it">Politecnico di Milano</a>, under the supervision of Prof. Antonio Cammi. The original development of the package started in 2022 during the <a class="reference external" href="https://github.com/Steriva/phd-thesis">PhD research of Stefano Riva</a>, and it is still ongoing.</p>
 </section>
 <hr class="docutils" />
 <section id="how-to-cite-pyforce">
 <h2>How to cite pyforce<a class="headerlink" href="#how-to-cite-pyforce" title="Link to this heading"></a></h2>
-<p>If you are going to use <em>pyforce</em> in your research work, please cite the following articles:</p>
+<p>If you use <em>pyforce</em> in your research, please cite the <strong>JOSS paper</strong> as the primary software reference.
+<strong>Note:</strong> While the JOSS paper describes the original <code class="docutils literal notranslate"><span class="pre">dolfinx</span></code>-based implementation, it remains the standard citation for the <em>pyforce</em> project until the publication of the new methodology.</p>
 <ol class="arabic simple">
-<li><p>Stefano Riva, Carolina Introini, and Antonio Cammi, “Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies,” Applied Mathematical Modelling, vol. 135, pp. 243–268, 2024. <a class="reference external" href="https://doi.org/10.1016/j.apm.2024.06.040">https://doi.org/10.1016/j.apm.2024.06.040</a>.</p></li>
-<li><p>Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-driven model order reduction for sensor positioning and indirect reconstruction with noisy data: Application to a circulating fuel reactor. Nuclear Engineering and Design, 421:113105, 2024. doi:<a class="reference external" href="https://doi.org/10.1016/j.nucengdes.2024.113105">https://doi.org/10.1016/j.nucengdes.2024.113105</a>.</p></li>
+<li><p><strong>[Software Reference]</strong> S. Riva, C. Introini, and A. Cammi, “pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems,” <em>Journal of Open Source Software</em>, vol. 11, no. 117, p. 6950, 2026. <a class="reference external" href="https://doi.org/10.21105/joss.06950">https://doi.org/10.21105/joss.06950</a></p></li>
+</ol>
+<p>For the original papers, with applications on nuclear reactors (multiphysics modelling), please also cite:</p>
+<ol class="arabic simple" start="2">
+<li><p><strong>[Model Bias Correction]</strong> S. Riva, C. Introini, and A. Cammi, “Multi-physics model bias correction…”, <em>Applied Mathematical Modelling</em>, 2024. <a class="reference external" href="https://doi.org/10.1016/j.apm.2024.06.040">https://doi.org/10.1016/j.apm.2024.06.040</a></p></li>
+<li><p><strong>[Sensor Positioning and Indirect Reconstruction]</strong> A. Cammi, S. Riva, et al., “Data-driven model order reduction…”, <em>Nuclear Engineering and Design</em>, 2024. <a class="reference external" href="https://doi.org/10.1016/j.nucengdes.2024.113105">https://doi.org/10.1016/j.nucengdes.2024.113105</a></p></li>
 </ol>
 <p>For LaTeX users:</p>
-<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@article</span><span class="p">{</span><span class="nl">RIVA2024_AMM</span><span class="p">,</span>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@article</span><span class="p">{</span><span class="nl">pyforce_JOSS</span><span class="p">,</span>
+<span class="w">  </span><span class="na">doi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{10.21105/joss.06950}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{[https://doi.org/10.21105/joss.06950](https://doi.org/10.21105/joss.06950)}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2026}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">publisher</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{The Open Journal}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">volume</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{11}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">number</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{117}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">pages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{6950}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Stefano Riva and Carolina Introini and Antonio Cammi}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{pyforce: Python Framework for data-driven model Order Reduction of multi-physiCs problems}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Journal of Open Source Software}</span>
+<span class="p">}</span>
+
+<span class="nc">@article</span><span class="p">{</span><span class="nl">RIVA2024_AMM</span><span class="p">,</span>
 <span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Multi-physics model bias correction with data-driven reduced order techniques: Application to nuclear case studies}</span><span class="p">,</span>
 <span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Applied Mathematical Modelling}</span><span class="p">,</span>
 <span class="na">volume</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{135}</span><span class="p">,</span>
@@ -143,14 +181,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to pyforce’s docs!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Indices and tables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

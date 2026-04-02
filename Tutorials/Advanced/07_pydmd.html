@@ -1,0 +1,975 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integration of pyforce with pyDMD for Dynamic Mode Decomposition (DMD) &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Shallow Recurrent Decoders (SHRED) for Parametric State Estimation" href="08_shred.html" />
+    <link rel="prev" title="Advanced SVD Methods" href="06_advanced_svd_methods.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../adv_tutorials.html">Advanced Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="04_indirect_reconstruction.html">Indirect Reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_failing_sensors.html">Failing Sensors in MSFR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_advanced_svd_methods.html">Advanced SVD Methods</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Combination with pydmd</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Classic-Dynamic-Mode-Decomposition-(DMD)-with-pyDMD">Classic Dynamic Mode Decomposition (DMD) with <em>pyDMD</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Hankel-DMD-(HODMD)-with-pyDMD">Hankel DMD (HODMD) with <em>pyDMD</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Bagging-Optimized-DMD-(BOPDMD)-with-pyDMD">Bagging-Optimized DMD (BOPDMD) with <em>pyDMD</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="08_shred.html">Implementation of SHRED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_multi-region.html">Multi-Region and Parallel-Decomposed OpenFOAM Import</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../adv_tutorials.html">Advanced Tutorials</a></li>
+      <li class="breadcrumb-item active">Integration of <em>pyforce</em> with <em>pyDMD</em> for Dynamic Mode Decomposition (DMD)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/Advanced/07_pydmd.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Integration-of-pyforce-with-pyDMD-for-Dynamic-Mode-Decomposition-(DMD)">
+<h1>Integration of <em>pyforce</em> with <em>pyDMD</em> for Dynamic Mode Decomposition (DMD)<a class="headerlink" href="#Integration-of-pyforce-with-pyDMD-for-Dynamic-Mode-Decomposition-(DMD)" title="Link to this heading"></a></h1>
+<p>This notebook demostrates how to use <em>pyforce</em> in combination with the <em>pyDMD</em> library to perform Dynamic Mode Decomposition (DMD) analysis on time-dependent data. DMD is a powerful technique for extracting dynamic features from complex systems and it can be combined with <em>pyforce</em> to efficient compression and importing of datasets.</p>
+<p>In order to run this notebook, please make sure you have <em>pyDMD</em> installed in your Python environment. You can install it via pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pydmd
+</pre></div>
+</div>
+<p>The data for this tutorial comes from an OpenFOAM tutorial (com version 2012) for <em>pimpleFoam</em> in laminar condition, called <a class="reference external" href="https://gitlab.com/openfoam/openfoam/-/tree/maintenance-v2012/tutorials/incompressible/pimpleFoam/laminar/cylinder2D?ref_type=heads">cylinder2D</a>.</p>
+<p>As mentioned in the basic tutorials, the <em>pyforce</em> package comes with the <code class="docutils literal notranslate"><span class="pre">ReadFromOF</span></code> class, which allows users to easily import simulation data from OpenFOAM cases. This class must be initialized with the path to the OpenFOAM case folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadFromOF</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+<span class="n">io_data</span> <span class="o">=</span> <span class="n">ReadFromOF</span><span class="p">(</span><span class="s1">&#39;../Datasets/LaminarFlowCyl_OF2012/&#39;</span><span class="p">,</span>
+                    <span class="n">skip_zero_time</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># optional</span>
+                    <span class="p">)</span>
+
+<span class="c1"># Import the mesh information</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">io_data</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The variables to import are the pressure (scalar field) and the velocity (vector field). The snapshots can be loaded using <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">fluidfoam</span></code> libraries: the latter is more efficient for large datasets, but it only supports cell data. The method <code class="docutils literal notranslate"><span class="pre">import_field</span></code> can be used to load the data from the OpenFOAM case and returns the snapshots as a <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object, including a vector with the time instances (from the OpenFOAM directories).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">]</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Importing &#39;</span><span class="o">+</span><span class="n">field</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39; using pyvista&#39;</span><span class="p">)</span>
+    <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">times</span> <span class="o">=</span> <span class="n">io_data</span><span class="o">.</span><span class="n">import_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span>
+                                              <span class="n">import_mode</span><span class="o">=</span><span class="s1">&#39;pyvista&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span> <span class="c1"># optional</span>
+                                              <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Importing p using pyvista
+Importing U using pyvista
+</pre></div></div>
+</div>
+<p>Let us extract the first 80% of the snapshots as training data for the DMD models.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Nt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">])</span> <span class="o">==</span> <span class="n">Nt</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">),</span> <span class="s2">&quot;Mismatch in number of snapshots among variables.&quot;</span>
+<span class="n">train_cut</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.80</span> <span class="o">*</span> <span class="n">Nt</span><span class="p">)</span>
+
+<span class="n">train_snaps</span> <span class="o">=</span> <span class="p">{</span><span class="n">var</span><span class="p">:</span> <span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">][:</span><span class="n">train_cut</span><span class="p">]</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">}</span>
+<span class="n">train_times</span> <span class="o">=</span> <span class="n">times</span><span class="p">[:</span><span class="n">train_cut</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Training on </span><span class="si">{</span><span class="n">train_cut</span><span class="si">}</span><span class="s1"> snapshots out of </span><span class="si">{</span><span class="n">Nt</span><span class="si">}</span><span class="s1"> total snapshots.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Training on 200 snapshots out of 250 total snapshots.
+</pre></div></div>
+</div>
+<p>Let us define the plotter class.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">patches</span><span class="p">,</span> <span class="n">cm</span><span class="p">,</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">griddata</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PlotFlowCyl</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">radius</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">center</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_streamlines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="p">):</span>
+
+        <span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">y_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">y_grid</span><span class="p">)</span>
+
+        <span class="n">U_interp</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">velocity</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="n">V_interp</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">velocity</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Mask inside the circle</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">Y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">U_interp</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">V_interp</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">U_interp</span><span class="p">,</span> <span class="n">V_interp</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">circle</span> <span class="o">=</span> <span class="n">patches</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">ls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">circle</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_contour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">snap</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">RdYlBu_r</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">show_ticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">streamline_plot</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">density</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                     <span class="n">ylim</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">xlim</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">snap</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">_vec</span> <span class="o">=</span> <span class="n">snap</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">)</span>
+            <span class="n">snap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_vec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">snap</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_circle</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">show_ticks</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+        <span class="k">if</span> <span class="n">streamline_plot</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">streamplot</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">create_streamlines</span><span class="p">(</span><span class="n">_vec</span><span class="p">),</span>
+                           <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-&gt;&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xlim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plot</span>
+
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">PlotFlowCyl</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>
+
+<span class="n">cmaps</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">cm</span><span class="o">.</span><span class="n">seismic</span><span class="p">,</span>
+    <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="n">cm</span><span class="o">.</span><span class="n">twilight</span><span class="p">,</span>
+    <span class="s1">&#39;vorticity&#39;</span><span class="p">:</span> <span class="n">cm</span><span class="o">.</span><span class="n">vanimo</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Let us generate the error dictionary to store the errors between FOM and DMD results.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="Classic-Dynamic-Mode-Decomposition-(DMD)-with-pyDMD">
+<h2>Classic Dynamic Mode Decomposition (DMD) with <em>pyDMD</em><a class="headerlink" href="#Classic-Dynamic-Mode-Decomposition-(DMD)-with-pyDMD" title="Link to this heading"></a></h2>
+<p>The Dynamic Mode Decomposition (DMD) is a data-driven technique used to analyze the dynamics of complex systems. Given a set of time-dependent snapshots <span class="math notranslate nohighlight">\(\mathbb{X} = [x_1, x_2, \ldots, x_{N_t}]\in\mathbb{R}^{\mathcal{N}_h \times N_t}\)</span>, where each snapshot <span class="math notranslate nohighlight">\(x_i\)</span> represents the state of the system at time <span class="math notranslate nohighlight">\(t_i\)</span>, DMD seeks to find a linear operator <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> such that:</p>
+<div class="math notranslate nohighlight">
+\[x_{i+1} \approx \mathbf{A} x_i\]</div>
+<p>for <span class="math notranslate nohighlight">\(i = 1, 2, \ldots, N_t - 1\)</span>.</p>
+<p>The snapshots have been imported as <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> objects, which can be easily converted to NumPy arrays for use with <em>pyDMD</em>. The library requires the snapshots to be organized in a 2D array where each column represents a snapshot at a specific time instance (as standard <em>pyforce</em> format).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydmd</span><span class="w"> </span><span class="kn">import</span> <span class="n">DMD</span>
+
+<span class="n">dmd_models</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fitting DMD model for field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>  <span class="c1"># Shape: (Nh, 0.8 * Nt)</span>
+
+    <span class="c1"># Create and fit DMD model</span>
+    <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">DMD</span><span class="p">(</span><span class="n">svd_rank</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="c1"># Define original times</span>
+    <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">original_time</span><span class="p">[</span><span class="s1">&#39;t0&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">original_time</span><span class="p">[</span><span class="s1">&#39;tend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">original_time</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">train_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fitting DMD model for field: p
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/ml/lib/python3.10/site-packages/pydmd/snapshots.py:73: UserWarning: Input data condition number 2861167.0. Consider preprocessing data, passing in augmented data
+matrix, or regularization methods.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fitting DMD model for field: U
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/ml/lib/python3.10/site-packages/pydmd/snapshots.py:73: UserWarning: Input data condition number 52116544.0. Consider preprocessing data, passing in augmented data
+matrix, or regularization methods.
+  warnings.warn(
+</pre></div></div>
+</div>
+<p>Let us plot the summary for the DMD model for the pressure field.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydmd.plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_summary</span>
+
+<span class="n">plot_summary</span><span class="p">(</span><span class="n">dmd_models</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">max_sval_plot</span> <span class="o">=</span> <span class="mi">70</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_16_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_16_0.png" />
+</div>
+</div>
+<p>Let us plot the modes</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
+
+<span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="n">aspect_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">plotter</span><span class="o">.</span><span class="n">width</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">nrows</span> <span class="o">*</span> <span class="n">aspect_ratio</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">rr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">rr</span><span class="p">,</span> <span class="n">field_i</span><span class="p">],</span> <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">modes</span><span class="p">[:,</span> <span class="n">rr</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                                 <span class="n">levels</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">rr</span><span class="p">,</span> <span class="n">field_i</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_18_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_18_0.png" />
+</div>
+</div>
+<p>Let us predict future states using the trained DMD models and visualize the results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span> <span class="k">as</span> <span class="n">clc</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="n">aspect_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">plotter</span><span class="o">.</span><span class="n">width</span>
+
+<span class="n">levels</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_cut</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">nrows</span> <span class="o">*</span> <span class="n">aspect_ratio</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+        <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;t0&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;tend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span>
+        <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Get the reconstructed snapshots</span>
+        <span class="n">recon</span> <span class="o">=</span> <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span>
+
+        <span class="c1"># Original snapshot</span>
+        <span class="n">fom</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span>
+
+        <span class="c1"># Compute residual</span>
+        <span class="c1"># resid = np.abs(fom - recon)</span>
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">fom</span> <span class="o">-</span> <span class="n">recon</span>
+
+        <span class="c1"># Plot</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fom</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recon</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">resid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DMD&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time = </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_20_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_20_0.png" />
+</div>
+</div>
+<p>Let us plot some line profiles to compare the FOM and DMD results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_cut</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">lines_x</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">]</span>
+
+    <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines_x</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">xx</span><span class="p">,</span> <span class="n">_linex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines_x</span><span class="p">):</span>
+
+            <span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+            <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span> <span class="k">else</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span>
+            <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;dmd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span> <span class="k">else</span> <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span>
+
+            <span class="n">line_grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">()</span><span class="o">.</span><span class="n">sample_over_line</span><span class="p">(</span><span class="n">pointa</span> <span class="o">=</span> <span class="p">(</span><span class="n">_linex</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">pointb</span><span class="o">=</span><span class="p">(</span><span class="n">_linex</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;dmd&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;DMD&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field_i</span> <span class="o">==</span> <span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;y at $x = </span><span class="si">{</span><span class="n">_linex</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Line profiles at t = </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.00</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_22_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_22_0.png" />
+</div>
+</div>
+<p>Some discrepancies are observed between the FOM and DMD results, this is because the standard DMD is not able to entirely capture complex dynamics, unless a large number of modes is used. Let us measure the error in time between the FOM and DMD results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors</span><span class="p">[</span><span class="s1">&#39;DMD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">Nt</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="n">fom</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+    <span class="n">recon</span> <span class="o">=</span> <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">fom</span> <span class="o">-</span> <span class="n">recon</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">fom</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;DMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training limit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Relative Error&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x37f1e25f0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_24_1.png" src="../../_images/Tutorials_Advanced_07_pydmd_24_1.png" />
+</div>
+</div>
+</section>
+<section id="Hankel-DMD-(HODMD)-with-pyDMD">
+<h2>Hankel DMD (HODMD) with <em>pyDMD</em><a class="headerlink" href="#Hankel-DMD-(HODMD)-with-pyDMD" title="Link to this heading"></a></h2>
+<p>The Higher-Order Dynamic Mode Decomposition (HODMD) is an extension of the standard DMD technique that aims to improve the accuracy and robustness of the decomposition by considering higher-order correlations in the data. HODMD is particularly useful for systems with complex dynamics, where standard DMD may struggle to capture the underlying behavior.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydmd</span><span class="w"> </span><span class="kn">import</span> <span class="n">HODMD</span>
+
+<span class="n">hodmd_models</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="n">delay</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fitting HODMD model for field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>  <span class="c1"># Shape: (Nh, 0.8 * Nt)</span>
+
+    <span class="c1"># Create and fit HODMD model</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">HODMD</span><span class="p">(</span><span class="n">svd_rank</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">delay</span><span class="p">)</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="c1"># Define original times</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">original_time</span><span class="p">[</span><span class="s1">&#39;t0&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">original_time</span><span class="p">[</span><span class="s1">&#39;tend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mf">1e-12</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">original_time</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">train_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Define times</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;t0&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;tend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fitting HODMD model for field: p
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/ml/lib/python3.10/site-packages/pydmd/snapshots.py:73: UserWarning: Input data condition number 6412557.5. Consider preprocessing data, passing in augmented data
+matrix, or regularization methods.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fitting HODMD model for field: U
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/ml/lib/python3.10/site-packages/pydmd/snapshots.py:73: UserWarning: Input data condition number 786325568.0. Consider preprocessing data, passing in augmented data
+matrix, or regularization methods.
+  warnings.warn(
+</pre></div></div>
+</div>
+<p>Let us predict future states using the trained DMD models and visualize the results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span> <span class="k">as</span> <span class="n">clc</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="n">aspect_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">plotter</span><span class="o">.</span><span class="n">width</span>
+
+<span class="n">levels</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_cut</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">nrows</span> <span class="o">*</span> <span class="n">aspect_ratio</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+        <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">dmd_time</span><span class="p">[</span><span class="s1">&#39;tend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Get the reconstructed snapshots</span>
+        <span class="n">recon</span> <span class="o">=</span> <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span>
+
+        <span class="c1"># Original snapshot</span>
+        <span class="n">fom</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span>
+
+        <span class="c1"># Compute residual</span>
+        <span class="c1"># resid = np.abs(fom - recon)</span>
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">fom</span> <span class="o">-</span> <span class="n">recon</span>
+
+        <span class="c1"># Plot</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fom</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recon</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">resid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DMD&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time = </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_28_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_28_0.png" />
+</div>
+</div>
+<p>Let us plot the errors in time between the FOM and HODMD results, including the previous DMD results for comparison.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors</span><span class="p">[</span><span class="s1">&#39;HODMD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">Nt</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="n">fom</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+    <span class="n">recon</span> <span class="o">=</span> <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">fom</span> <span class="o">-</span> <span class="n">recon</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">fom</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;HODMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;DMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;DMD - &#39;</span> <span class="o">+</span> <span class="n">field</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;HODMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HODMD - &#39;</span> <span class="o">+</span> <span class="n">field</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training limit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Relative Error&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x1764974f0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_30_1.png" src="../../_images/Tutorials_Advanced_07_pydmd_30_1.png" />
+</div>
+</div>
+</section>
+<section id="Bagging-Optimized-DMD-(BOPDMD)-with-pyDMD">
+<h2>Bagging-Optimized DMD (BOPDMD) with <em>pyDMD</em><a class="headerlink" href="#Bagging-Optimized-DMD-(BOPDMD)-with-pyDMD" title="Link to this heading"></a></h2>
+<p>The Bagging-Optimized Dynamic Mode Decomposition (BOPDMD) is an advanced variant of the DMD technique that computes the eigenvalues and modes through an optimization approach, including a bagging strategy to enhance robustness and accuracy with noisy data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydmd</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOPDMD</span>
+
+<span class="n">bopdmd_models</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fitting BOPDMD model for field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">train_snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>  <span class="c1"># Shape: (Nh, 0.8 * Nt)</span>
+
+    <span class="c1"># Create and fit BOPDMD model</span>
+    <span class="n">bopdmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">BOPDMD</span><span class="p">(</span><span class="n">svd_rank</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">eig_constraints</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;stable&#39;</span><span class="p">,</span> <span class="s1">&#39;conjugate_pairs&#39;</span><span class="p">})</span>
+    <span class="n">bopdmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">train_times</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fitting BOPDMD model for field: p
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/ml/lib/python3.10/site-packages/pydmd/bopdmd.py:973: UserWarning: Initial trial of Optimized DMD failed to converge. Consider re-adjusting your variable projection parameters with the varpro_opts_dict and consider setting verbose=True.
+  warnings.warn(msg)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fitting BOPDMD model for field: U
+</pre></div></div>
+</div>
+<p>Let us predict future states using the trained DMD models and visualize the results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span> <span class="k">as</span> <span class="n">clc</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="n">aspect_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">plotter</span><span class="o">.</span><span class="n">width</span>
+
+<span class="n">levels</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_cut</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">nrows</span> <span class="o">*</span> <span class="n">aspect_ratio</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+        <span class="c1"># Get the reconstructed snapshots</span>
+        <span class="n">recon</span> <span class="o">=</span> <span class="n">bopdmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">])</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="c1"># Original snapshot</span>
+        <span class="n">fom</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span>
+
+        <span class="c1"># Compute residual</span>
+        <span class="c1"># resid = np.abs(fom - recon)</span>
+        <span class="n">resid</span> <span class="o">=</span> <span class="n">fom</span> <span class="o">-</span> <span class="n">recon</span>
+
+        <span class="c1"># Plot</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fom</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recon</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">resid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">aspect</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">get_clim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;BOP-DMD&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time = </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_34_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_34_0.png" />
+</div>
+</div>
+<p>Let us compare the line profiles</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_cut</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">lines_x</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">]</span>
+
+    <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines_x</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">xx</span><span class="p">,</span> <span class="n">_linex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines_x</span><span class="p">):</span>
+
+            <span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+            <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span> <span class="k">else</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span>
+            <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;dmd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span> <span class="k">else</span> <span class="n">dmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span>
+            <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;hodmd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span> <span class="k">else</span> <span class="n">hodmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reconstructed_data</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span>
+            <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;bopdmd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bopdmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span> <span class="k">else</span> <span class="n">bopdmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="o">.</span><span class="n">real</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]</span>
+
+            <span class="n">line_grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">()</span><span class="o">.</span><span class="n">sample_over_line</span><span class="p">(</span><span class="n">pointa</span> <span class="o">=</span> <span class="p">(</span><span class="n">_linex</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">pointb</span><span class="o">=</span><span class="p">(</span><span class="n">_linex</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FOM&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;dmd&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;DMD&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;hodmd&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HODMD&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">line_grid</span><span class="p">[</span><span class="s1">&#39;bopdmd&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;BOPDMD&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">xx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field_i</span> <span class="o">==</span> <span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;y at $x = </span><span class="si">{</span><span class="n">_linex</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Line profiles at t = </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.00</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_36_0.png" src="../../_images/Tutorials_Advanced_07_pydmd_36_0.png" />
+</div>
+</div>
+<p>The reconstruction and prediction is much more accurate than the previous DMD techniques. Let us plot the errors in time between the FOM and BOPDMD results, including the previous DMD and HODMD results for comparison.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">errors</span><span class="p">[</span><span class="s1">&#39;BOPDMD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">Nt</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="n">fom</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span>
+    <span class="n">recon</span> <span class="o">=</span> <span class="n">bopdmd_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">fom</span> <span class="o">-</span> <span class="n">recon</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">fom</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;BOPDMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;DMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;DMD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;HODMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HODMD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;BOPDMD&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;BOPDMD&#39;</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training limit&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Relative Error&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0, 0.5, &#39;Relative Error&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_07_pydmd_38_1.png" src="../../_images/Tutorials_Advanced_07_pydmd_38_1.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="06_advanced_svd_methods.html" class="btn btn-neutral float-left" title="Advanced SVD Methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="08_shred.html" class="btn btn-neutral float-right" title="Shallow Recurrent Decoders (SHRED) for Parametric State Estimation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

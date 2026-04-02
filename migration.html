@@ -1,0 +1,219 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migration Guide: v0.1.3 to v1.0+ &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Theory and package structure" href="theory.html" />
+    <link rel="prev" title="Installation notes" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation notes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Migration Guide: v0.1.3 to v1.0+</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#key-differences">Key Differences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moving-to-v1-0">Moving to v1.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-handling-and-integral-calculations">1. Mesh Handling and Integral Calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#snapshot-management">2. Snapshot Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#workflow-changes">3. Workflow changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-the-change">Why the change?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Migration Guide: v0.1.3 to v1.0+</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/migration.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="migration-guide-v0-1-3-to-v1-0">
+<h1>Migration Guide: v0.1.3 to v1.0+<a class="headerlink" href="#migration-guide-v0-1-3-to-v1-0" title="Link to this heading"></a></h1>
+<p>The release of <em>pyforce</em> v1.0.0 marks a major architectural change. This guide explains the differences between the original implementation (v0.1.3) described in the JOSS paper and the current stable version.</p>
+<section id="key-differences">
+<h2>Key Differences<a class="headerlink" href="#key-differences" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Feature</p></th>
+<th class="head text-left"><p>v0.1.3 (JOSS Reference)</p></th>
+<th class="head text-left"><p>v1.0+ (Current)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>Backend</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">dolfinx</span></code> (FEniCSx)</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">pyvista</span></code> + <code class="docutils literal notranslate"><span class="pre">numpy</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Mesh Support</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">.xdmf</span></code>, <code class="docutils literal notranslate"><span class="pre">.h5</span></code></p></td>
+<td class="text-left"><p>VTK formats (<code class="docutils literal notranslate"><span class="pre">.vtu</span></code>, <code class="docutils literal notranslate"><span class="pre">.vtk</span></code>, etc.)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>Dependencies</strong></p></td>
+<td class="text-left"><p>Heavy (MPI, PETSc, complex installation)</p></td>
+<td class="text-left"><p>Light (<code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy</span></code>, <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Solver Support</strong></p></td>
+<td class="text-left"><p>Tightly coupled with FEniCSx</p></td>
+<td class="text-left"><p>Solver-agnostic (OpenFOAM, Ansys, MOOSE)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="moving-to-v1-0">
+<h2>Moving to v1.0<a class="headerlink" href="#moving-to-v1-0" title="Link to this heading"></a></h2>
+<section id="mesh-handling-and-integral-calculations">
+<h3>1. Mesh Handling and Integral Calculations<a class="headerlink" href="#mesh-handling-and-integral-calculations" title="Link to this heading"></a></h3>
+<p>In v0.1.3, meshes were handled via <code class="docutils literal notranslate"><span class="pre">dolfinx.mesh</span></code>. In v1.0+, we use <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>.</p>
+<p><strong>Old (v0.1.3):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dolfinx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="n">domain</span> <span class="o">=</span> <span class="n">dolfinx</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">create_unit_square</span><span class="p">(</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The integral calculations were performed using <code class="docutils literal notranslate"><span class="pre">dolfinx.fem.assemble_scalar</span></code> and similar functions:</p>
+<div class="math notranslate nohighlight">
+\[ \int_{\Omega} f(\mathbf{x}) \, d\Omega \approx \sum_i f(\mathbf{x}_i) w_i \]</div>
+<p>where (w_i) are the quadrature weights.</p>
+<p><strong>New (v1.0+):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="n">domain</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span><span class="n">i_resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">j_resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># Or loading from file</span>
+<span class="n">domain</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;mesh.vtk&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Integral calculations can be done using <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>’s built-in methods or by converting data to <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays for custom computations</p>
+<div class="math notranslate nohighlight">
+\[ \int_{\Omega} f(\mathbf{x}) \, d\Omega \approx \sum_i f(\mathbf{x}_i) \Omega_i \]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_i\)</span> are the cell volumes/areas.</p>
+<blockquote>
+<div><p><strong>Note</strong>: the previous implementations was actually more accurate, due to high-order quadrature rules available in <code class="docutils literal notranslate"><span class="pre">dolfinx</span></code>. The new version is based on rectanglular integration rules (extended to 2D/3D), which may be less accurate for complex geometries: this choice has been made to prioritize generality and ease of use.</p>
+</div></blockquote>
+</section>
+<section id="snapshot-management">
+<h3>2. Snapshot Management<a class="headerlink" href="#snapshot-management" title="Link to this heading"></a></h3>
+<p>The way data is stored has changed.</p>
+<ul class="simple">
+<li><p>v.0.1.3 used <code class="docutils literal notranslate"><span class="pre">dolfinx</span></code> functions and store them into lists or arrays (then mapped to function spaces, when needed).</p></li>
+<li><p>v1.0+ Snapshots are standard <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> vectors, making it easier to integrate with other machine learning tools (like <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> or <code class="docutils literal notranslate"><span class="pre">pytorch</span></code>).</p></li>
+</ul>
+</section>
+<section id="workflow-changes">
+<h3>3. Workflow changes<a class="headerlink" href="#workflow-changes" title="Link to this heading"></a></h3>
+<p>The new version is more informatically consistent, with a strong modular approach: each method (either in the offline or online phase) has its own father class, and the user can easily extend the package by adding new methods.</p>
+</section>
+<section id="why-the-change">
+<h3>Why the change?<a class="headerlink" href="#why-the-change" title="Link to this heading"></a></h3>
+<p>The shift to <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> allows pyforce to be:</p>
+<ol class="arabic simple">
+<li><p>Easier to install and use, without the heavy dependencies of <code class="docutils literal notranslate"><span class="pre">dolfinx</span></code>.</p></li>
+<li><p>Solver Independent: You can now use pyforce to reduce models generated by any software that exports to standard formats (OpenFOAM, Ansys, etc.), not just map them to FEniCSx environments.</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="theory.html" class="btn btn-neutral float-right" title="Theory and package structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

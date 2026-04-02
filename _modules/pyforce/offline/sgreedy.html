@@ -1,0 +1,509 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyforce.offline.sgreedy &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyforce.offline.sgreedy</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyforce.offline.sgreedy</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Offline Phase: sensors classes</span>
+<span class="c1"># Author: Stefano Riva, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 07 October 2025</span>
+<span class="c1"># Latest Doc  Update: 07 October 2025</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegralCalculator</span><span class="p">,</span> <span class="n">LoopProgress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sensors</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianSensorLibrary</span><span class="p">,</span> <span class="n">ExponentialSensorLibrary</span><span class="p">,</span> <span class="n">IndicatorFunctionSensorLibrary</span><span class="p">,</span> <span class="n">SensorLibraryBase</span>
+
+<div class="viewcode-block" id="SGREEDY">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sgreedy.SGREEDY">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SGREEDY</span><span class="p">():</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to place sensors using the SGREEDY algorithm in order to maximize the information contained in the update space spanned by the Riesz representation of sensors.</span>
+
+<span class="sd">    The algorithm is described in the work of `Haik et al. (2023) &lt;https://www.sciencedirect.com/science/article/pii/S0045782522008246&gt;`_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : pyvista.UnstructuredGrid</span>
+<span class="sd">        The computational grid.</span>
+<span class="sd">    gdim : int, optional</span>
+<span class="sd">        The geometric dimension of the problem (default is 3).</span>
+<span class="sd">    varname : str, optional</span>
+<span class="sd">        The variable name to be processed (default is &#39;u&#39;).</span>
+<span class="sd">    sensors_type: str, optional (default=&#39;Gaussian&#39;)</span>
+<span class="sd">        The type of sensors to use in the GEIM algorithm. It can be either &#39;Gaussian&#39;, &#39;Exponential&#39;, or &#39;IndicatorFunction&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="n">sensors_type</span> <span class="o">=</span> <span class="s1">&#39;Gaussian&#39;</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">varname</span> <span class="o">=</span> <span class="n">varname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculator</span> <span class="o">=</span> <span class="n">IntegralCalculator</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="p">)</span>
+
+        <span class="n">_allowed_sensor_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Gaussian&#39;</span><span class="p">,</span> <span class="s1">&#39;Exponential&#39;</span><span class="p">,</span> <span class="s1">&#39;IndicatorFunction&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">sensors_type</span> <span class="ow">in</span> <span class="n">_allowed_sensor_types</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sensors_type must be one of </span><span class="si">{</span><span class="n">_allowed_sensor_types</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensors_type</span> <span class="o">=</span> <span class="n">sensors_type</span>
+
+<div class="viewcode-block" id="SGREEDY.fit">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sgreedy.SGREEDY.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">Mmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sensor_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="n">Nmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selection of sensors position with a Riesz representation :math:`\{g_m\}_{m=1}^M` in :math:`L^2`.</span>
+<span class="sd">        The positions of the sensors are either freely selected on the mesh or given as input with the &#39;sensors_params&#39; dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        basis_functions : FunctionsList</span>
+<span class="sd">            The reduced basis functions.</span>
+<span class="sd">        Mmax : int</span>
+<span class="sd">            The maximum number of sensors to be placed (it must be greater or equal to the number of basis functions).</span>
+<span class="sd">        sensors_params : dict</span>
+<span class="sd">            Dictionary containing the parameters for the sensor library creation.</span>
+<span class="sd">        Nmax : int, optional</span>
+<span class="sd">            The maximum number of basis functions to be considered (default is None, which means all the basis functions are considered).</span>
+<span class="sd">        tol : float, optional</span>
+<span class="sd">            Tolerance to exit the stability loop (default is 0.2).</span>
+<span class="sd">        verbose : bool, optional</span>
+<span class="sd">            If True, prints the progress of the algorithm (default is True).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">Nmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">Nmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">Mmax</span> <span class="o">&gt;=</span> <span class="n">Nmax</span><span class="p">,</span> <span class="s2">&quot;Mmax must be greater or equal to Nmax.&quot;</span>
+        <span class="k">assert</span> <span class="n">tol</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;tol must be greater than 0.&quot;</span>
+
+        <span class="k">if</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="p">:</span>
+            <span class="n">use_centroids</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span>
+        <span class="k">elif</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="p">:</span>
+            <span class="n">use_centroids</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Nh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="ow">or</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The basis functions seem to be vector-valued. Please provide scalar-valued basis functions.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The shape of the basis functions </span><span class="si">{</span><span class="n">basis_functions</span><span class="o">.</span><span class="n">fun_shape</span><span class="si">}</span><span class="s2"> does not match the number of cells </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span><span class="si">}</span><span class="s2"> or points </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">n_points</span><span class="si">}</span><span class="s2"> of the grid.&quot;</span><span class="p">)</span>
+            
+        <span class="c1"># Create the sensors library and initialize the sensors object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor_centers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors_type</span> <span class="o">==</span> <span class="s1">&#39;Gaussian&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span> <span class="o">=</span> <span class="n">GaussianSensorLibrary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">use_centroids</span><span class="o">=</span><span class="n">use_centroids</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">create_library</span><span class="p">(</span><span class="o">**</span><span class="n">sensor_params</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">GaussianSensorLibrary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">use_centroids</span><span class="o">=</span><span class="n">use_centroids</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors_type</span> <span class="o">==</span> <span class="s1">&#39;Exponential&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span> <span class="o">=</span> <span class="n">ExponentialSensorLibrary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">use_centroids</span><span class="o">=</span><span class="n">use_centroids</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">create_library</span><span class="p">(</span><span class="o">**</span><span class="n">sensor_params</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">ExponentialSensorLibrary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">use_centroids</span><span class="o">=</span><span class="n">use_centroids</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors_type</span> <span class="o">==</span> <span class="s1">&#39;IndicatorFunction&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span> <span class="o">=</span> <span class="n">IndicatorFunctionSensorLibrary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">use_centroids</span><span class="o">=</span><span class="n">use_centroids</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">create_library</span><span class="p">(</span><span class="o">**</span><span class="n">sensor_params</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">IndicatorFunctionSensorLibrary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">,</span> <span class="n">use_centroids</span><span class="o">=</span><span class="n">use_centroids</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the inf-sup constants list</span>
+        <span class="n">inf_sup_constants</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="c1"># Define first point</span>
+        <span class="n">sens_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="n">sens_idx</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">xm_list</span><span class="p">[</span><span class="n">sens_idx</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">mm</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># number of sensors placed</span>
+
+        <span class="c1"># Stability loop</span>
+        <span class="k">while</span> <span class="n">mm</span> <span class="o">&lt;</span> <span class="n">Mmax</span><span class="p">:</span>
+
+            <span class="n">nn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">mm</span><span class="p">,</span> <span class="n">Nmax</span><span class="p">])</span>
+
+            <span class="c1"># Compute the inf-sup constant and the least stable mode</span>
+            <span class="n">_inf_sup_constant</span><span class="p">,</span> <span class="n">eigenvec</span> <span class="o">=</span> <span class="n">compute_inf_sup</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculator</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">return_eigenvector</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+            <span class="n">inf_sup_constants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">_inf_sup_constant</span> <span class="p">)</span>
+
+            <span class="c1"># Print the progress</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;SGREEDY: m = </span><span class="si">{</span><span class="n">mm</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">02</span><span class="si">}</span><span class="s1">, n = </span><span class="si">{</span><span class="n">nn</span><span class="o">+</span><span class="mi">0</span><span class="si">:</span><span class="s1">02</span><span class="si">}</span><span class="s1"> | beta_n,m = </span><span class="si">{</span><span class="n">inf_sup_constants</span><span class="p">[</span><span class="n">mm</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Compute the least stable mode</span>
+            <span class="n">w_inf</span> <span class="o">=</span> <span class="n">basis_functions</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">eigenvec</span><span class="p">)</span>
+
+            <span class="c1"># Compute projection of w_inf onto the space spanned by the basis sensors</span>
+            <span class="n">_action_on_winf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">w_inf</span><span class="p">)</span>
+            <span class="n">matrix_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mm</span><span class="p">,</span> <span class="n">mm</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">jj</span> <span class="o">&gt;=</span> <span class="n">ii</span><span class="p">:</span>
+                        <span class="n">matrix_A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculator</span><span class="o">.</span><span class="n">L2_inner_product</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">matrix_A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_A</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
+                        
+            <span class="n">_coeffs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">matrix_A</span><span class="p">,</span> <span class="n">_action_on_winf</span><span class="p">)</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">lin_combine</span><span class="p">(</span><span class="n">_coeffs</span><span class="p">)</span> <span class="o">-</span> <span class="n">w_inf</span>
+
+            <span class="c1"># Select the next sensor as the one maximizing the residual</span>
+            <span class="n">_measure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">residual</span><span class="p">))</span>
+            <span class="n">sens_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">_measure</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="n">sens_idx</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sensor_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">xm_list</span><span class="p">[</span><span class="n">sens_idx</span><span class="p">]</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Update the number of sensors placed</span>
+            <span class="n">mm</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Check the stopping criterion</span>
+            <span class="k">if</span> <span class="n">inf_sup_constants</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;SGREEDY: Stability loop exited at m = </span><span class="si">{</span><span class="n">mm</span><span class="si">:</span><span class="s1">02</span><span class="si">}</span><span class="s1"> with inf-sup constant </span><span class="si">{</span><span class="n">inf_sup_constants</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1"> &gt;= tol = </span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+
+        <span class="k">if</span> <span class="n">mm</span> <span class="o">&lt;</span> <span class="n">Mmax</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> 
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;SGREEDY: Maximum number of sensors Mmax = </span><span class="si">{</span><span class="n">Mmax</span><span class="si">}</span><span class="s1"> not reached yet -&gt; Starting approximation loop&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Approximation loop</span>
+            <span class="n">_available_nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">xm_list</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="n">mm</span> <span class="o">&lt;</span> <span class="n">Mmax</span><span class="p">:</span>
+
+                <span class="n">min_xdofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">_available_nodes</span><span class="p">),))</span>
+                <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">_node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_available_nodes</span><span class="p">):</span>
+                    <span class="n">min_xdofs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensor_centers</span><span class="p">)</span> <span class="o">-</span> <span class="n">_node</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+                <span class="n">idx_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">min_xdofs</span><span class="p">)</span>
+
+                <span class="c1"># Add the sensor</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">library</span><span class="p">[</span><span class="n">idx_max</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sensor_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sensors_library</span><span class="o">.</span><span class="n">xm_list</span><span class="p">[</span><span class="n">idx_max</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Update the number of sensors placed</span>
+                <span class="n">mm</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="SGREEDY.plot_sensors">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sgreedy.SGREEDY.plot_sensors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">view</span> <span class="o">=</span> <span class="s1">&#39;xy&#39;</span><span class="p">,</span>
+                     <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                     <span class="n">color_sens</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span>
+                     <span class="n">fontsize_sens</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                     <span class="n">fig_length</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+                     <span class="n">show_ticks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the Riesz representation of the first M sensors, cumulated:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            G(\mathbf{x}) = \sum_{m=1}^M \frac{g_m(\mathbf{x})}{\max |g_m|}</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        M : int, optional (Default = None)</span>
+<span class="sd">            Number of sensors to plot. If `None`, all available sensors are plotted.</span>
+<span class="sd">        view : str, optional (Default = &#39;xy&#39;)</span>
+<span class="sd">            View of the plot. It can be either &#39;xy&#39;, &#39;xz&#39; or &#39;yz&#39;.</span>
+<span class="sd">        cmap : str, optional (Default = &#39;jet&#39;)</span>
+<span class="sd">            Colormap to use for the plot.</span>
+<span class="sd">        levels : int, optional (Default = 50)</span>
+<span class="sd">            Number of levels to use for the contour plot.</span>
+<span class="sd">        color_sens : str, optional (Default = &#39;black&#39;)</span>
+<span class="sd">            Color of the sensor labels.</span>
+<span class="sd">        fontsize_sens : int, optional (Default = 10)</span>
+<span class="sd">            Font size of the sensor labels.</span>
+<span class="sd">        fig_length : float, optional (Default = 6)</span>
+<span class="sd">            Length of the figure in inches.</span>
+<span class="sd">        show_ticks : bool, optional (Default = False)</span>
+<span class="sd">            If `True`, show the ticks on the axes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">M</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">),</span> <span class="s2">&quot;M cannot be larger than the number of sensors available&quot;</span>
+
+        <span class="k">if</span> <span class="n">view</span> <span class="o">==</span> <span class="s1">&#39;xy&#39;</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">fig_length</span>
+            <span class="n">width</span>  <span class="o">=</span> <span class="n">fig_length</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">view</span> <span class="o">==</span> <span class="s1">&#39;xz&#39;</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">fig_length</span>
+            <span class="n">width</span>  <span class="o">=</span> <span class="n">fig_length</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>
+
+        <span class="k">elif</span> <span class="n">view</span> <span class="o">==</span> <span class="s1">&#39;yz&#39;</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">fig_length</span>
+            <span class="n">width</span>  <span class="o">=</span> <span class="n">fig_length</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;view must be one of &#39;xy&#39;, &#39;xz&#39;, &#39;yz&#39;&quot;</span><span class="p">)</span>
+        
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    
+        <span class="n">_cumulative</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nodes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],))</span>
+        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+            <span class="n">_sensor_fun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
+            <span class="n">_cumulative</span> <span class="o">+=</span> <span class="n">_sensor_fun</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_sensor_fun</span><span class="p">))</span>
+
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">_cumulative</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">)</span>
+
+        <span class="n">_max_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[:</span><span class="n">M</span><span class="p">]</span>
+
+        <span class="c1"># Add label at each sensor position</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">_max_idx</span><span class="p">)):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">_max_idx</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+            <span class="n">axs</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color_sens</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_sens</span><span class="p">,</span> 
+                     <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">show_ticks</span><span class="p">:</span>
+            <span class="n">axs</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+            <span class="n">axs</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+    
+
+<div class="viewcode-block" id="SGREEDY.save">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sgreedy.SGREEDY.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the magic functions and sensors to a specified path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path_folder : str</span>
+<span class="sd">            The folder path where the model will be saved.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments for saving options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Save the basis sensors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">store</span><span class="p">(</span> <span class="sa">f</span><span class="s1">&#39;sgreedy_sens_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                                    <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;sgreedy_sens_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">varname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>
+                                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="compute_inf_sup">
+<a class="viewcode-back" href="../../../api/pyforce.offline.html#pyforce.offline.sgreedy.compute_inf_sup">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_inf_sup</span><span class="p">(</span><span class="n">sensors</span><span class="p">:</span> <span class="n">SensorLibraryBase</span><span class="p">,</span> <span class="n">basis_functions</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">calculator</span><span class="p">:</span> <span class="n">IntegralCalculator</span><span class="p">,</span> 
+                              <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">return_eigenvector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the inf-sup constants for a given set of sensors and basis functions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sensors : FunctionsList</span>
+<span class="sd">        The list of sensors.</span>
+<span class="sd">    basis_functions : FunctionsList</span>
+<span class="sd">        The reduced basis functions.</span>
+<span class="sd">    calculator : IntegralCalculator</span>
+<span class="sd">        The integral calculator object.</span>
+<span class="sd">    Nmax : int, optional</span>
+<span class="sd">        The maximum number of basis functions to be considered (default is None, which means all the basis functions are considered).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    inf_sup_constants : list</span>
+<span class="sd">        The list of inf-sup constants at each iteration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mm</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sensors</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">N</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">basis_functions</span><span class="p">),</span> <span class="s2">&quot;N must be less or equal to the number of basis functions.&quot;</span>
+
+    <span class="c1"># Build the matrices A, K, Z for the inf-sup constant computation</span>
+    <span class="n">matrix_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mm</span><span class="p">,</span> <span class="n">mm</span><span class="p">))</span>
+    <span class="n">matrix_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mm</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+    <span class="n">matrix_Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+
+    <span class="c1"># Fill the matrices A, K</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+        
+        <span class="c1"># Fill matrix A</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mm</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">jj</span> <span class="o">&gt;=</span> <span class="n">ii</span><span class="p">:</span>
+                <span class="n">matrix_A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">L2_inner_product</span><span class="p">(</span>
+                    <span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">sensors</span><span class="o">.</span><span class="n">library</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">matrix_A</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_A</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
+        
+        <span class="c1"># Fill matrix K</span>
+        <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">matrix_K</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">kk</span><span class="p">]</span> <span class="o">=</span> <span class="n">sensors</span><span class="o">.</span><span class="n">_action_single</span><span class="p">(</span>
+                <span class="n">basis_functions</span><span class="p">(</span><span class="n">kk</span><span class="p">),</span> <span class="n">ii</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Fill matrix Z</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">jj</span> <span class="o">&gt;=</span> <span class="n">ii</span><span class="p">:</span>
+                <span class="n">matrix_Z</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">L2_inner_product</span><span class="p">(</span>
+                    <span class="n">basis_functions</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span> <span class="n">basis_functions</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">matrix_Z</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_Z</span><span class="p">[</span><span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span>
+
+    <span class="c1"># Assemble Schur complement</span>
+    <span class="n">schur_compl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">multi_dot</span><span class="p">([</span>
+        <span class="n">matrix_K</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">matrix_A</span><span class="p">),</span> <span class="n">matrix_K</span>
+    <span class="p">])</span>
+
+    <span class="c1"># Solve the eigenvalue problem for the inf-sup constant (Schur complement is Hermitian)</span>
+    <span class="n">beta_squared</span><span class="p">,</span> <span class="n">eigenvec</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">schur_compl</span><span class="p">,</span> <span class="n">matrix_Z</span><span class="p">)</span>       
+
+    <span class="c1"># Assign the inf-sup constant</span>
+    <span class="n">idx_min_eig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">beta_squared</span><span class="p">)</span>
+    <span class="n">inf_sup_constant</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beta_squared</span><span class="p">[</span><span class="n">idx_min_eig</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_eigenvector</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">inf_sup_constant</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">inf_sup_constant</span><span class="p">,</span> <span class="n">eigenvec</span><span class="p">[:,</span> <span class="n">idx_min_eig</span><span class="p">]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Theory and package structure &mdash; pyforce 0.1.0 documentation</title>
+  <title>Theory and package structure &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -22,8 +22,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorials" href="tutorials.html" />
-    <link rel="prev" title="Installation notes" href="installation.html" /> 
+    <link rel="next" title="Basic Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Migration Guide: v0.1.3 to v1.0+" href="migration.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,10 +46,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Theory and package structure</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-reduced-order-modelling">What is Reduced Order Modelling?</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#reduced-basis-methods">Reduced Basis Methods</a></li>
@@ -63,9 +67,15 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -175,7 +185,7 @@
 <p>Data-Driven Reduced Order Modelling (DDROM) <span id="id7">[<a class="reference internal" href="bibliography.html#id25" title="Antonio Cammi, Stefano Riva, Carolina Introini, Lorenzo Loi, and Enrico Padovani. Data-Driven Model Order Reduction for Sensor Positioning and Indirect Reconstruction with Noisy Data: Application to a Circulating Fuel Reactor. submitted to Nuclear Engineering and Design, :, 2024. URL:, doi:.">CRI+24</a>, <a class="reference internal" href="bibliography.html#id26" title="Stefano Riva, Carolina Introini, and Antonio Cammi. Multi-physics model bias correction with data-driven reduced order techniques: application to nuclear case studies. 2024. URL: https://www.sciencedirect.com/science/article/pii/S0307904X24003196, doi:https://doi.org/10.1016/j.apm.2024.06.040.">RIC24</a>]</span> is a set of techniques, combining theoretical modelling with real data collecting from a physical system. In particular, ROM is seen in a Data Assimilation (DA) framework <span id="id8">[<a class="reference internal" href="bibliography.html#id18" title="Steven L Brunton and J Nathan Kutz. Data-Driven Science and Engineering: Machine Learning, Dynamical Systems, and Control. Cambridge University Press, USA, 1st edition, 2019. ISBN 1108422098. URL: http://www.databookuw.com.">BK19</a>]</span>, so that the theoretical prediction, approximated by ROM, is corrected or updated by experimental evaluations of some fields (e.g., the local measurements of the temperature in a pipe or the neutron flux in a nuclear reactor).</p>
 <p><img alt="General scheme of DDROM methods [&#64;RMP_2024].abel{fig:darom}" src="_images/tie_frighter.svg" /></p>
 <p>The techniques implemented here follow the same underlying idea expressed in the Figure \ref{fig:darom}. They all share the typical offline/online paradigm of ROM techniques: the former is computationally expensive and it is performed only once, whereas the latter is cheap from the computational point of view and allows to have quick and reliable evaluations of the state of the system by merging background model knowledge and real evaluations of quantities of interest <span id="id9">[<a class="reference internal" href="bibliography.html#id20" title="Yvon Maday, Anthony Patera, James Penn, and Masayuki Yano. A parameterized-background data-weak approach to variational data assimilation: formulation, analysis, and application to acoustics. International Journal for Numerical Methods in Engineering, 2014. doi:10.1002/nme.4747.">MPPY14</a>]</span>.</p>
-<p>During the offline (also called training) phase, a <em>high-fidelity</em> or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collection of snapshots <span class="math notranslate nohighlight">\(\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}\)</span>, given <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> the dimension of the spatial mesh, which are dependent on some parameters <span class="math notranslate nohighlight">\(\boldsymbol{\mu}_n\)</span>; then, these snapshots are used to generate a reduced representation through a set of basis functions <span class="math notranslate nohighlight">\(\{\psi_n(\mathbf{x})\}\)</span> of size <span class="math notranslate nohighlight">\(N\)</span>, in this way the degrees of freedom are decreased from <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> to <span class="math notranslate nohighlight">\(N\)</span>, provided that <span class="math notranslate nohighlight">\(\mathcal{N}_h&gt;&gt;N\)</span>. This allows for an approximation of any solution of the FOM as follows</p>
+<p>During the offline (also called training) phase, a <em>high-fidelity</em> or Full Order Model (FOM), usually parameterised partial differential equations, is solved several times to obtain a collections of snapshots <span class="math notranslate nohighlight">\(\mathbf{u}_{FOM}\in\mathbb{R}^{\mathcal{N}_h}\)</span>, given <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> the dimension of the spatial mesh, which are dependent on some parameters <span class="math notranslate nohighlight">\(\boldsymbol{\mu}_n\)</span>; then, these snapshots are used to generate a reduced representation through a set of basis functions <span class="math notranslate nohighlight">\(\{\psi_n(\mathbf{x})\}\)</span> of size <span class="math notranslate nohighlight">\(N\)</span>, in this way the degrees of freedom are decreased from <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> to <span class="math notranslate nohighlight">\(N\)</span>, provided that <span class="math notranslate nohighlight">\(\mathcal{N}_h&gt;&gt;N\)</span>. This allows for an approximation of any solution of the FOM as follows</p>
 <div class="math notranslate nohighlight">
 \[u_{FOM}(\mathbf{x} ; \boldsymbol{\mu}) \simeq \sum_{n=1}^N\alpha_n(\boldsymbol{\mu})\cdot \psi_n(\mathbf{x})\]</div>
 <p>with <span class="math notranslate nohighlight">\(\alpha_n(\boldsymbol{\mu})\)</span> as the reduced coefficients, embedding the parametric dependence. Moreover, a reduced representation allows for the search for the optimal positions of sensors in the physical domain in a more efficient manner.</p>
@@ -183,10 +193,10 @@
 </section>
 <section id="package-structure">
 <h2>Package structure<a class="headerlink" href="#package-structure" title="Link to this heading"></a></h2>
-<p>The package <strong>pyforce</strong> comprises 3 subpackages: <em>offline</em>, <em>online</em> and <em>tools</em>. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions (from <em>dolfinx</em> directly or mapping from OpenFOAM), some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.</p>
+<p>The package <strong>pyforce</strong> comprises 3 subpackages: <em>offline</em>, <em>online</em> and <em>tools</em>. The first two collect the main functionalities, in particular the different DDROM techniques; whereas, the last includes importing and storing functions, some backend classes for the snapshots and the calculation of integrals/norms. In the following, some figures are sketching how the different classes are connected to each other during the offline and online phases.</p>
 <section id="offline-phase">
 <h3>Offline Phase<a class="headerlink" href="#offline-phase" title="Link to this heading"></a></h3>
-<p>Once the snapshots have been generated and collected into the class <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>, the aim of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.</p>
+<p>Once the snapshots have been generated and collected into the class <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>, the aims of this phase consists in generating a proper reduced representation and obtain an optimal sensors configuration.</p>
 <p><img alt="Offline Phase" src="_images/offline_classes.svg" /></p>
 </section>
 <section id="online-phase">
@@ -210,14 +220,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="migration.html" class="btn btn-neutral float-left" title="Migration Guide: v0.1.3 to v1.0+" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Basic Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -28,10 +28,10 @@ pyforce.tools.plotting module
    :undoc-members:
    :show-inheritance:
 
-pyforce.tools.timer module
---------------------------
+pyforce.tools.scalers module
+----------------------------
 
-.. automodule:: pyforce.tools.timer
+.. automodule:: pyforce.tools.scalers
    :members:
    :undoc-members:
    :show-inheritance:

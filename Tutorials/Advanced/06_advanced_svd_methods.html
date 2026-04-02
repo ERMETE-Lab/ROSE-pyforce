@@ -1,0 +1,588 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced SVD Methods &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Integration of pyforce with pyDMD for Dynamic Mode Decomposition (DMD)" href="07_pydmd.html" />
+    <link rel="prev" title="Failing Sensors" href="05_failing_sensors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../adv_tutorials.html">Advanced Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="04_indirect_reconstruction.html">Indirect Reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_failing_sensors.html">Failing Sensors in MSFR</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced SVD Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Baseline:-randomised-SVD">Baseline: randomised SVD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Hierarchical-SVD">Hierarchical SVD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Incremental-SVD">Incremental SVD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Comparison-of-the-methods">Comparison of the methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Singular-values">Singular values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Computational-Times">Computational Times</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#SVD-Modes">SVD Modes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Reconstruction-Errors">Reconstruction Errors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="07_pydmd.html">Combination with pydmd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_shred.html">Implementation of SHRED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_multi-region.html">Multi-Region and Parallel-Decomposed OpenFOAM Import</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../adv_tutorials.html">Advanced Tutorials</a></li>
+      <li class="breadcrumb-item active">Advanced SVD Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/Advanced/06_advanced_svd_methods.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Advanced-SVD-Methods">
+<h1>Advanced SVD Methods<a class="headerlink" href="#Advanced-SVD-Methods" title="Link to this heading"></a></h1>
+<p>This notebook explores some advanced versions of the Singular Value Decomposition (SVD) technique, in particular: the Hierarchical SVD (hSVD) <a class="reference external" href="https://epubs.siam.org/doi/10.1137/16M1058467">Iwen and Ong. (2016)</a> and the Incremental SVD (iSVD) <a class="reference external" href="...">TBD</a>.</p>
+<p>These methods are particularly useful for parametric PDEs, where the solution depends on multiple parameters and traditional SVD methods may become computationally expensive especially in terms of memory usage.</p>
+<p>In this notebook, we will consider a parametric flow over cylinder problem, from CFDBench <a class="reference external" href="https://arxiv.org/abs/2310.05963">Luo et al. (2024)</a>: the inlet boundary is parametrized with respect to its intensity, from 0.1 m/s to 1.0 m/s.</p>
+<p>At first, let us load the raw snapshots, downloaded from <a class="reference external" href="https://huggingface.co/datasets/chen-yingfa/CFDBench/blob/main/cylinder/bc.zip">the benchmark</a> - the zenodo folder only contains the first 10 parameters, instead of the full 50.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span>
+
+<span class="n">folder_to_save</span> <span class="o">=</span> <span class="s1">&#39;../Datasets/CFDBenchFlowCyl&#39;</span>
+
+<span class="n">id_cases</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_to_save</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_to_save</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>
+<span class="n">id_cases</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+<span class="n">snap_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">case_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_cases</span><span class="p">)):</span>
+    <span class="n">snap_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">())</span>
+
+    <span class="n">snap_data</span><span class="p">[</span><span class="n">case_i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;u&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">folder_to_save</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">id_cases</span><span class="p">[</span><span class="n">case_i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/u.npy&#39;</span><span class="p">)</span>
+    <span class="n">snap_data</span><span class="p">[</span><span class="n">case_i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;v&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">folder_to_save</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">id_cases</span><span class="p">[</span><span class="n">case_i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/v.npy&#39;</span><span class="p">)</span>
+
+<span class="n">Nt</span><span class="p">,</span> <span class="n">Nhx</span><span class="p">,</span> <span class="n">Nhy</span> <span class="o">=</span> <span class="n">snap_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;u&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<span class="n">Ns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snap_data</span><span class="p">)</span>
+
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Number of snapshots: </span><span class="si">{</span><span class="n">Ns</span><span class="si">}</span><span class="s1">, Number of time steps: </span><span class="si">{</span><span class="n">Nt</span><span class="si">}</span><span class="s1">, Grid size: </span><span class="si">{</span><span class="n">Nhx</span><span class="si">}</span><span class="s1"> x </span><span class="si">{</span><span class="n">Nhy</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of snapshots: 10, Number of time steps: 1000, Grid size: 64 x 64
+</pre></div></div>
+</div>
+<p>From the benchmark description, the geometry is generated in the pyvista format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">radius</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">length</span> <span class="o">=</span> <span class="mf">0.16</span> <span class="o">+</span> <span class="mf">0.06</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">radius</span>
+<span class="n">height</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">0.06</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">radius</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">Nhx</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">Nhy</span><span class="p">)</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+<span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">())]</span>
+
+<span class="c1"># --- Build connectivity for quadrilateral cells ---</span>
+<span class="c1"># Each quad has 4 vertices, and we store them in the format:</span>
+<span class="c1"># [4, id0, id1, id2, id3] for each cell</span>
+<span class="n">cells</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nhx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nhy</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">Nhy</span> <span class="o">+</span> <span class="n">j</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">p0</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">Nhy</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">p3</span> <span class="o">=</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">Nhy</span>
+        <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">])</span>
+
+<span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+<span class="c1"># Cell types: VTK_QUAD = 9</span>
+<span class="n">celltypes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">Nhx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Nhy</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">9</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+<span class="c1"># Plotting the grid</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">celltypes</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_axes</span><span class="p">()</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
+
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Extract only x and y coordinates</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_06_advanced_svd_methods_4_0.png" src="../../_images/Tutorials_Advanced_06_advanced_svd_methods_4_0.png" />
+</div>
+</div>
+<p>The snapshots loaded before are the <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> components of the velocity field, parameterised with respect to the inlet velocity. We are going to store them in numpy arrays of the following shape <span class="math notranslate nohighlight">\(N_{params}\times N_t\times \mathcal{N}_h\)</span>, where <span class="math notranslate nohighlight">\(N_{params}\)</span> is the number of parameters (inlet velocities), <span class="math notranslate nohighlight">\(N_t\)</span> is the number of time steps, and <span class="math notranslate nohighlight">\(\mathcal{N}_h\)</span> is the number of spatial degrees of freedom.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">snapshots_np</span> <span class="o">=</span> <span class="p">{</span><span class="n">var_name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="n">Nhx</span> <span class="o">*</span> <span class="n">Nhy</span><span class="p">))</span> <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">}</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nt</span><span class="p">):</span>
+            <span class="n">snapshots_np</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">tt</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">snap_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">var_name</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+
+<span class="n">Nh</span> <span class="o">=</span> <span class="n">Nhx</span> <span class="o">*</span> <span class="n">Nhy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">train_params</span><span class="p">,</span> <span class="n">test_params</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Ns</span><span class="p">),</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>In the following, we will compare the modes, the singular values, the reconstruction errors and the computational times of the different SVD methods implemented in <em>pyforce</em>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cpu_times</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Baseline:-randomised-SVD">
+<h2>Baseline: randomised SVD<a class="headerlink" href="#Baseline:-randomised-SVD" title="Link to this heading"></a></h2>
+<p>In this section, we are going to compute the modes and the singular values adopting a monolithic approach, i.e., stacking all the snapshots in a single matrix and applying the randomised SVD algorithm from <em>pyforce</em>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="n">snaps</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">var_name</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">snap_matrix</span> <span class="o">=</span> <span class="n">snapshots_np</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">train_params</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nh</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1"># Only training snapshots</span>
+    <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span>
+<span class="p">}</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">rSVD</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_time</span>
+
+<span class="n">rsvd</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">cpu_times</span><span class="p">[</span><span class="s1">&#39;rSVD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">rank</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">_start</span> <span class="o">=</span> <span class="n">process_time</span><span class="p">()</span>
+    <span class="n">rsvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rSVD</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">var_name</span><span class="p">)</span>
+    <span class="n">rsvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">],</span> <span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+    <span class="n">_end</span> <span class="o">=</span> <span class="n">process_time</span><span class="p">()</span>
+    <span class="n">cpu_times</span><span class="p">[</span><span class="s1">&#39;rSVD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_end</span> <span class="o">-</span> <span class="n">_start</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Hierarchical-SVD">
+<h2>Hierarchical SVD<a class="headerlink" href="#Hierarchical-SVD" title="Link to this heading"></a></h2>
+<p>The Hierarchical SVD (hSVD) is a method that updates the SVD modes and singular values in a hierachical manner: instead of stacking all the snapshots in a single matrix and perform the SVD, the snapshots are divided into parametric clusters and the SVD is performed on each cluster; then, the modes and singular values from each cluster are combined and a new SVD is performed on the combined modes.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">snaps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">train_params</span><span class="p">:</span>
+        <span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">snap_matrix</span> <span class="o">=</span> <span class="n">snapshots_np</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">pp</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">HierarchicalSVD</span> <span class="k">as</span> <span class="n">hSVD</span>
+<span class="n">hsvd</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">cpu_times</span><span class="p">[</span><span class="s1">&#39;hSVD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">_start</span> <span class="o">=</span> <span class="n">process_time</span><span class="p">()</span>
+    <span class="n">hsvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">hSVD</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">var_name</span><span class="p">)</span>
+
+    <span class="c1"># Fit on each parameter cluster</span>
+    <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_params</span><span class="p">)):</span>
+        <span class="n">hsvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">pp</span><span class="p">],</span> <span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+    <span class="n">_end</span> <span class="o">=</span> <span class="n">process_time</span><span class="p">()</span>
+    <span class="n">cpu_times</span><span class="p">[</span><span class="s1">&#39;hSVD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_end</span> <span class="o">-</span> <span class="n">_start</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Incremental-SVD">
+<h2>Incremental SVD<a class="headerlink" href="#Incremental-SVD" title="Link to this heading"></a></h2>
+<p>The Incremental SVD (iSVD) is a method that updates the SVD modes and singular values incrementally: instead of stacking all the snapshots in a single matrix and perform the SVD, the snapshots are added one by one and the SVD is updated at each step.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">snaps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">train_params</span><span class="p">:</span>
+        <span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">snap_matrix</span> <span class="o">=</span> <span class="n">snapshots_np</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">pp</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">IncrementalSVD</span> <span class="k">as</span> <span class="n">iSVD</span>
+<span class="n">isvd</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">cpu_times</span><span class="p">[</span><span class="s1">&#39;iSVD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">_start</span> <span class="o">=</span> <span class="n">process_time</span><span class="p">()</span>
+    <span class="n">isvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">iSVD</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">var_name</span><span class="p">)</span>
+
+    <span class="c1"># Fit on each parameter cluster</span>
+    <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_params</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">pp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">isvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">pp</span><span class="p">],</span> <span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">isvd</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_snap</span><span class="o">=</span><span class="n">snaps</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="n">pp</span><span class="p">])</span>
+    <span class="n">_end</span> <span class="o">=</span> <span class="n">process_time</span><span class="p">()</span>
+    <span class="n">cpu_times</span><span class="p">[</span><span class="s1">&#39;iSVD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_end</span> <span class="o">-</span> <span class="n">_start</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Comparison-of-the-methods">
+<h2>Comparison of the methods<a class="headerlink" href="#Comparison-of-the-methods" title="Link to this heading"></a></h2>
+<p>In this section, we are going to compare the modes, the singular values, the reconstruction errors and the computational times of the different SVD methods implemented in <em>pyforce</em>.</p>
+<section id="Singular-values">
+<h3>Singular values<a class="headerlink" href="#Singular-values" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)))</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="p">,</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;rSVD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;hSVD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">isvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="p">,</span> <span class="s1">&#39;g-.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;iSVD&#39;</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;rSVD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;b--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;hSVD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">isvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">isvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;g-.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;iSVD&#39;</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;rSVD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;b--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;hSVD&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">isvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">isvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">singular_values</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;g-.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;iSVD&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_06_advanced_svd_methods_17_0.png" src="../../_images/Tutorials_Advanced_06_advanced_svd_methods_17_0.png" />
+</div>
+</div>
+</section>
+<section id="Computational-Times">
+<h3>Computational Times<a class="headerlink" href="#Computational-Times" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span>
+
+<span class="n">_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cpu_times</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+    <span class="n">_colors</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_labels</span><span class="p">)))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">_labels</span><span class="p">,</span> <span class="p">[</span><span class="n">cpu_times</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">field_i</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">_labels</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">_colors</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CPU Time (s)&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computational Time for field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_06_advanced_svd_methods_19_0.png" src="../../_images/Tutorials_Advanced_06_advanced_svd_methods_19_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="SVD-Modes">
+<h2>SVD Modes<a class="headerlink" href="#SVD-Modes" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">patches</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_circle</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.06</span><span class="o">+</span><span class="n">radius</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.06</span><span class="o">+</span><span class="n">radius</span><span class="p">))</span>
+    <span class="n">circle</span> <span class="o">=</span> <span class="n">patches</span><span class="o">.</span><span class="n">Ellipse</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">radius</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">radius</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">circle</span><span class="p">)</span>
+
+<span class="n">modes_to_plot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_labels</span><span class="p">)</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">modes_to_plot</span><span class="p">)</span>
+
+<span class="n">aspect</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+
+<span class="n">cmaps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;twilight&#39;</span><span class="p">,</span> <span class="s1">&#39;berlin&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span><span class="o">/</span><span class="n">aspect</span><span class="o">*</span><span class="n">nrows</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">label_i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_labels</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;rSVD&#39;</span><span class="p">:</span>
+            <span class="n">pod_model</span> <span class="o">=</span> <span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;hSVD&#39;</span><span class="p">:</span>
+            <span class="n">pod_model</span> <span class="o">=</span> <span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">mode_i</span><span class="p">,</span> <span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">modes_to_plot</span><span class="p">):</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">label_i</span><span class="p">,</span> <span class="n">mode_i</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">pod_model</span><span class="o">.</span><span class="n">svd_modes</span><span class="p">(</span><span class="n">mode</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">field_i</span><span class="p">],</span> <span class="n">levels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+
+            <span class="n">create_circle</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="n">label_i</span><span class="p">,</span> <span class="n">mode_i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">label_i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">label_i</span><span class="p">,</span> <span class="n">mode_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mode </span><span class="si">{</span><span class="n">mode</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">mode_i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">axs</span><span class="p">[</span><span class="n">label_i</span><span class="p">,</span> <span class="n">mode_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+            <span class="n">axs</span><span class="p">[</span><span class="n">label_i</span><span class="p">,</span> <span class="n">mode_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">label_i</span><span class="p">,</span> <span class="n">mode_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;SVD Modes for field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_06_advanced_svd_methods_21_0.png" src="../../_images/Tutorials_Advanced_06_advanced_svd_methods_21_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_06_advanced_svd_methods_21_1.png" src="../../_images/Tutorials_Advanced_06_advanced_svd_methods_21_1.png" />
+</div>
+</div>
+<section id="Reconstruction-Errors">
+<h3>Reconstruction Errors<a class="headerlink" href="#Reconstruction-Errors" title="Link to this heading"></a></h3>
+<p>Let us compute the errors with respect to the test set.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="n">max_rank</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computing reconstruction errors for field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">errors</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="n">_test_snaps</span> <span class="o">=</span> <span class="n">snapshots_np</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">test_params</span><span class="p">,</span> <span class="p">::</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nh</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">_labels</span><span class="p">:</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; |---Method: </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;rSVD&#39;</span><span class="p">:</span>
+            <span class="n">pod_model</span> <span class="o">=</span> <span class="n">rsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;hSVD&#39;</span><span class="p">:</span>
+            <span class="n">pod_model</span> <span class="o">=</span> <span class="n">hsvd</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+
+        <span class="n">errors</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pod_model</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">_test_snaps</span><span class="p">,</span> <span class="n">Nmax</span><span class="o">=</span><span class="n">max_rank</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing reconstruction errors for field: u
+ |---Method: rSVD
+ |---Method: hSVD
+ |---Method: iSVD
+Computing reconstruction errors for field: v
+ |---Method: rSVD
+ |---Method: hSVD
+ |---Method: iSVD
+</pre></div></div>
+</div>
+<p>Let us plot them</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">field_i</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">var_names</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">label_i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_labels</span><span class="p">):</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_rank</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">errors</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">label_i</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="o">-</span><span class="n">label_i</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of modes&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">field_i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Relative Error&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">field_i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_rank</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_06_advanced_svd_methods_26_0.png" src="../../_images/Tutorials_Advanced_06_advanced_svd_methods_26_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="05_failing_sensors.html" class="btn btn-neutral float-left" title="Failing Sensors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="07_pydmd.html" class="btn btn-neutral float-right" title="Integration of pyforce with pyDMD for Dynamic Mode Decomposition (DMD)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

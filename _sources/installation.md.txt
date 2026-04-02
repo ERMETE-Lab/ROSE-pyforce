@@ -1,24 +1,23 @@
 # Installation notes
 
-**pyforce** has been tested on MacOS and Linux machines with **Python3.10**, using **conda** as package manager. There is no direct support for Windows machines, but it can work using WSL2.
+**pyforce** has been tested on MacOS and Linux machines with **Python3.10**. For Windows, it is suggested to use the Windows Subsystem for Linux (WSL).
 
 ## Dependencies
 The *pyforce* package requires the following dependencies:
 
-```python
-import numpy
-import scipy
-import matplotlib
-import h5py
-
-import pyvista
-import gmsh
-import dolfinx
-import sklearn
-import fluidfoam
 ```
-
-Be sure to install *gmsh* and *gmsh-api* before *dolfinx* (the package has been tested with real mode of the PETSc library). The instructions to install *dolfinx* are available at [https://github.com/FEniCS/dolfinx#binary](https://github.com/FEniCS/dolfinx#binary).
+numpy
+scipy
+matplotlib
+pyvista
+h5py
+ipykernel
+tqdm
+fluidfoam
+trame-vtk
+scikit-learn
+setuptools
+```
 
 ## Set up a conda environment for *pyforce*
 
@@ -34,66 +33,38 @@ conda config --set solver libmamba
 At first, clone the repository
 ```bash
 git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
-```
-create a conda environment using `environment.yml`
-```bash
 cd ROSE-pyforce
-conda env create -f pyforce/environment.yml
-```
-activate the environment and then install the package using `pip`
-```bash
-conda activate pyforce-env
-cd pyforce/
-python -m pip install .
 ```
 
-If the previous procedure encounters any issues, you can adopt a step-by-step approach: start by creating a new conda environment
+*If you want to install the development version*, clone the repo from Steriva's account
+
 ```bash
-conda create --name <env_name>
+git clone --branch development --single-branch https://github.com/Steriva/ROSE-pyforce.git
+cd ROSE-pyforce
 ```
-If not already done, add conda-forge to the channels
+
+At this point, you choose one of the two following procedures. The first one is the quickest and easiest, and it is suggested if you want to install *pyforce* in an existing conda environment, consisting in a direct `pip` installation; the second one is more robust, it uses the `environment.yml` file provided in the repository which creates a conda environment with all the necessary dependencies. The second one is suggested if you encounter issues with the first procedure.
+
+
+### 1. Using `pip` directly
+
+Given an existing conda environment, you can install *pyforce* using `pip` as
 ```bash
-conda config --add channels conda-forge
+python -m pip install rose-pyforce/
 ```
-After having activate it, install
+
+### 2. Using `environment.yml`
+
+Once the repository has been cloned, you can directly install the dependencies by creating a new conda environment using the provided `environment.yml` file:
+
 ```bash
-conda install python=3.10
+conda env create -f pyforce/environment.yml
+conda activate pyforce-env
 ```
-This provides also *pip* which is necessary to install *gmsh* as
+
+Then, install the package using `pip`
 ```bash
-python -m pip install gmsh gmsh-api
+python -m pip install rose-pyforce/
 ```
-Then, *dolfinx* can be installed (real mode for *petsc* is supposed), currently only supports *v0.6.0*,
-```bash
-conda install fenics-dolfinx=0.6.0 mpich pyvista
-```
-Just for completeness, if you are to deal with complex numbers use the following command
-```bash
-conda install fenics-dolfinx=0.6.0 petsc=*=real* mpich pyvista
-```
-Add the following packages
-```bash
-conda install meshio scipy tqdm
-```
-Downgrade the following
-```bash
-python -m pip install setuptools==62.0.0
-conda install numpy=1.23.5
-```
-Once this is completed, it may be necessary to re-install *gmsh*
-```bash
-python -m pip install gmsh gmsh-api
-```
-In the end, the *fluidfoam* ([https://github.com/fluiddyn/fluidfoam](https://github.com/fluiddyn/fluidfoam)) and *scikit-learn* are necessary to import data from OpenFOAM and to integrate Machine Learning (ML) with ROM
-```bash
-python -m pip install fluidfoam scikit-learn
-```
-Once all the dependencies have been installed, *pyforce* can be installed using *pip*: clone the repository
-```bash
-git clone https://github.com/ERMETE-Lab/ROSE-pyforce.git
-```
-Change directory to *ROSE-pyforce* and install using pip
-```bash
-cd ROSE-pyforce/pyforce/
-python -m pip install .
-```
+
+This procedure can solve issues related to the installation of some dependencies, especially `pyvista`.

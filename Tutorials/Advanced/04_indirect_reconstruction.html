@@ -1,0 +1,922 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>State estimation from partial observation - Indirect Reconstruction &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Failing Sensors" href="05_failing_sensors.html" />
+    <link rel="prev" title="Advanced Tutorials" href="../../adv_tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../adv_tutorials.html">Advanced Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Indirect Reconstruction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Import-OpenFOAM-cases-from-npz-files">Import OpenFOAM cases from npz files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Parameter-Estimation-(PE)">Parameter Estimation (PE)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Offline-Phase:-GEIM">Offline Phase: GEIM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Offline-Phase:-POD">Offline Phase: POD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Online-Phase:-Parameter-Estimation">Online Phase: Parameter Estimation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Online-Phase:-POD-with-Interpolation">Online Phase: POD with Interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Gaussian-Process-Regression-(GPR)-with-POD">Gaussian Process Regression (GPR) with POD</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="05_failing_sensors.html">Failing Sensors in MSFR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_advanced_svd_methods.html">Advanced SVD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_pydmd.html">Combination with pydmd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_shred.html">Implementation of SHRED</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_multi-region.html">Multi-Region and Parallel-Decomposed OpenFOAM Import</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../adv_tutorials.html">Advanced Tutorials</a></li>
+      <li class="breadcrumb-item active">State estimation from partial observation - Indirect Reconstruction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Tutorials/Advanced/04_indirect_reconstruction.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="State-estimation-from-partial-observation---Indirect-Reconstruction">
+<h1>State estimation from partial observation - Indirect Reconstruction<a class="headerlink" href="#State-estimation-from-partial-observation---Indirect-Reconstruction" title="Link to this heading"></a></h1>
+<p>This notebook presents the possible solutions to reconstruct multi-physics fields from partial observation only: for instance, in a buoyancy-driven flow, we may only have access to temperature measurements, but we want to reconstruct the velocity field or in a nuclear reactor we have access to the temperature field but we want to reconstruct the neutron flux and the precursors fields. Two solutions are presented here: a two-step approach based on Parameter Estimation (PE) and POD with
+Interpolation, and a direct approach based on Gaussian Process Regression (GPR).</p>
+<ol class="arabic simple">
+<li><p><strong>Parameter Estimation + POD with Interpolation</strong>: in this approach, snapshots from the observable fields are used to place sensors in the domain using the Generalized Empirical Interpolation Method (GEIM). Then, given a set of measurements, the parameters of the system are estimated using a least-square minimization. Finally, the full fields are reconstructed using POD with Interpolation (the procedure has been presented by <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306454922005680?via%3Dihub">Introini et al.
+(2023)</a> and <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S002954932400205X">Cammi et al. (2024)</a>).</p></li>
+<li><p><strong>Gaussian Process Regression</strong>: in this approach, sensors are placed with the GEIM method as well. Then, a GPR model is trained to learn the mapping between the measurements and the reduced coefficients of the POD modes of each field. Finally, given a set of measurements, the reduced coefficients are predicted using the GPR model and the full fields are reconstructed using the POD modes.</p></li>
+</ol>
+<p>In this tutorial, you will learn:</p>
+<ul class="simple">
+<li><p>How to perform parameter estimation given a set of measurements using GEIM magic functions and sensors.</p></li>
+<li><p>How to reconstruct a field from partial observation using POD with Interpolation.</p></li>
+<li><p>How to reconstruct a field from partial observation using Gaussian Process Regression.</p></li>
+</ul>
+<p>The data for this tutorial comes from a <a class="reference external" href="https://github.com/ERMETE-Lab/ROSE-ROM4FOAM">ROM4FOAM</a> tutorial, the Buoyant Cavity (see <a class="reference external" href="https://doi.org/10.1016/j.anucene.2022.109538">Introini et al. (2023)</a>). It is a steady-state simulation of a square cavity with a hot left wall and a cold right wall, leading to natural convection inside the cavity. The simulation is performed using OpenFOAM 2412: the results have been stored in an <code class="docutils literal notranslate"><span class="pre">npz</span></code> file.</p>
+<section id="Import-OpenFOAM-cases-from-npz-files">
+<h2>Import OpenFOAM cases from npz files<a class="headerlink" href="#Import-OpenFOAM-cases-from-npz-files" title="Link to this heading"></a></h2>
+<p>The data are parametric with respect to the Reynolds and Richardson number (Re and Ri, respectively). The snapshots of velocity, pressure and temperature are stored in an <code class="docutils literal notranslate"><span class="pre">npz</span></code> file, which can be easily loaded using the <code class="docutils literal notranslate"><span class="pre">numpy</span></code> library. Each variable is stored as a 2D array, where each column represents a snapshot at a given parameter value, and each row represents a spatial point in the domain.</p>
+<p><code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> objects can be built directly from these matrices, specifying the spatial coordinates of the points in the domain.</p>
+<p>Among the available variables, we will focus on the temperature field, which is generally easier to measure.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;../Datasets/BuoyantCavity_OF2412/buoyant_cavity.npz&#39;</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">parameters</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">]</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">snap_matrix</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span>
+<span class="p">}</span>
+
+<span class="c1"># Let us scale the temperature field to [0, 1]</span>
+<span class="n">_T</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span> <span class="o">-</span> <span class="mi">300</span>
+<span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+<span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">build_from_matrix</span><span class="p">(</span><span class="n">_T</span><span class="p">)</span>
+
+<span class="c1"># Extract mesh</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;../Datasets/BuoyantCavity_OF2412/mesh_cavity.vtk&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Before delving into the different techniques, let us split the data into train and test.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">train_dataset</span><span class="p">,</span> <span class="n">test_dataset</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">train_params</span><span class="p">,</span> <span class="n">test_params</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">test_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">dataset</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Parameter-Estimation-(PE)">
+<h2>Parameter Estimation (PE)<a class="headerlink" href="#Parameter-Estimation-(PE)" title="Link to this heading"></a></h2>
+<p>In this section, sensors will be placed in the domain using the GEIM method and the test parameter will be estimated by solving a constrained optimization problem. Within constrained minimization of the discrepancy between the measurements and the GEIM reconstruction of the observable fields, the GEIM reduced coefficients are forced to be on a manifold map from the parameter space to the GEIM coefficients space.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">field_i_observed</span> <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+<section id="Offline-Phase:-GEIM">
+<h3>Offline Phase: GEIM<a class="headerlink" href="#Offline-Phase:-GEIM" title="Link to this heading"></a></h3>
+<p>This method has already been presented in the previous tutorial, so we will not go into details here. Only the observable field is used to place sensors in the domain.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span>
+
+<span class="n">geim_offline</span> <span class="o">=</span> <span class="n">GEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">sensors_type</span><span class="o">=</span><span class="s1">&#39;Gaussian&#39;</span><span class="p">)</span>
+
+<span class="c1"># GEIM parameters</span>
+<span class="n">sens_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span> <span class="c1"># spread of the Gaussian kernels - hyperparameter to be tuned according to the physical system</span>
+    <span class="s1">&#39;xm_list&#39;</span><span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span><span class="p">[::</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1"># optional (sampling every 10 points to speed up the process)</span>
+<span class="p">}</span>
+
+<span class="n">train_beta_geim_coeffs</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>  <span class="n">train_dataset</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i_observed</span><span class="p">]],</span>
+                                            <span class="n">Mmax</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="c1"># max number of sensors</span>
+                                            <span class="n">sensor_params</span><span class="o">=</span><span class="n">sens_params</span><span class="p">,</span>
+                                            <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># optional</span>
+                                            <span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Creating Gaussian Sensor Library: 100.000 / 100.00% - 0.000236 s/it
+GEIM Iteration 20/20 - MaxAbsErr: 1.9587e-04 - MaxRelErr: 8.9178e-04
+</pre></div></div>
+</div>
+<p>As said before, it is required to have a mapping from the parameter space to the GEIM coefficients space, to constrain the PE problem. It is required to be a <code class="docutils literal notranslate"><span class="pre">SurrogateModelWrapper</span></code> object, so that it can be used smoothly in the class <code class="docutils literal notranslate"><span class="pre">ParameterEstimation</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearNDInterpolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.online_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SurrogateModelWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span> <span class="k">as</span> <span class="n">sk_split</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SurrogateMap</span><span class="p">(</span><span class="n">SurrogateModelWrapper</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_params</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">train_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">LinearNDInterpolator</span><span class="p">(</span><span class="n">train_params</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_params</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">test_params</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">test_params</span> <span class="o">=</span> <span class="n">test_params</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">model</span><span class="p">(</span><span class="n">test_params</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">predictions</span>
+
+<span class="n">_train_surrogate_param</span><span class="p">,</span> <span class="n">_val_surrogate_param</span><span class="p">,</span> <span class="n">_train_beta_coeff</span><span class="p">,</span> <span class="n">_val_beta_coeff</span> <span class="o">=</span> <span class="n">sk_split</span><span class="p">(</span><span class="n">train_params</span><span class="p">,</span> <span class="n">train_beta_geim_coeffs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                                         <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">_train_beta_coeff</span> <span class="o">=</span> <span class="n">_train_beta_coeff</span><span class="o">.</span><span class="n">T</span>
+<span class="n">_val_beta_coeff</span> <span class="o">=</span> <span class="n">_val_beta_coeff</span><span class="o">.</span><span class="n">T</span>
+
+
+<span class="n">surrogate_model</span> <span class="o">=</span> <span class="n">SurrogateMap</span><span class="p">()</span>
+<span class="n">surrogate_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">_train_surrogate_param</span><span class="p">,</span> <span class="n">_train_beta_coeff</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us make a plot of the reduced coefficients <span class="math notranslate nohighlight">\(\beta_m\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">Replot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">Riplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">40</span><span class="p">)</span>
+
+<span class="n">Regrid</span><span class="p">,</span> <span class="n">Rigrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Replot</span><span class="p">,</span> <span class="n">Riplot</span><span class="p">)</span>
+<span class="n">param_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Regrid</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Rigrid</span><span class="o">.</span><span class="n">flatten</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span>
+<span class="n">predicted_beta_coeffs</span> <span class="o">=</span> <span class="n">surrogate_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;projection&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">})</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">param_grid</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">param_grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">predicted_beta_coeffs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">_val_surrogate_param</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">_val_surrogate_param</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_val_beta_coeff</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Validation data&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Coefficient $</span><span class="se">\\</span><span class="s1">beta_</span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_14_0.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_14_0.png" />
+</div>
+</div>
+</section>
+<section id="Offline-Phase:-POD">
+<h3>Offline Phase: POD<a class="headerlink" href="#Offline-Phase:-POD" title="Link to this heading"></a></h3>
+<p>For the unobservable fields, we will use POD to compress the spatial information and build appropriate surrogate models, for the relation between the parameters and the POD coefficients.</p>
+<p>This class has already been presented in the previous tutorial, so we will not go into details here.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">POD</span>
+
+<span class="n">pod_offline</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="n">var_names</span><span class="p">[</span><span class="n">field_i_observed</span><span class="p">]:</span>
+        <span class="n">pod_offline</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">POD</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">pod_offline</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing U correlation matrix: 160.000 / 160.00 - 0.008199 s/it
+Eigenvalues calculated in 1.320022 seconds.
+Computing p correlation matrix: 160.000 / 160.00 - 0.001661 s/it
+Eigenvalues calculated in 0.269880 seconds.
+</pre></div></div>
+</div>
+<p>Let us plot the eigenvalues of the POD modes for each field.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">pod_offline</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">plot_eigenvalues</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_18_0.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_18_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_18_1.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_18_1.png" />
+</div>
+</div>
+<p>Let us compute the POD modes for each field and the reduced coefficients</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pod_coeffs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">pod_offline</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">compute_basis</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">rank</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">pod_offline</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">N</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us now build the surrogate models for the POD coefficients of each unobservable field.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pod_surrogate_models</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">val_pod_coeff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">_train_surrogate_param</span><span class="p">,</span> <span class="n">_val_surrogate_param</span><span class="p">,</span> <span class="n">_train_pod_coeff</span><span class="p">,</span> <span class="n">_val_pod_coeff</span> <span class="o">=</span> <span class="n">sk_split</span><span class="p">(</span><span class="n">train_params</span><span class="p">,</span> <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                                                                             <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">_train_pod_coeff</span> <span class="o">=</span> <span class="n">_train_pod_coeff</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">_val_pod_coeff</span> <span class="o">=</span> <span class="n">_val_pod_coeff</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">val_pod_coeff</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">_val_pod_coeff</span>
+
+    <span class="n">pod_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">SurrogateMap</span><span class="p">()</span>
+    <span class="n">pod_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">_train_surrogate_param</span><span class="p">,</span> <span class="n">_train_pod_coeff</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us make some plots of the POD coefficients and the maps</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="n">Replot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">Riplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="n">Regrid</span><span class="p">,</span> <span class="n">Rigrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">Replot</span><span class="p">,</span> <span class="n">Riplot</span><span class="p">)</span>
+    <span class="n">param_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Regrid</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Rigrid</span><span class="o">.</span><span class="n">flatten</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">predicted_beta_coeffs</span> <span class="o">=</span> <span class="n">pod_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;projection&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">})</span>
+    <span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">param_grid</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">param_grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">predicted_beta_coeffs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+
+        <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">_val_surrogate_param</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">_val_surrogate_param</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">val_pod_coeff</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Validation data&#39;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Coefficient $</span><span class="se">\\</span><span class="s1">alpha_</span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">$ - </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_24_0.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_24_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_24_1.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_24_1.png" />
+</div>
+</div>
+</section>
+<section id="Online-Phase:-Parameter-Estimation">
+<h3>Online Phase: Parameter Estimation<a class="headerlink" href="#Online-Phase:-Parameter-Estimation" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ParameterEstimation</span></code> class is used to perform the parameter estimation. The problem to solve is the following:</p>
+<p><span class="math">\begin{equation*}
+\boldsymbol{\mu}^* = \underset{\boldsymbol{\mu} \in \mathcal{D}}{\mathrm{argmin}} \left\| \mathbf{y} - \mathbb{B} \boldsymbol{\beta}(\boldsymbol{\mu}) \right\|_2^2\qquad \text{s.t.}\quad \boldsymbol{\beta}(\boldsymbol{\mu}) = \mathcal{F}(\boldsymbol{\mu})
+\end{equation*}</span></p>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> are the measurements, <span class="math notranslate nohighlight">\(\mathbb{B}\)</span> is the matrix of the magic functions evaluated at the sensor locations, <span class="math notranslate nohighlight">\(\boldsymbol{\beta}(\boldsymbol{\mu})\)</span> are the GEIM coefficients, and <span class="math notranslate nohighlight">\(\mathcal{F}(\boldsymbol{\mu})\)</span> is the surrogate model mapping from the parameter space to the GEIM coefficients space.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ParameterEstimation</span></code> class requires the following inputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grid</span></code>: the mesh of the domain, as a <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">surrogate_model</span></code>: the surrogate model mapping from the parameter space to the GEIM coefficients space, as a <code class="docutils literal notranslate"><span class="pre">SurrogateModelWrapper</span></code> object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bnds</span></code>: the bounds of the parameter space, as a list of tuples.</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.indirect_reconstruction</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterEstimation</span>
+
+<span class="n">bnds</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+    <span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="p">]</span>
+
+<span class="n">online_pe</span> <span class="o">=</span> <span class="n">ParameterEstimation</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">surrogate_model</span><span class="p">,</span> <span class="n">bnds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>At first, we have to load the magic functions and sensors from the GEIM offline phase. Then, compute the matrix <span class="math notranslate nohighlight">\(\mathbb{B}\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">online_pe</span><span class="o">.</span><span class="n">set_magic_functions</span><span class="p">(</span><span class="n">basis</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+<span class="n">online_pe</span><span class="o">.</span><span class="n">set_magic_sensors</span><span class="p">(</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+<span class="n">online_pe</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Let us now compute the errors on the test set of the Parameter Estimation problem.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">online_pe</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_param</span><span class="o">=</span><span class="n">test_params</span><span class="p">,</span> <span class="n">test_snaps</span><span class="o">=</span><span class="n">test_dataset</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i_observed</span><span class="p">]],</span>
+                         <span class="n">M</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_brute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">grid_elem</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">noise_std</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing PE errors: 40.000 / 40.00 - 0.318632 s/it
+</pre></div></div>
+</div>
+<p>Let us plot the errors and the estimated parameters versus the true parameters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nrows</span> <span class="o">=</span> <span class="n">test_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">jj</span><span class="p">][:,</span> <span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;--^&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">jj</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Absolute error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Relative error&#39;</span><span class="p">)</span>
+
+<span class="n">Mplot</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Estimated parameters with </span><span class="si">{</span><span class="n">Mplot</span><span class="si">}</span><span class="s1"> sensors&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reynolds number&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Richardson number&#39;</span><span class="p">)</span>
+
+<span class="n">_param_plot</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">),</span>
+               <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">test_params</span><span class="p">[:,</span><span class="n">ii</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="mi">3</span><span class="p">][:,</span><span class="n">Mplot</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ii</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Estimated parameters&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">_param_plot</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">_param_plot</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True parameters&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">_param_plot</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">_param_plot</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">*</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">_param_plot</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">*</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;10</span><span class="si">% e</span><span class="s1">rror band&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_32_0.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_32_0.png" />
+</div>
+</div>
+</section>
+<section id="Online-Phase:-POD-with-Interpolation">
+<h3>Online Phase: POD with Interpolation<a class="headerlink" href="#Online-Phase:-POD-with-Interpolation" title="Link to this heading"></a></h3>
+<p>Once the parameters have been estimated, the full fields can be reconstructed using POD with Interpolation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">POD</span> <span class="k">as</span> <span class="n">OnlinePOD</span>
+
+<span class="n">online_pod</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">online_pod</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">OnlinePOD</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+    <span class="n">online_pod</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">pod_offline</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">pod_modes</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us estimate the full fields for the test set using the parameters estimated with 20 sensors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mu_estimated</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">3</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">state_estimate</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">state_estimate</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">online_pod</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">pod_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">mu_estimated</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us make some contour plots of the estimated fields.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+
+<span class="n">mu_i_to_plot</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">cmaps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">,</span> <span class="s1">&#39;Blues&#39;</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+
+    <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span>
+        <span class="n">_fom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">](</span><span class="n">mu_i_to_plot</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_est</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">state_estimate</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">mu_i_to_plot</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_fom</span> <span class="o">-</span> <span class="n">_est</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_fom</span> <span class="o">=</span> <span class="n">test_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">](</span><span class="n">mu_i_to_plot</span><span class="p">)</span>
+        <span class="n">_est</span> <span class="o">=</span> <span class="n">state_estimate</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">mu_i_to_plot</span><span class="p">]</span>
+        <span class="n">_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_fom</span> <span class="o">-</span> <span class="n">_est</span><span class="p">)</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">_fom</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">_fom</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_fom</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_est</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_res</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_res</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Reds&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FOM&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Estimated&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;Residual&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_38_1.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_38_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Gaussian-Process-Regression-(GPR)-with-POD">
+<h2>Gaussian Process Regression (GPR) with POD<a class="headerlink" href="#Gaussian-Process-Regression-(GPR)-with-POD" title="Link to this heading"></a></h2>
+<p>In this section, a more direct approach will be presented, based on Gaussian Process Regression (GPR). In this approach, sensors are placed in the domain using the GEIM method as well. Then, a GPR model is trained to learn the mapping between the measurements and the reduced coefficients of the POD modes of each field. Finally, given a set of measurements, the reduced coefficients are predicted using the GPR model and the full fields are reconstructed using the POD modes.</p>
+<p>We are going to exploit the same offline phase as before, so we will not repeat it here.</p>
+<p>Let us define the online class for geim to obtain noisy measurements</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[158]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span>
+
+<span class="n">geim_online</span> <span class="o">=</span> <span class="n">GEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i_observed</span><span class="p">])</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_magic_sensors</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[177]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.gaussian_process</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianProcessRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.gaussian_process.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBF</span><span class="p">,</span> <span class="n">ConstantKernel</span> <span class="k">as</span> <span class="n">C</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">MinMaxScaler</span><span class="p">,</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span> <span class="k">as</span> <span class="n">clc</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SurrogateGPR</span><span class="p">(</span><span class="n">SurrogateModelWrapper</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_params</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">,</span> <span class="n">scale_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">n_restarts_optimizer</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">kernel</span> <span class="o">=</span> <span class="n">C</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">))</span> <span class="o">*</span> <span class="n">RBF</span><span class="p">(</span><span class="n">length_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">length_scale_bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">)),</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># train_params shape (n_samples, n_params)</span>
+        <span class="c1"># train_coeffs shape (n_samples, n_coeffs)</span>
+
+        <span class="k">if</span> <span class="n">scale_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_params</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_coeffs</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">GaussianProcessRegressor</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">,</span> <span class="n">n_restarts_optimizer</span><span class="o">=</span><span class="n">n_restarts_optimizer</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">_scaled_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_params</span><span class="p">)</span> <span class="k">if</span> <span class="n">scale_data</span> <span class="k">else</span> <span class="n">train_params</span>
+        <span class="n">_scaled_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_coeffs</span><span class="p">)</span> <span class="k">if</span> <span class="n">scale_data</span> <span class="k">else</span> <span class="n">train_coeffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">_scaled_input</span><span class="p">,</span> <span class="n">_scaled_output</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_params</span><span class="p">):</span>
+        <span class="c1"># test_params shape (n_test_samples, n_params)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_params</span><span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">predictions</span><span class="o">.</span><span class="n">T</span> <span class="c1"># return shape (n_coeffs, n_test_samples)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_params</span><span class="p">):</span>
+        <span class="c1"># test_params shape (n_test_samples, n_params)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_params</span><span class="p">)</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_params</span><span class="p">,</span> <span class="n">return_std</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">std</span> <span class="o">=</span> <span class="n">std</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span><span class="o">.</span><span class="n">data_max_</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span><span class="o">.</span><span class="n">data_min_</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">std</span><span class="o">.</span><span class="n">T</span> <span class="c1"># return shape (n_coeffs, n_test_samples)</span>
+
+<span class="n">train_measures</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i_observed</span><span class="p">]],</span> <span class="n">noise_std</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+<span class="n">podgpr_surrogate_models</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">val_podgpr_meas</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">val_podgpr_coeff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+    <span class="n">train_idx</span><span class="p">,</span> <span class="n">val_idx</span><span class="p">,</span> <span class="n">_train_surrogate_param</span><span class="p">,</span> <span class="n">_val_surrogate_param</span> <span class="o">=</span> <span class="n">sk_split</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">train_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">train_params</span><span class="p">,</span>
+                                                                              <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">_train_meas_gpr</span> <span class="o">=</span> <span class="n">train_measures</span><span class="p">[</span><span class="n">train_idx</span><span class="p">]</span>
+    <span class="n">val_podgpr_meas</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_measures</span><span class="p">[</span><span class="n">val_idx</span><span class="p">]</span>
+
+    <span class="n">_train_pod_coeff</span> <span class="o">=</span> <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">train_idx</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">val_podgpr_coeff</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">pod_coeffs</span><span class="p">[</span><span class="n">field</span><span class="p">][:,</span> <span class="n">val_idx</span><span class="p">]</span>
+
+    <span class="c1"># train GPR model</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">C</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">))</span> <span class="o">*</span> <span class="n">RBF</span><span class="p">(</span><span class="n">length_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">length_scale_bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">))</span>
+    <span class="n">podgpr_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">SurrogateGPR</span><span class="p">()</span>
+    <span class="n">podgpr_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">_train_meas_gpr</span><span class="p">,</span> <span class="n">_train_pod_coeff</span><span class="p">,</span> <span class="n">scale_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us compare the estimated parameters with the validation ones</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[178]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s2">&quot;sklearn.gaussian_process&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+    <span class="n">_estimated_beta</span> <span class="o">=</span> <span class="n">podgpr_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">val_podgpr_meas</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+    <span class="n">_estimated_beta_std</span> <span class="o">=</span> <span class="n">podgpr_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">predict_std</span><span class="p">(</span><span class="n">val_podgpr_meas</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+
+    <span class="n">nrows</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+    <span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">):</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span>
+            <span class="n">val_podgpr_coeff</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span>               <span class="c1"># x-values (true coefficients)</span>
+            <span class="n">_estimated_beta</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span>                       <span class="c1"># y-values (predicted coefficients)</span>
+            <span class="n">yerr</span><span class="o">=</span><span class="n">_estimated_beta_std</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span>              <span class="c1"># error bars (std dev)</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>                                   <span class="c1"># marker style (&#39;o&#39; = circle)</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span>                                 <span class="c1"># color of points and bars</span>
+            <span class="n">ecolor</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>                        <span class="c1"># color of error bars</span>
+            <span class="n">elinewidth</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>                            <span class="c1"># line thickness for error bars</span>
+            <span class="n">capsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>                                 <span class="c1"># small horizontal caps on bars</span>
+            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Predicted Value&#39;</span>
+        <span class="p">)</span>
+
+        <span class="n">_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">val_podgpr_coeff</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">val_podgpr_coeff</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">_line</span><span class="p">,</span> <span class="n">_line</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Truth&#39;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">_line</span><span class="p">,</span> <span class="n">_line</span> <span class="o">*</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">_line</span> <span class="o">*</span> <span class="mf">1.05</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\pm 5\%$ Uncertainty&#39;</span><span class="p">)</span>
+
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\beta_{&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;}$ - field &#39;</span><span class="o">+</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_44_0.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_44_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_44_1.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_44_1.png" />
+</div>
+</div>
+<p>Let us now estimate the fields using this surrogate model</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[179]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_measures</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">[</span><span class="n">var_names</span><span class="p">[</span><span class="n">field_i_observed</span><span class="p">]],</span> <span class="n">noise_std</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+<span class="n">state_estimate</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">state_estimate</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">online_pod</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">podgpr_surrogate_models</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">test_measures</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us make some contour plots of the estimation</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[180]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+
+<span class="n">mu_i_to_plot</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">cmaps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">,</span> <span class="s1">&#39;Blues&#39;</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pod_offline</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+
+    <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span>
+        <span class="n">_fom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">](</span><span class="n">mu_i_to_plot</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_est</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">state_estimate</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">mu_i_to_plot</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_fom</span> <span class="o">-</span> <span class="n">_est</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_fom</span> <span class="o">=</span> <span class="n">test_dataset</span><span class="p">[</span><span class="n">field</span><span class="p">](</span><span class="n">mu_i_to_plot</span><span class="p">)</span>
+        <span class="n">_est</span> <span class="o">=</span> <span class="n">state_estimate</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">mu_i_to_plot</span><span class="p">]</span>
+        <span class="n">_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_fom</span> <span class="o">-</span> <span class="n">_est</span><span class="p">)</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">_fom</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">_fom</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_fom</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_est</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmaps</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_res</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">_res</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Reds&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FOM&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Estimated&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[180]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;Residual&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/Tutorials_Advanced_04_indirect_reconstruction_48_1.png" src="../../_images/Tutorials_Advanced_04_indirect_reconstruction_48_1.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../adv_tutorials.html" class="btn btn-neutral float-left" title="Advanced Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="05_failing_sensors.html" class="btn btn-neutral float-right" title="Failing Sensors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

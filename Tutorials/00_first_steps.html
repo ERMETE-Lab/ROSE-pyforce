@@ -1,0 +1,1076 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>First Steps into using pyforce &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introduction to ROM methods: SVD based techniques" href="01_svd_methods.html" />
+    <link rel="prev" title="Basic Tutorials" href="../tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Basic Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">First Steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Basics-of-the-FunctionsList-class">Basics of the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#I/O-methods-within-pyforce">I/O methods within <em>pyforce</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Integral-Calculations">Integral Calculations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Trick-to-handle-1D-datasets">Trick to handle 1D datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Reading-and-post-processing-decomposed-OpenFOAM-data-with-pyforce">Reading and post-processing decomposed OpenFOAM data with <em>pyforce</em></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Mean-Field">Mean Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prime2Mean-Field---Variance-Field">prime2Mean Field - Variance Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Energy-Spectrum-of-the-fluctuations">Energy Spectrum of the fluctuations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="01_svd_methods.html">SVD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_eim_methods.html">(G)EIM Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_sensor_placement.html">Sensor Placement and PBDW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Basic Tutorials</a></li>
+      <li class="breadcrumb-item active">First Steps into using <em>pyforce</em></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Tutorials/00_first_steps.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="First-Steps-into-using-pyforce">
+<h1>First Steps into using <em>pyforce</em><a class="headerlink" href="#First-Steps-into-using-pyforce" title="Link to this heading"></a></h1>
+<p><em>pyforce</em> is a Python package for data-driven reduced order modelling approaches built upon scientific computing libraries such as <code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy</span></code>, <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> and <code class="docutils literal notranslate"><span class="pre">pyvista</span></code>. The main goal of <em>pyforce</em> consists in providing a rather simple and intuitive interface for researchers on this topic: even though the main focus of the authors is on nuclear reactors multi-physics scenarios (including fluid dynamics and neutronics mainly), the package is designed to be applicable to a wide
+range of problems in scientific computing and engineering.</p>
+<p>This notebook wants to provide a first hands-on introduction to some basics classes and methods, which are needed to effectively use <em>pyforce</em> for your own applications. Before proceeding, this notebook supposes the reader has a basic knowledge of the ROM terminology.</p>
+<p>In particular, in this tutorial you will learn how to:</p>
+<ul class="simple">
+<li><p>Generate custom snapshots on a <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> grid and save them into <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> objects (basic class using by <em>pyforce</em> to store data).</p></li>
+<li><p>Basic Plotting of <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>.</p></li>
+<li><p>Write and read snapshots from disk using <em>pyforce</em> I/O functions.</p></li>
+<li><p>Calculate integral using <code class="docutils literal notranslate"><span class="pre">IntegralCalculator</span></code> class.</p></li>
+</ul>
+<p>For interested users in high-dimensional data, this notebook also shows how to read decomposed snapshots generated by OpenFOAM.</p>
+<section id="Basics-of-the-FunctionsList-class">
+<h2>Basics of the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> class<a class="headerlink" href="#Basics-of-the-FunctionsList-class" title="Link to this heading"></a></h2>
+<p>In this section, we are going to load an example mesh from <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> and generate custom snapshots on it, exploring some basic functionalities of the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> class.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="kn">import</span> <span class="n">examples</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">grid</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">download_bunny</span><span class="p">()</span>
+
+<span class="c1"># Extract the points of the grid</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span>
+
+<span class="n">pl</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">])</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">)</span> <span class="c1"># jupyter_backend=&#39;html&#39;, &#39;trame&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_2_0.png" src="../_images/Tutorials_00_first_steps_2_0.png" />
+</div>
+</div>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{x}=(x,y,z)\)</span> be the spatial coordinate of the mesh nodes, we are going to define a custom function, dependent on <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> and on a parameter <span class="math notranslate nohighlight">\(\mu\)</span>, as follows: <span class="math">\begin{equation*}
+f(x,y,z;\,\mu) = \sin\!\Big( \mu \sqrt{x^2 + y^2} + 5 \,\arctan\!\frac{y}{x} +\mu z\Big)
+\end{equation*}</span></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> class is used to store the snapshots, and it can be initialized by providing the number of nodes of the mesh. Snapshots can be appended to the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object by using the <code class="docutils literal notranslate"><span class="pre">append</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+
+<span class="c1"># Definining the function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">combo_field</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">mu</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="n">theta</span> <span class="o">+</span> <span class="n">mu</span><span class="o">*</span><span class="n">z</span><span class="p">)</span>
+
+<span class="c1"># Initialization of the class</span>
+<span class="n">snapshots</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">mu_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="n">mu_samples</span><span class="p">:</span>
+    <span class="n">snapshots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combo_field</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> comes with a plotting method, which can be used to visualize the sequence of snapshots.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">snapshots</span><span class="o">.</span><span class="n">plot_sequence</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span>
+                        <span class="n">sampling</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu&#39;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span><span class="mi">400</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Snapshot ID&#39;</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span>  <span class="c1"># optional</span>
+                        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_6_0.png" src="../_images/Tutorials_00_first_steps_6_0.png" />
+</div>
+</div>
+<p>The class comes also with a method to plot a single snapshot, by providing its index in the list.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">snapshots</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">idx_to_plot</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu&#39;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span><span class="mi">400</span><span class="p">]</span> <span class="c1"># optional</span>
+                <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_8_0.png" src="../_images/Tutorials_00_first_steps_8_0.png" />
+</div>
+</div>
+<p>Before delving into the I/O functionalities, let’s mention some useful methods of the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> class:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">return_matrix</span></code>: Returns the stored snapshots as a 2D NumPy array, whose shape is <code class="docutils literal notranslate"><span class="pre">(n_space,</span> <span class="pre">n_snapshots)</span></code> <span class="math notranslate nohighlight">\(\longleftrightarrow (\mathcal{N}_h, N_s)\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_from_matrix</span></code>: Builds the snapshot list from a 2D NumPy array, whose shape is <code class="docutils literal notranslate"><span class="pre">(n_space,</span> <span class="pre">n_snapshots)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lin_combine</span></code>: Linearly combines the stored snapshots using given coefficients (useful for reduced basis approximation). Consider <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}\in N_s\)</span>, the elements <span class="math notranslate nohighlight">\(f_i\)</span> of the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> are linearly combined as follows: <span class="math">\begin{equation*}
+F(\mathbf{x}) = \sum_{i=1}^{N_s} \alpha_i f_i(\mathbf{x})
+\end{equation*}</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">std</span></code>: Returns the minimum, maximum, mean and standard deviation of the stored snapshots, respectively.</p></li>
+</ul>
+</section>
+<section id="I/O-methods-within-pyforce">
+<h2>I/O methods within <em>pyforce</em><a class="headerlink" href="#I/O-methods-within-pyforce" title="Link to this heading"></a></h2>
+<p>In this section, we are going to explore the I/O functionalities of <em>pyforce</em>.</p>
+<p>Starting from the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object generate before, we can store them using the <code class="docutils literal notranslate"><span class="pre">store</span></code> method. The data can be store in <code class="docutils literal notranslate"><span class="pre">h5</span></code> or <code class="docutils literal notranslate"><span class="pre">npz</span></code> format (either compressed or not).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">snapshots</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;example_snaps&#39;</span><span class="p">,</span>
+                <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;h5&#39;</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">snapshots</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;example_snaps&#39;</span><span class="p">,</span>
+                <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;npz&#39;</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Once the data, these can be loaded with the <code class="docutils literal notranslate"><span class="pre">ImportFunctionsList</span></code> function.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImportFunctionsList</span>
+
+<span class="n">snaps_h5</span> <span class="o">=</span> <span class="n">ImportFunctionsList</span><span class="p">(</span><span class="s1">&#39;example_snaps&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;h5&#39;</span><span class="p">)</span>
+<span class="n">snaps_npz</span> <span class="o">=</span> <span class="n">ImportFunctionsList</span><span class="p">(</span><span class="s1">&#39;example_snaps&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;npz&#39;</span><span class="p">)</span>
+
+<span class="c1"># Check if the import was successful</span>
+<span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps_h5</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span> <span class="o">-</span> <span class="n">snapshots</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">())),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">snaps_npz</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()</span> <span class="o">-</span> <span class="n">snapshots</span><span class="o">.</span><span class="n">return_matrix</span><span class="p">()))</span>
+
+<span class="c1"># Clean up</span>
+<span class="o">!</span><span class="w"> </span>rm<span class="w"> </span>example_snaps.*
+</pre></div>
+</div>
+</div>
+<p>The <em>pyforce</em> package provides also a class to import snapshots from an OpenFOAM simulation through the <code class="docutils literal notranslate"><span class="pre">ReadFromOF</span></code> class: this class will be explained in details in future tutorials since it will be extended used.</p>
+</section>
+<section id="Integral-Calculations">
+<h2>Integral Calculations<a class="headerlink" href="#Integral-Calculations" title="Link to this heading"></a></h2>
+<p>Integrals can be calculated through the <code class="docutils literal notranslate"><span class="pre">IntegralCalculator</span></code> class: in this section, we are going to explore its functionalities.</p>
+<p>At first, let us load a grid from the <a class="reference external" href="https://www.openfoam.com/documentation/tutorial-guide/2-incompressible-flow/2.1-lid-driven-cavity-flow">cavity problem</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="kn">import</span> <span class="n">examples</span>
+<span class="n">grid</span>  <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">download_cavity</span><span class="p">()[</span><span class="s1">&#39;internalMesh&#39;</span><span class="p">]</span>
+<span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+
+<span class="n">pl</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">])</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">view_xy</span><span class="p">()</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">)</span> <span class="c1"># jupyter_backend=&#39;html&#39;, &#39;trame&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_16_0.png" src="../_images/Tutorials_00_first_steps_16_0.png" />
+</div>
+</div>
+<p>Let us consider two functions: <span class="math">\begin{equation*}
+\begin{split}
+u(x,y) &= x^2+y^2 \\
+v(x,y) &= x^3 + y
+\end{split}
+\end{equation*}</span> and evaluate them on the cavity grid.</p>
+<p>A plot using <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> is also provided.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">points</span>
+
+<span class="n">u</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">v</span> <span class="o">=</span> <span class="o">-</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="n">cont_u</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+<span class="n">cbar_u</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cont_u</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;$u(x,y)$&#39;</span><span class="p">)</span>
+
+<span class="n">cont_v</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">)</span>
+<span class="n">cbar_v</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cont_v</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;$v(x,y)$&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_18_0.png" src="../_images/Tutorials_00_first_steps_18_0.png" />
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">IntegralCalculator</span></code> class can be initialized by providing the grid. There are different integrals that can be computed, such as (<span class="math notranslate nohighlight">\(\Omega\)</span> is the spatial domain, which is <span class="math notranslate nohighlight">\([0,1/10]\times[0,1/10]\times[0,1/100]\)</span> in this case):</p>
+<p><span class="math">\begin{equation*}
+\begin{split}
+\text{Integral:} \quad & \int_\Omega u(x,y) \, d\Omega =  \Delta z \cdot \frac{2}{10} \cdot \frac{1}{3000} = \Delta z \cdot \frac{1}{15000} \\
+\text{Average:} \quad & \frac{1}{|\Omega|} \int_\Omega u(x,y) \, d\Omega = ... = \frac{1}{\Delta x\cdot \Delta y\cdot \Delta z}\Delta z \cdot \frac{1}{15000} = \frac{1}{150}\\
+L^1\text{-norm:} \quad & \|v\|_{L^1(\Omega)}=\int_\Omega |v(x,y)| \, d\Omega\\
+L^2\text{ inner product:} \quad & (u,v)_{L^2(\Omega)}=\int_\Omega u(x,y)\cdot v(x,y) \, d\Omega\\
+L^2\text{-norm:} \quad & \|u\|_{L^2(\Omega)}=\sqrt{\int_\Omega u(x,y)^2 \, d\Omega}
+\end{split}
+\end{equation*}</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegralCalculator</span>
+
+<span class="n">calc</span> <span class="o">=</span> <span class="n">IntegralCalculator</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">integrals</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;integral&#39;</span><span class="p">:</span> <span class="n">calc</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+    <span class="s1">&#39;average &#39;</span><span class="p">:</span> <span class="n">calc</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+    <span class="s1">&#39;L1_norm &#39;</span><span class="p">:</span> <span class="n">calc</span><span class="o">.</span><span class="n">L1_norm</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+    <span class="s1">&#39;L2_inner&#39;</span><span class="p">:</span> <span class="n">calc</span><span class="o">.</span><span class="n">L2_inner_product</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span>
+    <span class="s1">&#39;L2_norm &#39;</span><span class="p">:</span> <span class="n">calc</span><span class="o">.</span><span class="n">L2_norm</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">integrals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.8e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+integral: 6.67500029e-07
+average : 6.67500024e-03
+L1_norm : 5.02506261e-06
+L2_inner: -4.19379194e-08
+L2_norm : 7.89163352e-05
+</pre></div></div>
+</div>
+<section id="Trick-to-handle-1D-datasets">
+<h3>Trick to handle 1D datasets<a class="headerlink" href="#Trick-to-handle-1D-datasets" title="Link to this heading"></a></h3>
+<p><em>pyforce</em> has been mainly designed to handle high-dimensional datasets (2D/3D). However, it is possible to use the <code class="docutils literal notranslate"><span class="pre">IntegralCalculator</span></code> class also for 1D datasets, by exploiting a simple trick: we can embed the 1D data into a 3D grid with unitary thickness in the unused directions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+
+<span class="n">nx</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span>
+<span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">nx</span>   <span class="c1"># size in x</span>
+<span class="n">dy</span> <span class="o">=</span> <span class="n">dx</span>                     <span class="c1"># size in y</span>
+<span class="n">dz</span> <span class="o">=</span> <span class="n">dx</span>                     <span class="c1"># size in z</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">ImageData</span><span class="p">()</span>
+<span class="n">grid</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>    <span class="c1"># (nx+1, 2, 2)</span>
+<span class="n">grid</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>            <span class="c1"># optional</span>
+<span class="n">grid</span><span class="o">.</span><span class="n">spacing</span> <span class="o">=</span> <span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">)</span>
+
+<span class="n">fun</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="n">calcu</span> <span class="o">=</span> <span class="n">IntegralCalculator</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<span class="n">calcu</span><span class="o">.</span><span class="n">cell_sizes</span> <span class="o">=</span> <span class="n">calcu</span><span class="o">.</span><span class="n">cell_sizes</span> <span class="o">/</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exact integral value                   = &#39;</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Numpy Integration with trapezoid rule  = &#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Numpy Integration with reactangle rule = &#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Pyforce Integration with 3D trick      = &#39;</span><span class="p">,</span> <span class="n">calcu</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">fun</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exact integral value                   =  2.1
+Numpy Integration with trapezoid rule  =  2.1000001800360044
+Numpy Integration with reactangle rule =  2.1009901800180018
+Pyforce Integration with 3D trick      =  2.1009901800180018
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Reading-and-post-processing-decomposed-OpenFOAM-data-with-pyforce">
+<h2>Reading and post-processing decomposed OpenFOAM data with <em>pyforce</em><a class="headerlink" href="#Reading-and-post-processing-decomposed-OpenFOAM-data-with-pyforce" title="Link to this heading"></a></h2>
+<p>This part demonstrates how to read and post-process decomposed OpenFOAM data using the <em>pyforce</em> library: in particular, we will read a decomposed case, reconstruct the data, and visualize it.</p>
+<p>Furthermore, we will show how to compute average values and fluctuations of a field over time.</p>
+<p>The class <code class="docutils literal notranslate"><span class="pre">ReadFromOF</span></code> from the module <code class="docutils literal notranslate"><span class="pre">pyforce.tools.write_read</span></code> allows reading OpenFOAM cases, including decomposed ones, by setting the parameter <code class="docutils literal notranslate"><span class="pre">decomposed_case=True</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.write_read</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadFromOF</span>
+
+<span class="n">of</span> <span class="o">=</span> <span class="n">ReadFromOF</span><span class="p">(</span><span class="s1">&#39;Datasets/channel395_OF11&#39;</span><span class="p">,</span> <span class="n">skip_zero_time</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">decomposed_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">of</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+
+<span class="n">pl</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Case Type decomposed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_24_1.png" src="../_images/Tutorials_00_first_steps_24_1.png" />
+</div>
+</div>
+<p>Let us import the velocity and pressure fields</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]</span>
+
+<span class="n">snaps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">times</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+    <span class="n">_snap</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">of</span><span class="o">.</span><span class="n">import_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">import_mode</span><span class="o">=</span><span class="s1">&#39;pyvista&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extract_cell_data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">snaps</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">_snap</span>
+    <span class="n">times</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Importing U using pyvista: 200.000 / 200.00 - 0.014501 s/it
+
+Importing p using pyvista: 200.000 / 200.00 - 0.011795 s/it
+
+</pre></div></div>
+</div>
+<p>Let us make in-notebook video of the slice at mid-depth of the channel over time</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">snap</span><span class="p">):</span>
+    <span class="n">grid</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snap</span>
+    <span class="n">_new_grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">()</span>
+    <span class="nb">slice</span> <span class="o">=</span> <span class="n">_new_grid</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">normal</span><span class="o">=</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.</span><span class="p">))</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">slice</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="nb">slice</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_output</span> <span class="k">as</span> <span class="n">clc</span>
+
+<span class="n">sampling</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampling</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]),</span> <span class="n">sampling</span><span class="p">):</span>
+
+    <span class="n">height_2_width_ratio</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">height_2_width_ratio</span><span class="p">))</span>
+
+    <span class="c1"># Velocity</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_sliced_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sc1</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Velocity magnitude $||\mathbf</span><span class="si">{u}</span><span class="s1">||$&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Pressure</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">][</span><span class="n">tt</span><span class="p">])</span>
+    <span class="n">sc2</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc2</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Pressure $p$&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Time = </span><span class="si">{</span><span class="n">times</span><span class="p">[</span><span class="s2">&quot;U&quot;</span><span class="p">][</span><span class="n">tt</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">clc</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_28_0.png" src="../_images/Tutorials_00_first_steps_28_0.png" />
+</div>
+</div>
+<section id="Mean-Field">
+<h3>Mean Field<a class="headerlink" href="#Mean-Field" title="Link to this heading"></a></h3>
+<p>The <em>fieldAverage</em> function object in OpenFOAM is used to compute the mean field <span class="math notranslate nohighlight">\(\overline{u}\)</span> in a cumulative way, achieving better accuracy over time. The mean field is calculated as:</p>
+<div class="math notranslate nohighlight">
+\[\overline{u}(t) = \frac{1}{t - t_0} \int_{t_0}^{t} u(\tau) d\tau\]</div>
+<p>where <span class="math notranslate nohighlight">\(t_0\)</span> is the start time for averaging. A discrete version of this equation is implemented in OpenFOAM using a uniform time step <span class="math notranslate nohighlight">\(\Delta t\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\overline{u}_n \approx \frac{1}{N_t} \sum_{k=1}^{N_t} u_k\]</div>
+<p>at time <span class="math notranslate nohighlight">\(t=t_n\)</span>, where <span class="math notranslate nohighlight">\(N_t\)</span> is the number of time steps from <span class="math notranslate nohighlight">\(t_0\)</span> to <span class="math notranslate nohighlight">\(t_n\)</span>.</p>
+<p>We want to investigate is the <em>a-posteriori</em> mean field computed using python and compare it with the mean field computed by OpenFOAM.</p>
+<p>Let us import the mean value at final time computed by OpenFOAM</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">umean_of</span> <span class="o">=</span> <span class="n">of</span><span class="o">.</span><span class="n">_import_with_pyvista</span><span class="p">(</span><span class="s1">&#39;UMean&#39;</span><span class="p">,</span> <span class="n">extract_cell_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time_instants</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">umean_python</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">height_2_width_ratio</span><span class="p">))</span>
+
+<span class="c1"># Velocity Mean OpenFOAM</span>
+<span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">umean_of</span><span class="p">)</span>
+<span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_sliced_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sc1</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">)</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Velocity Mean $\langle||\mathbf</span><span class="si">{u}</span><span class="s1">||\rangle$ - OpenFOAM&#39;</span><span class="p">)</span>
+
+<span class="c1"># Velocity Mean Python</span>
+<span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">umean_python</span><span class="p">)</span>
+<span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_sliced_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sc2</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">)</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc2</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Velocity Mean $\langle||\mathbf</span><span class="si">{u}</span><span class="s1">||\rangle$ - Python&#39;</span><span class="p">)</span>
+
+<span class="c1"># Residual</span>
+<span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">umean_of</span> <span class="o">-</span> <span class="n">umean_python</span><span class="p">)</span>
+<span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_sliced_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sc3</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc3</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Residual&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+<span class="n">grid</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">](</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">grid</span><span class="p">[</span><span class="s1">&#39;UMean_OF&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">umean_of</span>
+<span class="n">grid</span><span class="p">[</span><span class="s1">&#39;UMean_Python&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">umean_python</span>
+
+<span class="n">lines_x</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">line_grid</span> <span class="o">=</span> <span class="p">[</span><span class="n">grid</span><span class="o">.</span><span class="n">cell_data_to_point_data</span><span class="p">()</span><span class="o">.</span><span class="n">sample_over_line</span><span class="p">(</span><span class="n">pointa</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">pointb</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines_x</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines_x</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines_x</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axs</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;U&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;U&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;UMean_OF&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;g-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;UMean OF&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;Distance&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">line_grid</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;UMean_Python&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;UMean Python&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Velocity profiles at x=</span><span class="si">{</span><span class="n">lines_x</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Velocity magnitude $||\mathbf</span><span class="si">{u}</span><span class="s1">||$&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Importing UMean using pyvista: 1.000 / 1.00 - 0.000187 s/it
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_31_1.png" src="../_images/Tutorials_00_first_steps_31_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_31_2.png" src="../_images/Tutorials_00_first_steps_31_2.png" />
+</div>
+</div>
+</section>
+<section id="prime2Mean-Field---Variance-Field">
+<h3>prime2Mean Field - Variance Field<a class="headerlink" href="#prime2Mean-Field---Variance-Field" title="Link to this heading"></a></h3>
+<p>The <em>prime2MeanField</em> function object computes the variance field <span class="math notranslate nohighlight">\(\overline{u'u'}\)</span> based on the mean field <span class="math notranslate nohighlight">\(\overline{u}\)</span> calculated using <em>fieldAverage</em>. The variance field is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\overline{u'u'}(t) = \frac{1}{t - t_0} \int_{t_0}^{t} (u(\tau) - \overline{u}(\tau))^2 d\tau\]</div>
+<p>In discrete form, this is approximated as (unbiased estimator):</p>
+<div class="math notranslate nohighlight">
+\[\overline{u'u'}_n \approx \frac{1}{N_t-1} \sum_{k=1}^{N_t-1} (u_k - \overline{u}_k)^2\]</div>
+<p>at time <span class="math notranslate nohighlight">\(t=t_n\)</span>. This calculation relies on the mean field values at each time step to determine the fluctuations <span class="math notranslate nohighlight">\(u' = u - \overline{u}\)</span>.</p>
+<p>We want to investigate is the <em>a-posteriori</em> prime2mean field computed using python and compare it with the prime2mean field computed by OpenFOAM.</p>
+<p>In particular, the Welford’s method is used to compute the variance <span class="math notranslate nohighlight">\(\overline{u'u'}_n\)</span>, without storing all the snapshots in the memory. Two variables are protagonists of this method: <code class="docutils literal notranslate"><span class="pre">running_mean</span></code><span class="math notranslate nohighlight">\(\leftrightarrow\overline{u}_n\)</span> and <code class="docutils literal notranslate"><span class="pre">running_M2</span></code><span class="math notranslate nohighlight">\(\leftrightarrow M_{2,n}\)</span>, in which the former stores the mean value at each time step, while the latter accumulates the squared differences needed to compute the variance.</p>
+<ol class="arabic simple">
+<li><p>Calculation of the deviation from the old mean <span class="math notranslate nohighlight">\(\delta = u_n - \overline{u}_{n-1}\)</span>, current instantaneous velocity is from the current average history.</p></li>
+<li><p>Update the mean: <span class="math notranslate nohighlight">\(\overline{u}_n = \overline{u}_{n-1} + \delta/n\)</span>, clearly for <span class="math notranslate nohighlight">\(n\rightarrow +\infty\)</span> the correction term goes to zero and this obtain to <span class="math notranslate nohighlight">\(\overline{u}_n \approx \overline{u}_{n-1}\rightarrow\overline{u}\)</span>.</p></li>
+<li><p>Calculation of the deviation from the new mean <span class="math notranslate nohighlight">\(\delta_\dagger = u_n - \overline{u}_n\)</span>.</p></li>
+<li><p>Accumulate the squared differences: <span class="math notranslate nohighlight">\(M_{2,n} = M_{2,n-1} + \delta \cdot \delta_\dagger\)</span>.</p></li>
+<li><p>Estimate the variance: <span class="math notranslate nohighlight">\(\overline{u'u'}_n = M_{2,n}/(n-1)\)</span> (unbiased estimator, even though OpenFOAM uses <span class="math notranslate nohighlight">\(n\)</span> in the denominator but this approach is more statistically sound).</p></li>
+</ol>
+<p>Two implementations are provided: one using pure <code class="docutils literal notranslate"><span class="pre">numpy</span></code> operations, and another one using <code class="docutils literal notranslate"><span class="pre">torch</span></code> for GPU acceleration (<strong>not reported in the package requirements, if needed please install it separately</strong>).</p>
+<p><strong>Be aware</strong>: this implementation stores the prime2Mean quantities in memory, which could be an issue for very large datasets.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">welford_variance_torch</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sampling</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;mps&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">mps</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>
+
+    <span class="n">n_snaps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="p">)</span>
+    <span class="n">n_cells</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">/</span> <span class="n">gdim</span><span class="p">)</span>
+
+    <span class="c1"># Initialize running stats on GPU</span>
+    <span class="n">running_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">gdim</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">running_M2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">gdim</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Counter</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Output container (numpy on CPU)</span>
+    <span class="n">uprime2mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">int</span><span class="p">((</span><span class="n">n_snaps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sampling</span><span class="p">),</span> <span class="n">n_cells</span><span class="p">,</span> <span class="n">gdim</span><span class="p">))</span>
+
+    <span class="c1"># Loop through data one snapshot at a time</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">sampling</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_snaps</span><span class="p">,</span> <span class="n">sampling</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Welford Variance Calculation - Torch&#39;</span><span class="p">):</span>
+
+        <span class="c1"># Load ONLY the current snapshot to GPU</span>
+        <span class="n">u_new</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gdim</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 1. Delta from the OLD mean</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">u_new</span> <span class="o">-</span> <span class="n">running_mean</span>
+
+        <span class="c1"># 2. Update the mean</span>
+        <span class="n">running_mean</span> <span class="o">+=</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">count</span>
+
+        <span class="c1"># 3. Delta from the NEW mean</span>
+        <span class="n">delta_dagger</span> <span class="o">=</span> <span class="n">u_new</span> <span class="o">-</span> <span class="n">running_mean</span>
+
+        <span class="c1"># 4. Update Sum of Squares (M2)</span>
+        <span class="n">running_M2</span> <span class="o">+=</span> <span class="n">delta</span> <span class="o">*</span> <span class="n">delta_dagger</span>
+
+        <span class="c1"># 5. Calculate Variance (Prime2Mean) and Save</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">current_variance</span> <span class="o">=</span> <span class="n">running_M2</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">uprime2mean</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sampling</span><span class="p">),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">current_variance</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="c1"># Clean up GPU memory if needed</span>
+    <span class="k">del</span> <span class="n">running_mean</span><span class="p">,</span> <span class="n">running_M2</span><span class="p">,</span> <span class="n">u_new</span>
+    <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span><span class="p">:</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s1">&#39;mps&#39;</span><span class="p">:</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">mps</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">uprime2mean</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">welford_variance_numpy</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="p">:</span> <span class="n">FunctionsList</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sampling</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+    <span class="n">n_snaps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="p">)</span>
+    <span class="n">n_cells</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">velocity_snapshots</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">/</span> <span class="n">gdim</span><span class="p">)</span>
+
+    <span class="c1"># Initialize running stats</span>
+    <span class="n">running_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">gdim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">running_M2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">gdim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Counter</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Output container</span>
+    <span class="n">uprime2mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">int</span><span class="p">((</span><span class="n">n_snaps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sampling</span><span class="p">),</span> <span class="n">n_cells</span><span class="p">,</span> <span class="n">gdim</span><span class="p">))</span>
+
+    <span class="c1"># Loop through data one snapshot at a time</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">sampling</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_snaps</span><span class="p">,</span> <span class="n">sampling</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Welford Variance Calculation - Numpy&#39;</span><span class="p">):</span>
+
+        <span class="c1"># Load ONLY the current snapshot</span>
+        <span class="n">u_new</span> <span class="o">=</span> <span class="n">velocity_snapshots</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gdim</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 1. Delta from the OLD mean</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">u_new</span> <span class="o">-</span> <span class="n">running_mean</span>
+
+        <span class="c1"># 2. Update the mean</span>
+        <span class="n">running_mean</span> <span class="o">+=</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">count</span>
+
+        <span class="c1"># 3. Delta from the NEW mean</span>
+        <span class="n">delta_dagger</span> <span class="o">=</span> <span class="n">u_new</span> <span class="o">-</span> <span class="n">running_mean</span>
+
+        <span class="c1"># 4. Update Sum of Squares (M2)</span>
+        <span class="n">running_M2</span> <span class="o">+=</span> <span class="n">delta</span> <span class="o">*</span> <span class="n">delta_dagger</span>
+
+        <span class="c1"># 5. Calculate Variance (Prime2Mean) and Save</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">current_variance</span> <span class="o">=</span> <span class="n">running_M2</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">uprime2mean</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sampling</span><span class="p">),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">current_variance</span>
+
+    <span class="k">return</span> <span class="n">uprime2mean</span>
+
+<span class="n">uprime2mean_torch</span> <span class="o">=</span> <span class="n">welford_variance_torch</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">],</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">uprime2mean_numpy</span> <span class="o">=</span> <span class="n">welford_variance_numpy</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">],</span> <span class="n">gdim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Load UPrim2Mean from OpenFOAM for comparison</span>
+<span class="n">uprime2mean_of</span> <span class="o">=</span> <span class="n">of</span><span class="o">.</span><span class="n">_import_with_pyvista</span><span class="p">(</span><span class="s1">&#39;UPrime2Mean&#39;</span><span class="p">,</span> <span class="n">extract_cell_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time_instants</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Welford Variance Calculation - Torch: 100%|██████████| 200/200 [00:00&lt;00:00, 1264.55it/s]
+Welford Variance Calculation - Numpy: 100%|██████████| 200/200 [00:00&lt;00:00, 3637.68it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Importing UPrime2Mean using pyvista: 1.000 / 1.00 - 0.000015 s/it
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>Let us make some contour plots</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">height_2_width_ratio</span><span class="p">))</span>
+
+<span class="n">symmtensor_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+
+    <span class="c1"># UPrime2Mean OpenFOAM</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">uprime2mean_of</span><span class="p">[:,</span> <span class="n">symmtensor_idx</span><span class="p">[</span><span class="n">ii</span><span class="p">]])</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">_sliced_data</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">_sliced_data</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="n">sc1</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Fluctuation Mean $\langle u&quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; u&quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\\</span><span class="s2">rangle$ - OpenFOAM&quot;</span><span class="p">)</span>
+
+    <span class="c1"># UPrime2Mean Python - Numpy</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">uprime2mean_numpy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">])</span>
+    <span class="n">sc2</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc2</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Fluctuation Mean $\langle u&quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; u&quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\\</span><span class="s2">rangle$ - Python&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Residual - Numpy</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">uprime2mean_of</span><span class="p">[:,</span> <span class="n">symmtensor_idx</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span> <span class="o">-</span> <span class="n">uprime2mean_numpy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">])</span>
+    <span class="n">sc3</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc3</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual - Numpy&#39;</span><span class="p">)</span>
+
+    <span class="c1"># UPrime2Mean Python - Torch</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">uprime2mean_torch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">])</span>
+    <span class="n">sc4</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc4</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Fluctuation Mean $\langle u&quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; u&quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\\</span><span class="s2">rangle$ - Python Torch&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Residual - Torch</span>
+    <span class="n">_sliced_points</span><span class="p">,</span> <span class="n">_sliced_data</span> <span class="o">=</span> <span class="n">get_slice_data</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">uprime2mean_of</span><span class="p">[:,</span> <span class="n">symmtensor_idx</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span> <span class="o">-</span> <span class="n">uprime2mean_torch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">])</span>
+    <span class="n">sc5</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sliced_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_sliced_data</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc5</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Residual - Torch&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flat</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.075</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_36_0.png" src="../_images/Tutorials_00_first_steps_36_0.png" />
+</div>
+</div>
+<p>Let’s observe if the python solution converges to the OpenFOAM one as we increase the number of snapshots used in the calculation</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">uprime2mean_numpy</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Numpy&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">uprime2mean_torch</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;g--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Torch&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">uprime2mean_numpy</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">])],</span> <span class="n">uprime2mean_of</span><span class="p">[:,</span> <span class="n">symmtensor_idx</span><span class="p">[</span><span class="n">ii</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="s1">&#39;ko&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;OpenFOAM&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of snapshots&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\langle u_{&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;}</span><span class="se">\&#39;</span><span class="s1"> u_{&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;}</span><span class="se">\&#39;</span><span class="s1"> \rangle$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_38_0.png" src="../_images/Tutorials_00_first_steps_38_0.png" />
+</div>
+</div>
+</section>
+<section id="Energy-Spectrum-of-the-fluctuations">
+<h3>Energy Spectrum of the fluctuations<a class="headerlink" href="#Energy-Spectrum-of-the-fluctuations" title="Link to this heading"></a></h3>
+<p>This last section shows how to compute the energy spectrum of the velocity fluctuations from OpenFOAM data. OpenFOAM generally reasons with unstructured meshes, hence the Fourier Transform cannot be directly applied. To overcome this issue, we interpolate the velocity fluctuations onto a structured grid, and then compute the energy spectrum using the Fast Fourier Transform (FFT). Let <span class="math notranslate nohighlight">\(u'(\mathbf{x},t)\)</span> be the velocity fluctuations, the procedure is as follows:</p>
+<ol class="arabic simple">
+<li><p>Interpolate the velocity fluctuations onto a structured grid using <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> method called <code class="docutils literal notranslate"><span class="pre">sample</span></code>, embedded in the method <code class="docutils literal notranslate"><span class="pre">map2structuredgrid</span></code> of the <code class="docutils literal notranslate"><span class="pre">ComputeSpectrum</span></code> class.</p></li>
+<li><p>Compute the energy spectrum using FFT from <code class="docutils literal notranslate"><span class="pre">numpy.fft</span></code> module in the method <code class="docutils literal notranslate"><span class="pre">compute_spectrum</span></code> of the <code class="docutils literal notranslate"><span class="pre">ComputeSpectrum</span></code> class. The FFT is <span class="math notranslate nohighlight">\(\hat{u'}(\boldsymbol{\kappa},t) = \mathcal{F}\{u'(\mathbf{x},t)\}\)</span>, where <span class="math notranslate nohighlight">\(\boldsymbol{\kappa}\)</span> is the wavevector in Fourier space. The energy spectrum <span class="math notranslate nohighlight">\(E(k)\)</span> is then computed as: <span class="math">\begin{equation*}
+E(\boldsymbol{\kappa}) = \frac{1}{2} \sum_{i=x,y,z} \hat{u'}_i(\boldsymbol{\kappa},t)\cdot \hat{u'}_i^\dagger(\boldsymbol{\kappa},t) = \frac{1}{2} \sum_{i=x,y,z} |\hat{u'}_i(\boldsymbol{\kappa},t)|^2
+\end{equation*}</span> where <span class="math notranslate nohighlight">\(\dagger\)</span> denotes the complex conjugate.</p></li>
+<li><p>Define the wave number <span class="math notranslate nohighlight">\(\boldsymbol{\kappa} = 2\pi \cdot \boldsymbol{\xi} = \frac{2\pi}{\mathbf{L}} \cdot \mathbf{n}\)</span>, where <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span> is the spatial frequency vector, <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> is the physical length of the domain in each direction, and <span class="math notranslate nohighlight">\(\mathbf{n}\)</span> is the integer vector corresponding to the discrete frequencies obtained from FFT and the magnitude <span class="math notranslate nohighlight">\(\kappa = |\boldsymbol{\kappa}| = \sqrt{\kappa_x^2 + \kappa_y^2 + \kappa_z^2}\)</span> is computed.</p></li>
+<li><p><strong>Shell Integration</strong>: Kolmogorov theory assumes isotropy (direction doesn’t matter). We want to know how much energy exists at a size scale k, regardless of direction. We transform the 3D “cloud” of energy into a 1D line by summing everything in spherical shells.</p>
+<ol class="arabic simple">
+<li><p>At first, the shell of bin <span class="math notranslate nohighlight">\(\Delta\kappa\)</span> is defined as <span class="math notranslate nohighlight">\(\mathcal{S}_i = \{q | \kappa_i \leq |q| &lt; \kappa_{i+1}\}\)</span>, where <span class="math notranslate nohighlight">\(\kappa_i = i \cdot \Delta\kappa\)</span>.</p></li>
+<li><p>Summation (Discrete Integration): iterate through the bins and sums the energy of all modes that fall within each shell: <span class="math">\begin{equation*}
+E(\kappa_i) = \sum_{\boldsymbol{\kappa} \in \mathcal{S}_i} E(\boldsymbol{\kappa})
+\end{equation*}</span> This approximates the integral definition of the isotropic energy spectrum: <span class="math">\begin{equation*}
+E(\kappa) = \int_{\mathcal{S}_\kappa} E(\boldsymbol{\kappa}) d\sigma
+\end{equation*}</span> given the spherical shell <span class="math notranslate nohighlight">\(\mathcal{S}_\kappa = \{\boldsymbol{\kappa} \text{ such that } |\boldsymbol{\kappa}| = \kappa\}\)</span>.</p></li>
+</ol>
+</li>
+</ol>
+<p><a class="reference external" href="https://github.com/saadgroup/TurboGenPY">Reference Github repository for this section</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.fft</span><span class="w"> </span><span class="kn">import</span> <span class="n">fftn</span><span class="p">,</span> <span class="n">fftfreq</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ComputeSpectrum</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_mean</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span>
+                 <span class="n">N</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        u_mean: shape (Nh, 3)</span>
+<span class="sd">        grid: pyvista grid object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">umean</span> <span class="o">=</span> <span class="n">u_mean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span> <span class="c1"># PyVista grid object - unstructured</span>
+
+        <span class="c1"># Create structured grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nz</span> <span class="o">=</span> <span class="n">N</span>
+
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">bounds</span>
+
+        <span class="n">struct_grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">ImageData</span><span class="p">()</span>
+        <span class="n">struct_grid</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="p">)</span>
+        <span class="n">struct_grid</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">struct_grid</span><span class="o">.</span><span class="n">spacing</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">-</span><span class="n">bounds</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lx</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ly</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lz</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">-</span><span class="n">bounds</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">struct_grid</span> <span class="o">=</span> <span class="n">struct_grid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">map2structuredgrid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+
+        <span class="n">U_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_grid</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="c1"># PyVista/VTK often orders as Z-Y-X</span>
+        <span class="n">U_field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">U_field</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>  <span class="c1"># Now (Nx, Ny, Nz, 3) for FFT</span>
+
+        <span class="k">return</span> <span class="n">U_field</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+
+        <span class="n">U_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map2structuredgrid</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="n">U_fft</span> <span class="o">=</span> <span class="n">fftn</span><span class="p">(</span><span class="n">U_field</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># compute wave numbers</span>
+        <span class="n">kx</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_grid</span><span class="o">.</span><span class="n">spacing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">ky</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_grid</span><span class="o">.</span><span class="n">spacing</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">kz</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_grid</span><span class="o">.</span><span class="n">spacing</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="c1"># Compute energy spectrum</span>
+        <span class="n">E_spectrum</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">U_fft</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Sum over velocity components</span>
+
+        <span class="k">return</span> <span class="n">E_spectrum</span><span class="p">,</span> <span class="n">kx</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">kz</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">movingaverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">window_size</span><span class="p">):</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">window_size</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">window_size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="s1">&#39;same&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">smoothing_window</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="n">E_spectrum</span><span class="p">,</span> <span class="n">kx</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">kz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_spectrum</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="c1"># Build 3D mesh of wave numbers</span>
+        <span class="n">KX</span><span class="p">,</span> <span class="n">KY</span><span class="p">,</span> <span class="n">KZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">kx</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">kz</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+
+        <span class="n">k_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">KX</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">KY</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">KZ</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># |k|</span>
+        <span class="n">k_flat</span> <span class="o">=</span> <span class="n">k_mag</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">E_flat</span> <span class="o">=</span> <span class="n">E_spectrum</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="n">k_max</span> <span class="o">=</span> <span class="n">k_flat</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>  <span class="c1"># or ~min(Nx,Ny,Nz)/2</span>
+
+        <span class="c1"># Linearly spaced bins (log bins also possible)</span>
+        <span class="n">k_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k_max</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">)</span>
+
+        <span class="n">E_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">k_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_flat</span> <span class="o">&gt;=</span> <span class="n">k_bins</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">k_flat</span> <span class="o">&lt;</span> <span class="n">k_bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+                <span class="n">E_k</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_flat</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">k_center</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">k_bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">k_bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">smoothing_window</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># apply moving average to smooth the spectrum</span>
+            <span class="n">E_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">movingaverage</span><span class="p">(</span><span class="n">E_k</span><span class="p">,</span> <span class="n">smoothing_window</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">k_center</span><span class="p">,</span> <span class="n">E_k</span>
+
+<span class="n">generate_spectrum</span> <span class="o">=</span> <span class="n">ComputeSpectrum</span><span class="p">(</span><span class="n">umean_python</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">64</span><span class="p">))</span>
+<span class="n">k_center</span><span class="p">,</span> <span class="n">E_k</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="c1"># Compute spectra at last time step</span>
+<span class="n">u_fluct</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">](</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">umean_python</span>
+<span class="n">k_center</span><span class="p">,</span> <span class="n">E_k</span> <span class="o">=</span> <span class="n">generate_spectrum</span><span class="o">.</span><span class="n">build_spectrum</span><span class="p">(</span><span class="n">u_fluct</span><span class="p">,</span> <span class="n">smoothing_window</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k_center</span><span class="p">,</span> <span class="n">E_k</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Computed Spectrum&#39;</span><span class="p">)</span>
+
+<span class="c1"># Pick a constant so line overlaps your spectrum in inertial range</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">E_k</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">E_k</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">k_center</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">E_k</span><span class="p">)]</span><span class="o">**</span><span class="p">(</span><span class="mi">5</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span><span class="o">*</span><span class="mf">1.5</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k_center</span><span class="p">,</span> <span class="n">C</span> <span class="o">*</span> <span class="n">k_center</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="o">/</span><span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$k^{-5/3}$&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\log k$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\log E(k)$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_00_first_steps_40_0.png" src="../_images/Tutorials_00_first_steps_40_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorials.html" class="btn btn-neutral float-left" title="Basic Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="01_svd_methods.html" class="btn btn-neutral float-right" title="Introduction to ROM methods: SVD based techniques" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

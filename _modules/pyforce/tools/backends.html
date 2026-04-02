@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyforce.tools.backends &mdash; pyforce 0.1.0 documentation</title>
+  <title>pyforce.tools.backends &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -41,14 +41,24 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory.html">Theory and package structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Basic Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/pyforce.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 
         </div>
@@ -77,77 +87,90 @@
              
   <h1>Source code for pyforce.tools.backends</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Fundamental tools</span>
-<span class="c1"># Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano</span>
-<span class="c1"># Latest Code Update: 01 November 2024</span>
-<span class="c1"># Latest Doc  Update: 01 November 2024</span>
+<span class="c1"># Author: Stefano Riva, NRG, Politecnico di Milano</span>
+<span class="c1"># Latest Code Update: 01 April 2026</span>
+<span class="c1"># Latest Doc  Update: 07 October 2025</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dolfinx.fem</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">assemble_scalar</span><span class="p">,</span> <span class="n">assemble_vector</span><span class="p">,</span> <span class="n">assemble_matrix</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">Expression</span><span class="p">,</span> <span class="n">petsc</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ufl</span><span class="w"> </span><span class="kn">import</span> <span class="n">grad</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">Measure</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ufl.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_unique_domain</span>
-
-<span class="c1"># Class to compute norms in L2, H1 and L^\infty and the inner product in L2</span>
-<div class="viewcode-block" id="norms">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">norms</span><span class="p">():</span>
+<span class="c1"># This class is used to compute integrals and norms on a PyVista UnstructuredGrid.</span>
+<div class="viewcode-block" id="IntegralCalculator">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IntegralCalculator</span><span class="p">():</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A class to compute norms and inner products. :math:`L^2` and :math:`H^1` (semi and full are implemented for both scalar and vector fields), whereas the average and the integral are available for scalar only.</span>
+<span class="sd">    Class to compute integrals and norms on a PyVista UnstructuredGrid.</span>
+<span class="sd">    This class supports both 2D and 3D grids and computes cell sizes accordingly.</span>
+<span class="sd">    It provides methods to compute integrals, averages, :math:`L^1` norms, :math:`L^2` inner products, and :math:`L^2` norms.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : pv.UnstructuredGrid</span>
+<span class="sd">        The PyVista UnstructuredGrid on which the operations will be performed.</span>
+<span class="sd">    gdim : int, optional (Default = 3)</span>
+<span class="sd">        The geometric dimension of the grid. It can be either 2 or 3.</span>
+<span class="sd">        If set to 2, the area of the cells will be computed; if set to 3, the volume of the cells will be computed. </span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : pv.UnstructuredGrid</span>
+<span class="sd">        The PyVista UnstructuredGrid on which the operations will be performed.</span>
+<span class="sd">    gdim : int</span>
+<span class="sd">        The geometric dimension of the grid (2 or 3).</span>
+<span class="sd">    cell_sizes : np.ndarray</span>
+<span class="sd">        The sizes of the cells in the grid, computed as areas for 2D grids or volumes for 3D grids.</span>
+<span class="sd">    n_points : int</span>
+<span class="sd">        The number of points in the grid.</span>
+<span class="sd">    n_cells : int</span>
+<span class="sd">        The number of cells in the grid.    </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">UnstructuredGrid</span><span class="p">,</span> <span class="n">gdim</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="n">gdim</span>
+
+        <span class="k">if</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cell_sizes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">compute_cell_sizes</span><span class="p">()[</span><span class="s1">&#39;Area&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">gdim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cell_sizes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">compute_cell_sizes</span><span class="p">()[</span><span class="s1">&#39;Volume&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_sizes</span><span class="p">),</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The sum of cell sizes is zero, which is not valid. Check the gdim parameter for the adopted grid.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span>  <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">n_cells</span>
+        
+<div class="viewcode-block" id="IntegralCalculator.check_input">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator.check_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the input array u is valid for the grid.</span>
+<span class="sd">        It should have the same number of elements as the number of points or cells in the grid.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        V : FunctionSpace</span>
-<span class="sd">            Functional Space onto which the Function are defined.</span>
-<span class="sd">        is_H1 : boolean, optional (Default = False)</span>
-<span class="sd">            If the function belongs to :math:`H^1`, the forms for the inner products and norms are computed.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">is_H1</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">metadata_degree</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">u1</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">u2</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        
-        <span class="c1"># Deprecation warning in fenics-dolfinx=0.6.0 --&gt; try to correct this?</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span> 
-        
-        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;quadrature_degree&quot;</span><span class="p">:</span> <span class="n">metadata_degree</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">Measure</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">extract_unique_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
-
-        <span class="c1"># Definition of the variational forms</span>
-        <span class="k">if</span> <span class="n">V</span><span class="o">.</span><span class="n">num_sub_spaces</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if the functional space is related to a scalar function</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">integ_form</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> 
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">is_H1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">semiH1form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span> <span class="o">=</span> <span class="n">form</span><span class="p">(</span> <span class="p">(</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
-            
-<div class="viewcode-block" id="norms.check_input">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.check_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Check that the input is either a Function or a numpy array of the right shape.</span>
-<span class="sd">        If not, the code will probably produce an error.</span>
-
-<span class="sd">        This method is meant to be used internally.</span>
+<span class="sd">        u : np.ndarray</span>
+<span class="sd">            The input array to be checked.  </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
-            <span class="n">_u</span>  <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span>
+        
+        <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">point_data_to_cell_data</span><span class="p">()[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">u</span>
+        <span class="k">elif</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">:</span> <span class="c1"># does this work for any vector field?</span>
+            <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">_u</span> <span class="o">=</span> <span class="nb">input</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input array must have shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-        <span class="k">return</span> <span class="n">_u</span></div>
 
-    
-<div class="viewcode-block" id="norms.integral">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.integral">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+<div class="viewcode-block" id="IntegralCalculator.integral">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator.integral">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the integral of a given scalar function `u` over the domain</span>
 
 <span class="sd">        .. math::</span>
@@ -155,28 +178,26 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        u : `Function` (or `np.ndarray`)</span>
-<span class="sd">            Function belonging to the same functional space V (it must be a scalar!)</span>
-
+<span class="sd">        u : `np.ndarray`</span>
+<span class="sd">            Function belonging to the grid</span>
+<span class="sd">            </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        value : float</span>
 <span class="sd">            Integral over the domain</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="n">_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">_u</span>
-            
-        <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integ_form</span><span class="p">)</span>
-            
-        <span class="k">return</span> <span class="n">value</span></div>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># vector field</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_sizes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># scalar field</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_sizes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="norms.average">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.average">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
+    
+<div class="viewcode-block" id="IntegralCalculator.average">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator.average">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the integral average of a given **scalar** function `u` over the domain</span>
 
 <span class="sd">        .. math::</span>
@@ -184,181 +205,96 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        u : Function</span>
-<span class="sd">            Function belonging to the same functional space V (it must be a scalar!)</span>
+<span class="sd">        u : np.ndarray</span>
+<span class="sd">            Function belonging to the grid</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ave_value : float</span>
 <span class="sd">            Average over the domain</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-        
-        <span class="n">dom_fun</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">dom_fun</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">domain_norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">dom_fun</span><span class="p">)</span>
-        
-        <span class="n">ave_value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">domain_norm</span>
-        <span class="k">return</span> <span class="n">ave_value</span></div>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="norms.L2innerProd">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2innerProd">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">L2innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Computes the :math:`L^2` inner product of the functions `u` and `v` over the domain</span>
-
-<span class="sd">        .. math::</span>
-<span class="sd">            (u,v)_{L^2}=\int_\Omega u\cdot v \,d\Omega</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        u : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
-<span class="sd">        v : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        value : float</span>
-<span class="sd">            :math:`L^2` inner product between the functions</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-        <span class="n">_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">_u</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">_v</span>
-
-        <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2form_inner</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span></div>
-
-
-<div class="viewcode-block" id="norms.L2norm">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.L2norm">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">L2norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Computes the :math:`L^2` norm of the function `u` over the domain</span>
-
-<span class="sd">        .. math::</span>
-<span class="sd">            \| u\|_{L^2} = \sqrt{\int_\Omega u \cdot u\,d\Omega}</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        u : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        value : float</span>
-<span class="sd">            :math:`L^2` norm of the function</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2innerProd</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">u</span><span class="p">))</span>
-            
-        <span class="k">return</span> <span class="n">value</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_sizes</span><span class="p">)</span></div>
 
     
-                           
-<div class="viewcode-block" id="norms.H1innerProd">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1innerProd">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">H1innerProd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="IntegralCalculator.L1_norm">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator.L1_norm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">L1_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Computes the :math:`H^1` semi or full inner product of the functions `u` and `v` over the domain</span>
+<span class="sd">        Computes the :math:`L^1` norm of a function `u` over the domain</span>
 
 <span class="sd">        .. math::</span>
-<span class="sd">            \langle u, v \,\rangle_{H^1} = \int_\Omega \nabla u \cdot \nabla v\,d\Omega</span>
-
-<span class="sd">            </span>
-<span class="sd">        .. math::</span>
-<span class="sd">            (u,v)_{H^1} = \int_\Omega u\cdot v \,d\Omega + \int_\Omega \nabla u\cdot \nabla v \,d\Omega</span>
+<span class="sd">            \|u\|_{L^1}=\int_\Omega |u| \,d\Omega</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        u : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
-<span class="sd">        v : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
-<span class="sd">        semi : boolean, optional (Default = True)</span>
-<span class="sd">            Indicates if the semi norm must be computed.</span>
-<span class="sd">        </span>
+<span class="sd">        u : np.ndarray</span>
+<span class="sd">            Function belonging to the grid</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        value : float</span>
-<span class="sd">            :math:`H^1` inner product of the functions</span>
+<span class="sd">            :math:`L^1` norm of the function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 
-        <span class="n">_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-        <span class="n">_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">u1</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">_u</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">u2</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">_v</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">u</span><span class="p">))</span></div>
 
-        <span class="k">if</span> <span class="n">semi</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semiH1form_inner</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">assemble_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fullH1form_inner</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">value</span></div>
-
-                       
-<div class="viewcode-block" id="norms.H1norm">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.H1norm">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">H1norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">semi</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Computes the :math:`H^1` semi or full norm of the function `u` over the domain</span>
+<div class="viewcode-block" id="IntegralCalculator.L2_inner_product">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator.L2_inner_product">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">L2_inner_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the L2 inner product of two functions :math:`\left( u, v \right)` over the domain</span>
 
 <span class="sd">        .. math::</span>
-<span class="sd">            | u |_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega}</span>
-
-<span class="sd">            </span>
-<span class="sd">        .. math::</span>
-<span class="sd">            \| u \|_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega + \int_\Omega u \cdot  u\,d\Omega}</span>
+<span class="sd">            \left( u, v \right)_{L^2} = \int_\Omega u \cdot v \,d\Omega</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        u : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
-<span class="sd">        semi : boolean, optional (Default = True)</span>
-<span class="sd">            Indicates if the semi norm must be computed.</span>
-<span class="sd">        </span>
+<span class="sd">        u : np.ndarray</span>
+<span class="sd">            First function belonging to the grid.</span>
+<span class="sd">        v : np.ndarray</span>
+<span class="sd">            Second function belonging to the grid.  </span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        value : float</span>
-<span class="sd">            :math:`H^1` norm of the function</span>
+<span class="sd">        inner_product : float</span>
+<span class="sd">            The L2 inner product of the two functions.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
-        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">H1innerProd</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">u</span><span class="p">,</span> <span class="n">semi</span><span class="o">=</span><span class="n">semi</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">value</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span><span class="p">((</span><span class="n">u</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
 
     
-<div class="viewcode-block" id="norms.Linftynorm">
-<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.norms.Linftynorm">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">Linftynorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Function</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Computes the :math:`L^\infty` norm of a given function `u` over the domain</span>
+<div class="viewcode-block" id="IntegralCalculator.L2_norm">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.IntegralCalculator.L2_norm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">L2_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the :math:`L^2` norm of a function `u` over the domain</span>
 
 <span class="sd">        .. math::</span>
-<span class="sd">            \| u \|_{L^\infty}=\max\limits_\Omega |u|</span>
+<span class="sd">            \|u\|_{L^2}=\sqrt{\left( u, u \right)_{L^2}}</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        u : Function</span>
-<span class="sd">            Function belonging to the same functional space `V`</span>
+<span class="sd">        u : np.ndarray</span>
+<span class="sd">            Function belonging to the grid  </span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        value : float</span>
-<span class="sd">            :math:`L^\infty` norm of the function</span>
+<span class="sd">        norm : float</span>
+<span class="sd">            :math:`L^2` norm of the function </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-
-        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_u</span><span class="p">))</span>
-            
-        <span class="k">return</span> <span class="n">value</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L2_inner_product</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span></div>
 </div>
 
     
@@ -415,7 +351,7 @@
             <span class="n">printed_inst</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instant</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">final</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; / 100.00%&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">printed_inst</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instant</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; / </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;: &#39;</span><span class="o">+</span><span class="n">printed_inst</span> <span class="o">+</span> <span class="s1">&#39; - </span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">average_time</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s/it&#39;</span>
+        <span class="n">out</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;: &#39;</span><span class="o">+</span><span class="n">printed_inst</span> <span class="o">+</span> <span class="s1">&#39; - </span><span class="si">{:.6f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">average_time</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; s/it&#39;</span>
 
         <span class="c1"># Print output</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instant</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final</span><span class="p">):</span>
@@ -428,289 +364,43 @@
 </div>
 
 
-<span class="c1">########################################################################</span>
+<span class="c1"># Custom exception for Timer class</span>
+<div class="viewcode-block" id="TimerError">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.TimerError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A custom exception used to report errors in use of Timer class&quot;&quot;&quot;</span></div>
 
 
-<span class="c1"># # Class to compute norms in L2, H1 and L^\infty and the inner product in L2 - using FE representation</span>
-<span class="c1"># class np_norms():</span>
-<span class="c1">#     r&quot;&quot;&quot;</span>
-<span class="c1">#         A class to compute norms and inner products. </span>
-<span class="c1">#         :math:`L^2` and :math:`H^1` (semi and full are implemented for both scalar and vector fields), whereas the average and the integral are available for scalar only.</span>
-
-<span class="c1">#         Given the mesh :math:`T_h`, a proper basis is chosen for this domain :math:`\{\varphi_k(\boldsymbol{x})\}_{k=1}^{N_h}`, where N_h is the number of degrees of freedom.</span>
-<span class="c1">#         Any function can be represented as a linear combination of the basis functions:</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             u(\boldsymbol{x}) = \sum_{k=1}^{N_h} a_k \, \varphi_k(\boldsymbol{x})</span>
-
-<span class="c1">#         The class creates the mass matrix, assembled from the following bilinear form</span>
+<span class="c1"># This class is used to measure the time taken for a specific operation.</span>
+<div class="viewcode-block" id="Timer">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.Timer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Timer</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="kc">None</span>
         
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \mathbb{M}_{ij} = \int_\Omega \varphi_i\cdot \varphi_j \,d\Omega \qquad i,j = 1, \dots, N_h</span>
+<div class="viewcode-block" id="Timer.start">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.Timer.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start a new timer&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is running. Use .stop() to stop it&quot;</span><span class="p">)</span>
 
-<span class="c1">#         and the stiffness matrix, assembled from the following bilinear form:</span>
-        
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \mathbb{A}_{ij} = \int_\Omega \nabla\varphi_i\cdot \nabla\varphi_j \,d\Omega \qquad i,j = 1, \dots, N_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span></div>
 
-<span class="c1">#         and the &quot;right-hand side&quot; vector, assembled from the following linear form:</span>
 
-<span class="c1">#         .. math::</span>
-<span class="c1">#             L_{i} = \int_\Omega \varphi_i \,d\Omega \qquad i = 1, \dots, N_h</span>
+<div class="viewcode-block" id="Timer.stop">
+<a class="viewcode-back" href="../../../api/pyforce.tools.html#pyforce.tools.backends.Timer.stop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stop the timer, and report the elapsed time&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TimerError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timer is not running. Use .start() to start it&quot;</span><span class="p">)</span>
 
-<span class="c1">#         These matrices are used to compute the norms and inner products, reducing the computational cost.</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         V : FunctionSpace</span>
-<span class="c1">#             Functional Space onto which the Function are defined.</span>
+        <span class="k">return</span> <span class="n">elapsed_time</span></div>
+</div>
 
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     def __init__(self, V: FunctionSpace):</span>
-        
-<span class="c1">#         self.V = V</span>
-        
-<span class="c1">#         u = ufl.TrialFunction(V)</span>
-<span class="c1">#         v = ufl.TestFunction(V)</span>
-
-<span class="c1">#         # Assemble mass matrix int_Omega (u * v * dx)</span>
-<span class="c1">#         mass_form = ufl.inner(u, v) * ufl.dx</span>
-<span class="c1">#         mass_matrix = petsc.assemble_matrix(form(mass_form))</span>
-<span class="c1">#         mass_matrix.assemble()</span>
-
-<span class="c1">#         self.mass_matrix = np.asarray([mass_matrix.getColumnVector(ii).getArray() for ii in range(mass_matrix.size[0])])</span>
-
-<span class="c1">#         # Assemble stiffness matrix int_Omega (\nabla u * \nabla v * dx)</span>
-<span class="c1">#         stiff_form = ufl.inner(grad(u), grad(v)) * ufl.dx</span>
-<span class="c1">#         stiff_matrix = petsc.assemble_matrix(form(stiff_form))</span>
-<span class="c1">#         stiff_matrix.assemble()</span>
-
-<span class="c1">#         self.stiff_matrix = np.asarray([stiff_matrix.getColumnVector(ii).getArray() for ii in range(stiff_matrix.size[0])])</span>
-
-<span class="c1">#         # Assemble &quot;right-hand size&quot; vec int_Omega (u * dx)</span>
-<span class="c1">#         rhs_form = u * ufl.dx</span>
-<span class="c1">#         rhs_vec = petsc.assemble_vector(form(rhs_form))</span>
-<span class="c1">#         rhs_vec.assemble()</span>
-
-<span class="c1">#         self.rhs_vec = rhs_vec.getArray()</span>
-
-<span class="c1">#     def check_input(self, input):</span>
-<span class="c1">#         r&quot;&quot;&quot;</span>
-<span class="c1">#         Check that the input is either a Function or a numpy array of the right shape.</span>
-<span class="c1">#         If not, the code will probably produce an error.</span>
-
-<span class="c1">#         This method is meant to be used internally.</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         if isinstance(input, Function):</span>
-<span class="c1">#             _u  = input.x.array[:]</span>
-<span class="c1">#         else:</span>
-<span class="c1">#             _u = input</span>
-
-<span class="c1">#         return _u</span>
-
-<span class="c1">#     def L2innerProd(self, u: Function, v: Function):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the :math:`L^2` inner product of the functions `u` and `v` over the domain</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             (u,v)_{L^2}=\int_\Omega u\cdot v \,d\Omega</span>
-
-<span class="c1">#         Since :math:`u` and :math:`v` over the domain can be expressed as a linear combination of the basis functions, the inner product can be computed as:</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             (u,v)_{L^2} = \sum_{k=1}^{N_h} \sum_{l=1}^{N_h} a_u^k \cdot a_v^l \, \int_\Omega \varphi_k\cdot \varphi_l \,d\Omega = \boldsymbol{a}_u^T \cdot \mathbb{M} \cdot \boldsymbol{a}_v</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#              Function belonging to the same functional space `V`</span>
-<span class="c1">#         v : `Function` (or `np.ndarray`)</span>
-<span class="c1">#             Function belonging to the same functional space `V`</span>
-
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         value : float</span>
-<span class="c1">#             :math:`L^2` inner product between the functions</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         _u = self.check_input(u)</span>
-<span class="c1">#         _v = self.check_input(v)</span>
-
-<span class="c1">#         value = _u.T @ self.mass_matrix @ _v # np.linalg.multi_dot([_u.T, self.mass_matrix, _v])</span>
-<span class="c1">#         return value</span>
-    
-<span class="c1">#     def L2norm(self, u: Function):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the :math:`L^2` norm of the function `u` over the domain</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \|u\|_{L^2}=\sqrt{\int_\Omega u^2 \,d\Omega}</span>
-        
-<span class="c1">#         The norm is evaluated from the associated scalar product.</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#              Function belonging to the same functional space `V`</span>
-
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         value : float</span>
-<span class="c1">#             :math:`L^2` norm between the functions</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         _u = self.check_input(u)</span>
-
-<span class="c1">#         L2_inner_prod = self.L2innerProd(_u, _u)</span>
-<span class="c1">#         return np.sqrt(L2_inner_prod)</span>
-
-<span class="c1">#     def H1innerProd(self, u: Function, v: Function, semi = True):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the :math:`H^1` (semi or full) inner product of the functions `u` and `v` over the domain</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             ( u, v)_{H^1_{semi}} = \int_\Omega \nabla u \cdot \nabla v\,d\Omega</span>
-            
-<span class="c1">#         .. math::</span>
-<span class="c1">#             (u,v)_{H^1} = \int_\Omega u\cdot v \,d\Omega + \int_\Omega \nabla u\cdot \nabla v \,d\Omega</span>
-
-<span class="c1">#         Since :math:`u` and :math:`v` over the domain can be expressed as a linear combination of the basis functions, the inner product (semi for instance) can be computed as:</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             (u,v)_{H^1_{semi}} = \sum_{k=1}^{N_h} \sum_{l=1}^{N_h} a_u^k \cdot a_v^l \, \int_\Omega \nabla\varphi_k\cdot \nabla\varphi_l \,d\Omega = \boldsymbol{a}_u^T \cdot \mathbb{A} \cdot \boldsymbol{a}_v</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#              Function belonging to the same functional space `V`</span>
-<span class="c1">#         v : `Function` (or `np.ndarray`)</span>
-<span class="c1">#             Function belonging to the same functional space `V`</span>
-<span class="c1">#         semi : boolean, optional (Default = True)</span>
-<span class="c1">#             Indicates if the semi norm must be computed.</span>
-
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         value : float</span>
-<span class="c1">#             :math:`H^1` inner product of the functions</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         _u = self.check_input(u)</span>
-<span class="c1">#         _v = self.check_input(v)</span>
-
-<span class="c1">#         if semi:</span>
-<span class="c1">#             value = np.linalg.multi_dot([_u.T, self.stiff_matrix, _u])</span>
-<span class="c1">#         else:</span>
-<span class="c1">#             value = np.linalg.multi_dot([_u.T, self.stiff_matrix, _u]) + self.L2innerProd(_u, _v)</span>
-
-<span class="c1">#         return value</span>
-    
-<span class="c1">#     def H1norm(self, u: Function, semi = True):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the :math:`H^1` semi or full norm of the function `u` over the domain</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             | u |_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega}</span>
-
-            
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \| u \|_{H^1} = \sqrt{\int_\Omega \nabla u \cdot \nabla u\,d\Omega + \int_\Omega u \cdot  u\,d\Omega}</span>
-
-<span class="c1">#         The norm is evaluated from the associated scalar product.</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#              Function belonging to the same functional space `V`</span>
-<span class="c1">#         semi : boolean, optional (Default = True)</span>
-<span class="c1">#             Indicates if the semi norm must be computed.</span>
-        
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         value : float</span>
-<span class="c1">#             :math:`H^1` norm of the function</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         _u = self.check_input(u)</span>
-
-<span class="c1">#         H1_inner_prod = self.H1innerProd(_u, _u, semi=semi)</span>
-
-<span class="c1">#         return np.sqrt(H1_inner_prod)</span>
-    
-<span class="c1">#     def Linftynorm(self, u: Function):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the :math:`L^\infty` norm of a given function `u` over the domain</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \| u \|_{L^\infty}=\max\limits_\Omega |u|</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#             Function belonging to the same functional space `V`</span>
-
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         value : float</span>
-<span class="c1">#             :math:`L^\infty` norm of the function</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         _u = self.check_input(u)</span>
-
-<span class="c1">#         value = np.max(np.abs(_u))</span>
-            
-<span class="c1">#         return value</span>
-    
-<span class="c1">#     def integral(self, u: Function):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the integral of a given scalar function `u` over the domain, using the precomputed vector and the expansion of the function</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \int_\Omega u \,d\Omega = \sum_{k=1}^{N_h} a^k_u \cdot L_k = \boldsymbol{a}_u^T\cdot \boldsymbol{L}</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#             Function belonging to the same functional space V (it must be a scalar!)</span>
-
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         value : float</span>
-<span class="c1">#             Integral over the domain</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-        
-<span class="c1">#         assert self.V.num_sub_spaces == 0, &quot;Integral is only defined for scalar functions&quot;</span>
-<span class="c1">#         _u = self.check_input(u)</span>
-
-<span class="c1">#         value = _u.T @ self.rhs_vec</span>
-            
-<span class="c1">#         return value</span>
-
-<span class="c1">#     def average(self, u: Function):</span>
-<span class="c1">#         r&quot;&quot;&quot; </span>
-<span class="c1">#         Computes the integral average of a given **scalar** function `u` over the domain</span>
-
-<span class="c1">#         .. math::</span>
-<span class="c1">#             \langle u \rangle = \frac{1}{|\Omega|}\int_\Omega u \,d\Omega</span>
-
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         u : `Function` (or `np.ndarray`)</span>
-<span class="c1">#             Function belonging to the same functional space V (it must be a scalar!)</span>
-
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         ave_value : float</span>
-<span class="c1">#             Average over the domain</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-
-<span class="c1">#         one_function = Function(self.V)</span>
-<span class="c1">#         one_function.x.set(1.0)</span>
-<span class="c1">#         domain_integral = self.integral(one_function)</span>
-
-<span class="c1">#         value = self.integral(u) / domain_integral</span>
-
-<span class="c1">#         return value</span>
 </pre></div>
 
            </div>
@@ -720,7 +410,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

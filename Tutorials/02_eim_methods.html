@@ -1,0 +1,1327 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>(Generalised) Empirical Interpolation Method - (G)EIM &mdash; pyforce 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "tags": "ams", "useLabelIds": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sensor Placement algorithms and the Parameterised Background Data-Weak (PBDW) approach" href="03_sensor_placement.html" />
+    <link rel="prev" title="Introduction to ROM methods: SVD based techniques" href="01_svd_methods.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pyforce_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Welcome to <em>pyforce</em>’s documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">Migration Guide: v0.1.3 to v1.0+</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory and package structure</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Basic Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_first_steps.html">First Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_svd_methods.html">SVD Methods</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">(G)EIM Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Import-OpenFOAM-cases-from-npz-files">Import OpenFOAM cases from npz files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Offline-Phase">Offline Phase</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#EIM">EIM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GEIM">GEIM</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Online-Phase">Online Phase</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">EIM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">GEIM</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="03_sensor_placement.html">Sensor Placement and PBDW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../adv_tutorials.html">Advanced Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/pyforce.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Community Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyforce</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Basic Tutorials</a></li>
+      <li class="breadcrumb-item active">(Generalised) Empirical Interpolation Method - (G)EIM</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Tutorials/02_eim_methods.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="(Generalised)-Empirical-Interpolation-Method---(G)EIM">
+<h1>(Generalised) Empirical Interpolation Method - (G)EIM<a class="headerlink" href="#(Generalised)-Empirical-Interpolation-Method---(G)EIM" title="Link to this heading"></a></h1>
+<p>This notebook presents the basic applications of the (Generalised) Empirical Interpolation Method ((G)EIM) for the dimensionality reduction and sensor placement in fluid dynamics problems. The (G)EIM is a powerful technique that allows to approximate complex functions using a reduced number of basis functions and interpolation points, making it suitable for real-time simulations and monitoring applications.</p>
+<p>In this tutorial, you will learn:</p>
+<ul class="simple">
+<li><p>How to build <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> objects from spatio-temporal matrices of data.</p></li>
+<li><p>How to use the EIM and GEIM classes in <em>pyforce</em> to perform dimensionality reduction and sensor placement.</p></li>
+<li><p>How to reconstruct the field from sparse measurements using the EIM and GEIM methods.</p></li>
+</ul>
+<p>The data for this tutorial comes from a <a class="reference external" href="https://github.com/ERMETE-Lab/ROSE-ROM4FOAM">ROM4FOAM</a> tutorial, the Buoyant Cavity (see <a class="reference external" href="https://doi.org/10.1016/j.anucene.2022.109538">Introini et al. (2023)</a>). It is a steady-state simulation of a square cavity with a hot left wall and a cold right wall, leading to natural convection inside the cavity. The simulation is performed using OpenFOAM 2412: the results have been stored in an <code class="docutils literal notranslate"><span class="pre">npz</span></code> file.</p>
+<section id="Import-OpenFOAM-cases-from-npz-files">
+<h2>Import OpenFOAM cases from npz files<a class="headerlink" href="#Import-OpenFOAM-cases-from-npz-files" title="Link to this heading"></a></h2>
+<p>The data are parametric with respect to the Reynolds and Richardson number (Re and Ri, respectively). The snapshots of velocity, pressure and temperature are stored in an <code class="docutils literal notranslate"><span class="pre">npz</span></code> file, which can be easily loaded using the <code class="docutils literal notranslate"><span class="pre">numpy</span></code> library. Each variable is stored as a 2D array, where each column represents a snapshot at a given parameter value, and each row represents a spatial point in the domain.</p>
+<p><code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> objects can be built directly from these matrices, specifying the spatial coordinates of the points in the domain.</p>
+<p>Among the available variables, we will focus on the temperature field, which is generally easier to measure.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;Datasets/BuoyantCavity_OF2412/buoyant_cavity.npz&#39;</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">parameters</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+
+<span class="n">field</span> <span class="o">=</span> <span class="s1">&#39;T&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionsList</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">FunctionsList</span><span class="p">(</span><span class="n">snap_matrix</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">-</span> <span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let us also extract the grid needed by <em>pyforce</em> using the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> method, to make a plot of the snapshots</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;Datasets/BuoyantCavity_OF2412/mesh_cavity.vtk&#39;</span><span class="p">)</span>
+<span class="n">grid</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table style='width: 100%;'>
+<tr><th>UnstructuredGrid</th><th>Information</th></tr>
+<tr><td>N Cells</td><td>16384</td></tr>
+<tr><td>N Points</td><td>33282</td></tr>
+<tr><td>X Bounds</td><td>0.000e+00, 1.000e+00</td></tr>
+<tr><td>Y Bounds</td><td>0.000e+00, 1.000e+00</td></tr>
+<tr><td>Z Bounds</td><td>0.000e+00, 1.000e-01</td></tr>
+<tr><td>N Arrays</td><td>0</td></tr>
+</table></div>
+</div>
+<p>Let us make a plot of the snapshots</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># dataset.plot_sequence(grid, sampling = 2, title=field+&#39; id = &#39;, title_size=15, resolution=[700,600], cmap=&#39;jet&#39;, varname=field)</span>
+</pre></div>
+</div>
+</div>
+<p>Before delving into the different techniques, let us split the data into train and test.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.tools.functions_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">train_params</span><span class="p">,</span> <span class="n">test_params</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Offline-Phase">
+<h2>Offline Phase<a class="headerlink" href="#Offline-Phase" title="Link to this heading"></a></h2>
+<p>As already mentioned in the previous tutorial, ROM methods are typically divided into an offline and an online phase. The offline phase is the most computationally expensive, as it involves the construction of the reduced basis and the selection of the interpolation points. However, this phase is performed only once, and the results can be reused for multiple online simulations.</p>
+<p>The (G)EIM techniques are based on a greedy algorithm that iteratively selects the most informative basis functions and interpolation points/sensors: this latter information is very interesting, as it can be used to place sensors in the most informative locations of the domain to ensure an optimal state reconstruction.</p>
+<p>We will focus on both the EIM and GEIM methods: the main difference lies in the fact that the former considers pointwise measurements, while the latter can handle more general linear functionals, such as averages over a small region or directional derivatives.</p>
+<section id="EIM">
+<h3>EIM<a class="headerlink" href="#EIM" title="Link to this heading"></a></h3>
+<p>This method allows to select interpolation points and build a reduced basis using pointwise measurements of the field. Even though it was originally developed for hyper-reduction in the context of reduced order models, it can be effectively used for sensor placement and field reconstruction.</p>
+<p>The initialization of the class requires the grid and the variable name, while the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method takes as input a <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object containing the snapshots used for the offline phase. The maximum number of basis functions/interpolation points can be specified using the <code class="docutils literal notranslate"><span class="pre">Mmax</span></code> parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.eim</span><span class="w"> </span><span class="kn">import</span> <span class="n">EIM</span> <span class="k">as</span> <span class="n">OfflineEIM</span>
+
+<span class="n">eim_offline</span> <span class="o">=</span> <span class="n">OfflineEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+<span class="n">max_abs_err</span><span class="p">,</span> <span class="n">beta_coeffs</span> <span class="o">=</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">Mmax</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+                                           <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># optional</span>
+                                           <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  Iteration 050 | Abs Err (Linfty): 2.96e-03 - EIM done
+</pre></div></div>
+</div>
+<p>The error of the interpolation procedure of the EIM is connected to the Lebesgue constant, which is a measure of the stability and accuracy of the interpolation. The class provides a method to compute the Lebesgue constant, which can be useful to assess the quality of the interpolation: the higher the Lebesgue constant, the more unstable the interpolation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lebesgue_eim</span> <span class="o">=</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">compute_lebesgue_constant</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Let us make a plot of the error decay, the Lebesgue constant and the magic points during the greedy procedure.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="n">Mplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_abs_err</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">max_abs_err</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Max absolute error&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">lebesgue_eim</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Lebesgue constant&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="n">_magic_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_points</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">])[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">_magic_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_magic_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_magic_points</span><span class="p">):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Magic points&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">grid</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_18_0.png" src="../_images/Tutorials_02_eim_methods_18_0.png" />
+</div>
+</div>
+<p>Let us plot also the first 10 magic functions, using <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mf">3.5</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+    <span class="n">_mf</span> <span class="o">=</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_mf</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Magic function </span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_20_0.png" src="../_images/Tutorials_02_eim_methods_20_0.png" />
+</div>
+</div>
+<p>Let us make also a 3D surface plot of the reduced coefficients <span class="math notranslate nohighlight">\(\beta_m\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>  <span class="c1"># needed for 3D plots</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;projection&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">})</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">train_params</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">train_params</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">beta_coeffs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Coefficient $</span><span class="se">\\</span><span class="s1">beta_</span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_22_0.png" src="../_images/Tutorials_02_eim_methods_22_0.png" />
+</div>
+</div>
+<p>Let us also visualise the matrix <span class="math notranslate nohighlight">\(B\)</span> of the EIM, which is a lower triangular matrix with ones on the diagonal and all the entries are between -1 and 1.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">eim_offline</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Matrix B of the EIM&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Columns&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Rows&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x177a63b20&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_24_1.png" src="../_images/Tutorials_02_eim_methods_24_1.png" />
+</div>
+</div>
+<p>The class also provides a method to store the results of the greedy procedure: the magic functions and the magic sensors. The method <code class="docutils literal notranslate"><span class="pre">save</span></code> can be used to save the results in a specified folder, exploiting the method <code class="docutils literal notranslate"><span class="pre">store</span></code> of <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">path_res</span> <span class="o">=</span> <span class="s1">&#39;Results/02/OfflineEIM/&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_res</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">eim_offline</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path_res</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="GEIM">
+<h3>GEIM<a class="headerlink" href="#GEIM" title="Link to this heading"></a></h3>
+<p>The GEIM method is a generalization of the EIM, which allows to use more general linear functionals as measurements. This is particularly useful in practical applications, where pointwise measurements may not be available or feasible.</p>
+<p>The initialization and fitting of the GEIM class is similar to the EIM, with the addition of the <code class="docutils literal notranslate"><span class="pre">sensors_type</span></code> parameter, which specifies the type of linear functionals to be used. <strong>At the moment, three classes of functionals are implemented:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gaussian</span></code>: Gaussians centered with a given point spread:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{K}(\mathbf{x}) = \exp\left(-\frac{(\mathbf{x}-\mathbf{x}_m)^2}{2s^2}\right)\]</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Exponential</span></code>: Exponentials centered with a given point spread:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{K}(\mathbf{x}) = \exp\left(-\frac{|\mathbf{x}-\mathbf{x}_m|}{s}\right)\]</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IndicatorFunction</span></code>: Indicator functions over a circular region of given radius:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathcal{K}(\mathbf{x}) = \begin{cases} 1 &amp; \text{if } |\mathbf{x}-\mathbf{x}_m|_2 \leq r\\ 0 &amp; \text{otherwise} \end{cases}\end{split}\]</div>
+</li>
+</ul>
+<p><strong>Note</strong>: this class works only for scalar fields, at the moment.</p>
+<p>The most natural choice are Gaussian kernels, as specified in <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0307904X24003196">Riva et al. (2024)</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span>
+
+<span class="n">geim_offline</span> <span class="o">=</span> <span class="n">GEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">sensors_type</span><span class="o">=</span><span class="s1">&#39;Gaussian&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">fit</span></code> method takes as input a <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object containing the snapshots used for the offline phase. The maximum number of basis functions/interpolation points can be specified using the <code class="docutils literal notranslate"><span class="pre">Mmax</span></code> parameter. In addition, according to the chosen <code class="docutils literal notranslate"><span class="pre">sensors_type</span></code>, a dictionary of parameters must be provided, containing:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code>: the spread of the kernels (for <code class="docutils literal notranslate"><span class="pre">Gaussian</span></code> and <code class="docutils literal notranslate"><span class="pre">Exponential</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code>: the radius of the circular region (for <code class="docutils literal notranslate"><span class="pre">IndicatorFunction</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xm_list</span></code>: a list of possible centers for the kernels (for all types) - optional, if not provided the centers will be chosen among the grid points</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sens_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span> <span class="c1"># spread of the Gaussian kernels - hyperparameter to be tuned according to the physical system</span>
+    <span class="s1">&#39;xm_list&#39;</span><span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span><span class="p">[::</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1"># optional (sampling every 10 points to speed up the process)</span>
+<span class="p">}</span>
+
+<span class="n">max_abs_err</span><span class="p">,</span> <span class="n">max_rel_err</span><span class="p">,</span> <span class="n">train_beta_geim_coeffs</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span>
+                                                                        <span class="n">Mmax</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+                                                                        <span class="n">sensor_params</span><span class="o">=</span><span class="n">sens_params</span><span class="p">,</span>
+                                                                        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># optional</span>
+                                                                    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Creating Gaussian Sensor Library: 100.000 / 100.00% - 0.000229 s/it
+GEIM Iteration 50/50 - MaxAbsErr: 2.3079e-04 - MaxRelErr: 1.1654e-03
+</pre></div></div>
+</div>
+<p>Also in this case, the error of the interpolation procedure of the GEIM is connected to the Lebesgue constant, which is a measure of the stability and accuracy of the interpolation. The class provides a method to compute the Lebesgue constant, which can be useful to assess the quality of the interpolation: the higher the Lebesgue constant, the more unstable the interpolation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">leb</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">compute_lebesgue_constant</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing orthonormal basis: 50.000 / 50.00 - 0.002905 s/it
+Computing Lebesgue constant: 18.000 / 50.00 - 0.002856 s/it
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/offline/geim.py:478: RuntimeWarning: divide by zero encountered in matmul
+  _eigvals = np.linalg.eigvals(_A.T @ _A)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/offline/geim.py:478: RuntimeWarning: overflow encountered in matmul
+  _eigvals = np.linalg.eigvals(_A.T @ _A)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/offline/geim.py:478: RuntimeWarning: invalid value encountered in matmul
+  _eigvals = np.linalg.eigvals(_A.T @ _A)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing Lebesgue constant: 50.000 / 50.00 - 0.018374 s/it
+</pre></div></div>
+</div>
+<p>Let us make a plot of the error decay and the Lebesgue constant.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="n">Mplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_abs_err</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">max_abs_err</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Maximum Absolute Error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">max_rel_err</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Maximum Relative Error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">leb</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Lebesgue constant&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_34_0.png" src="../_images/Tutorials_02_eim_methods_34_0.png" />
+</div>
+</div>
+<p>The general form of the linear functionals used as sensors is:</p>
+<div class="math notranslate nohighlight">
+\[v(u) = \int_\Omega \mathcal{K}(\mathbf{x}) u(\mathbf{x}) d\mathbf{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{K}(\mathbf{x})\)</span> is the kernel function, which can be a Gaussian, an Exponential or an Indicator function. In this context, there exist the Riesz representation of the functional in the Hilbert space <span class="math notranslate nohighlight">\(\mathcal{H}\)</span>, which is the function <span class="math notranslate nohighlight">\(g(\mathbf{x})\)</span> such that:</p>
+<div class="math notranslate nohighlight">
+\[v(\psi) = \left(\psi, g\right)_{\mathcal{H}} \qquad \forall \psi \in \mathcal{H}\]</div>
+<p>At the moment, the Hilbert space is assumed to be <span class="math notranslate nohighlight">\(L^2\)</span>, so that the Riesz representation is simply the kernel function itself. In this way, it is possible to visualize the sensors in terms of their Riesz representation.</p>
+<p>The class provides a method to plot the Riesz representation of the first <code class="docutils literal notranslate"><span class="pre">M</span></code> sensors, cumulated:</p>
+<div class="math notranslate nohighlight">
+\[G(\mathbf{x}) = \sum_{m=1}^M \frac{g_m(\mathbf{x})}{\max |g_m|}\]</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">plot_sensors</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">fontsize_sens</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fig_length</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                                <span class="n">color_sens</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_36_0.png" src="../_images/Tutorials_02_eim_methods_36_0.png" />
+</div>
+</div>
+<p>Let us plot also the first 10 magic functions, using <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mf">3.5</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">))</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+    <span class="n">_mf</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_mf</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Magic function </span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_38_0.png" src="../_images/Tutorials_02_eim_methods_38_0.png" />
+</div>
+</div>
+<p>Let us make a plot of the reduced coefficients <span class="math notranslate nohighlight">\(\beta_m\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>  <span class="c1"># needed for 3D plots</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;projection&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">})</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">train_params</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">train_params</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">train_beta_geim_coeffs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Coefficient $</span><span class="se">\\</span><span class="s1">beta_</span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_40_0.png" src="../_images/Tutorials_02_eim_methods_40_0.png" />
+</div>
+</div>
+<p>Let us also visualise the matrix <span class="math notranslate nohighlight">\(B\)</span> of the GEIM, which is a lower triangular matrix with ones on the diagonal and all the entries are between -1 and 1.fig = plt.figure(figsize=(6,5))</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">geim_offline</span><span class="o">.</span><span class="n">matrix_B</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Matrix B of the GEIM&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Columns&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Rows&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x16b198c10&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_42_1.png" src="../_images/Tutorials_02_eim_methods_42_1.png" />
+</div>
+</div>
+<p>It is then possible to store the results of the greedy procedure: the magic functions and the magic sensors. The method <code class="docutils literal notranslate"><span class="pre">save</span></code> can be used to save the results in a specified folder, exploiting the method <code class="docutils literal notranslate"><span class="pre">store</span></code> of <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">path_res</span> <span class="o">=</span> <span class="s1">&#39;Results/02/OfflineGEIM/&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_res</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">geim_offline</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path_res</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Online-Phase">
+<h2>Online Phase<a class="headerlink" href="#Online-Phase" title="Link to this heading"></a></h2>
+<p>The online phase is the most computationally efficient, as it involves only the calculation of the reduced coefficients and the reconstruction of the high-dimensional field from sparse measurements. This phase can be performed in real-time, making it suitable for monitoring applications.</p>
+<p>In this section, we will show how to use the EIM and GEIM classes to perform the online phase, using the results of the offline phase: in particular, the reconstruction capabilities, the influence of noise in the measurements and the effect of regularization techniques.</p>
+<section id="id1">
+<h3>EIM<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Estimation with EIM can be done by solving the linear system for the reduced coefficients <span class="math notranslate nohighlight">\(\{\beta_m\}_{m=1}^M\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{B}\boldsymbol{\beta} = \mathbf{y}\]</div>
+<p>in which the measurement vector <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is given by the pointwise measurements of the field at the interpolation points, i.e. <span class="math notranslate nohighlight">\(y_m = u(x_m)\)</span>.</p>
+<p>The class <code class="docutils literal notranslate"><span class="pre">EIM</span></code> within the <code class="docutils literal notranslate"><span class="pre">online</span></code> module can be used: the initialization requires the grid and optionally the variable name.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.eim</span><span class="w"> </span><span class="kn">import</span> <span class="n">EIM</span> <span class="k">as</span> <span class="n">OnlineEIM</span>
+
+<span class="n">eim_online</span> <span class="o">=</span> <span class="n">OnlineEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The class needs the user to provide the magic functions through the <code class="docutils literal notranslate"><span class="pre">set_basis</span></code> method, which can be either loaded directly or read from a folder where they have been stored. Similarly, the interpolation points can be provided using the <code class="docutils literal notranslate"><span class="pre">set_magic_points</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># eim_online.set_basis(path_folder=&#39;Results/02/OfflineEIM/&#39;)</span>
+<span class="n">eim_online</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">basis</span> <span class="o">=</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+
+<span class="c1"># eim_online.set_magic_points(path_folder=&#39;Results/02/OfflineEIM/&#39;)</span>
+<span class="n">eim_online</span><span class="o">.</span><span class="n">set_magic_points</span><span class="p">(</span><span class="n">magic_points</span> <span class="o">=</span> <span class="n">eim_offline</span><span class="o">.</span><span class="n">magic_points</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Once these information have been provided, the matrix <span class="math notranslate nohighlight">\(B\)</span> can be computed using the <code class="docutils literal notranslate"><span class="pre">compute_B_matrix</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eim_online</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Let us observe how the reconstruction error decays with the number of sensors, using the test set.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">res_eim_online_noiseless</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">Mplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Errors&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Measurements&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                 <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">_ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;State Estimation&#39;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                 <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">res_eim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">_line</span><span class="p">,</span> <span class="n">_label</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+<span class="n">_tmp</span> <span class="o">=</span> <span class="n">_ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+<span class="n">_line</span> <span class="o">+=</span> <span class="n">_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">_label</span> <span class="o">+=</span> <span class="n">_tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">_line</span><span class="p">,</span> <span class="n">_label</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean absolute error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean relative error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Computational Costs (CPU time in seconds)&#39;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Computational Costs (CPU time in seconds)&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors - T: 50.000 / 50.00 - 0.007324 s/it
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_53_1.png" src="../_images/Tutorials_02_eim_methods_53_1.png" />
+</div>
+</div>
+<p>For real-world applications, the measurements are often corrupted by noise <span class="math notranslate nohighlight">\(y_m = u(x_m) + \epsilon_m\)</span>, where <span class="math notranslate nohighlight">\(\epsilon_m\)</span> is a random noise term. The class provides the possibility to add Gaussian noise to the measurements when estimating the fields: we will observe how the relative reconstruction error is affected by different levels of noise.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors_eim_online_sensitivity_noise</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">noise_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="n">noise_values</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computing errors with noise level: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">res_eim_online</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">errors_eim_online_sensitivity_noise</span><span class="p">[</span><span class="n">noise</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_eim_online</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="n">noise_values</span><span class="p">:</span>
+    <span class="n">axs</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">errors_eim_online_sensitivity_noise</span><span class="p">[</span><span class="n">noise</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Noise std: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean relative error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors with noise level: 0.0
+Computing errors with noise level: 0.001
+Computing errors with noise level: 0.01
+Computing errors with noise level: 0.025
+Computing errors with noise level: 0.05
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x3208c97b0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_55_2.png" src="../_images/Tutorials_02_eim_methods_55_2.png" />
+</div>
+</div>
+<p>It can be observed that there is a strong degradation of the performance and instability of the reconstruction process is observed. Following the work of <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0045782522007290">Introini et al. (2023)</a>, a possible solution is to use Tikhonov regularization to stabilize the solution of the linear system as follows</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{B}^T\mathbb{B}\boldsymbol{\beta} + \lambda \mathbb{T}\boldsymbol{\beta} = \mathbb{B}^T\mathbf{y} + \lambda \mathbb{B}^T \langle \boldsymbol{\beta} \rangle\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbb{T}\)</span> is a regularization matrix (related to the standard deviation of <span class="math notranslate nohighlight">\(\boldsymbol{\beta}\)</span> from the training set), <span class="math notranslate nohighlight">\(\lambda\)</span> is the regularization parameter and <span class="math notranslate nohighlight">\(\langle \boldsymbol{\beta} \rangle\)</span> is the mean of the reduced coefficients over the training set.</p>
+<p>For uncostrained problems, the regularisation parameters <span class="math notranslate nohighlight">\(\lambda\)</span> has an optimal value at <span class="math notranslate nohighlight">\(\sigma^2\)</span>, where <span class="math notranslate nohighlight">\(\sigma^2\)</span> is the variance of the noise. The matrix <span class="math notranslate nohighlight">\(\mathbb{T}\)</span> and the mean of the coefficients can be computed using the <code class="docutils literal notranslate"><span class="pre">set_tikhonov_matrices</span></code> method, which requires as input either the training coefficients or the training snapshots (in this case, the training coefficients will be computed internally).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">compute_errors</span></code> method of the class allows to specify the type of regularization and the corresponding parameters through the <code class="docutils literal notranslate"><span class="pre">regularization_params</span></code> dictionary: required entries are the <code class="docutils literal notranslate"><span class="pre">type</span></code> (currently only <code class="docutils literal notranslate"><span class="pre">tikhonov</span></code> is implemented) and the <code class="docutils literal notranslate"><span class="pre">lambda</span></code> parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># eim_online.set_tikhonov_matrices(train_beta_geim_coeffs)</span>
+<span class="n">eim_online</span><span class="o">.</span><span class="n">set_tikhonov_matrices</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="n">errors_eim_online_sensitivity_tikhonov</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">noise_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="n">noise_values</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computing errors with noise level with regularisation: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">res_eim_online</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">regularization_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">noise</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+    <span class="n">errors_eim_online_sensitivity_tikhonov</span><span class="p">[</span><span class="n">noise</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_eim_online</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise_values</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise_values</span><span class="p">),</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">noise</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">noise_values</span><span class="p">):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">errors_eim_online_sensitivity_noise</span><span class="p">[</span><span class="n">noise</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;No regularization&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">errors_eim_online_sensitivity_tikhonov</span><span class="p">[</span><span class="n">noise</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Tikhonov&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Noise std: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean relative error&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors with noise level with regularisation: 0.0
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:287: RuntimeWarning: divide by zero encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:287: RuntimeWarning: overflow encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:287: RuntimeWarning: invalid value encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:286: RuntimeWarning: divide by zero encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:286: RuntimeWarning: overflow encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:286: RuntimeWarning: invalid value encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors with noise level with regularisation: 0.001
+Computing errors with noise level with regularisation: 0.01
+Computing errors with noise level with regularisation: 0.025
+Computing errors with noise level with regularisation: 0.05
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_57_3.png" src="../_images/Tutorials_02_eim_methods_57_3.png" />
+</div>
+</div>
+<p>Let us observe how the estimation is affected by the use of Tikhonov regularization.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noise_test</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">M_test</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">measures</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise_test</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M_test</span><span class="p">)</span>
+<span class="n">recons_noise</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="n">M_test</span><span class="p">)</span>
+<span class="n">recons_tikhonov</span> <span class="o">=</span> <span class="n">eim_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="n">M_test</span><span class="p">,</span> <span class="n">regularization_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">noise_test</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">test_dataset</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recons_noise</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recons_tikhonov</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">recons_noise</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">recons_tikhonov</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;True field&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Reconstruction with noise&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Reconstruction with Tikhonov regularization&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Residual with noise&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Residual with Tikhonov regularization&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;Residual with Tikhonov regularization&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_59_1.png" src="../_images/Tutorials_02_eim_methods_59_1.png" />
+</div>
+</div>
+</section>
+<section id="id2">
+<h3>GEIM<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>The estimation with GEIM is very similar to the EIM, as it involves solving the same linear system for the reduced coefficients <span class="math notranslate nohighlight">\(\{\beta_m\}_{m=1}^M\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{B}\boldsymbol{\beta} = \mathbf{y}\]</div>
+<p>in which the measurement vector <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is given by the linear functionals of the field at the sensor locations, i.e. <span class="math notranslate nohighlight">\(y_m = v_m(u)\)</span>. The class <code class="docutils literal notranslate"><span class="pre">GEIM</span></code> within the <code class="docutils literal notranslate"><span class="pre">online</span></code> module can be used: the initialization requires the grid and optionally the variable name.</p>
+<p>The same analysis performed for the EIM can be done for the GEIM.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span> <span class="k">as</span> <span class="n">OnlineGEIM</span>
+
+<span class="n">geim_online</span> <span class="o">=</span> <span class="n">OnlineGEIM</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The class needs the user to provide the magic functions through the <code class="docutils literal notranslate"><span class="pre">set_basis</span></code> method, which can be either loaded directly or read from a folder where they have been stored. Similarly, the interpolation points can be provided using the <code class="docutils literal notranslate"><span class="pre">set_magic_points</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># geim_online.set_basis(path_folder=&#39;Results/02/OfflineGEIM/&#39;)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_basis</span><span class="p">(</span><span class="n">basis</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_functions</span><span class="p">)</span>
+
+<span class="c1"># geim_online.set_magic_sensors(path_folder=&#39;Results/02/OfflineGEIM/&#39;)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_magic_sensors</span><span class="p">(</span><span class="n">sensors</span> <span class="o">=</span> <span class="n">geim_offline</span><span class="o">.</span><span class="n">magic_sensors</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Once these information have been provided, the matrix <span class="math notranslate nohighlight">\(B\)</span> can be computed using the <code class="docutils literal notranslate"><span class="pre">compute_B_matrix</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_online</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Let us observe how the reconstruction error decays with the number of sensors, using the test set.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">res_geim_online_noiseless</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">Mplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Errors&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Errors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">_ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;State Estimation&#39;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                 <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;StateEstimation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Measurements&#39;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                 <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">res_geim_online_noiseless</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Measures&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+
+<span class="n">_line</span><span class="p">,</span> <span class="n">_label</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+<span class="n">_tmp</span> <span class="o">=</span> <span class="n">_ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+<span class="n">_line</span> <span class="o">+=</span> <span class="n">_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">_label</span> <span class="o">+=</span> <span class="n">_tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">_line</span><span class="p">,</span> <span class="n">_label</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean absolute error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean relative error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Computational Costs (CPU time in seconds)&#39;</span><span class="p">)</span>
+<span class="n">_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Computational Costs (CPU time in seconds)&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors - T: 50.000 / 50.00 - 0.033059 s/it
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_67_1.png" src="../_images/Tutorials_02_eim_methods_67_1.png" />
+</div>
+</div>
+<p>For real-world applications, the measurements are often corrupted by noise <span class="math notranslate nohighlight">\(y_m = u(x_m) + \epsilon_m\)</span>, where <span class="math notranslate nohighlight">\(\epsilon_m\)</span> is a random noise term. The class provides the possibility to add Gaussian noise to the measurements when estimating the fields: we will observe how the relative reconstruction error is affected by different levels of noise.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors_geim_online_sensitivity_noise</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">noise_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="n">noise_values</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computing errors with noise level: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">res_geim_online</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">errors_geim_online_sensitivity_noise</span><span class="p">[</span><span class="n">noise</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_geim_online</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="n">noise_values</span><span class="p">:</span>
+    <span class="n">axs</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">errors_geim_online_sensitivity_noise</span><span class="p">[</span><span class="n">noise</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Noise std: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean relative error&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors with noise level: 0.0
+Computing errors with noise level: 0.001
+Computing errors with noise level: 0.01
+Computing errors with noise level: 0.025
+Computing errors with noise level: 0.05
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x321577fd0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_69_2.png" src="../_images/Tutorials_02_eim_methods_69_2.png" />
+</div>
+</div>
+<p>It can be observed that there is an even stronger degradation of the performance and instability of the reconstruction process is observed. Following the work of <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0045782522007290">Introini et al. (2023)</a>, a possible solution is to use Tikhonov regularization to stabilize the solution of the linear system as before.</p>
+<p>For uncostrained problems, the regularisation parameters <span class="math notranslate nohighlight">\(\lambda\)</span> has an optimal value at <span class="math notranslate nohighlight">\(\sigma^2\)</span>, where <span class="math notranslate nohighlight">\(\sigma^2\)</span> is the variance of the noise. The matrix <span class="math notranslate nohighlight">\(\mathbb{T}\)</span> and the mean of the coefficients can be computed using the <code class="docutils literal notranslate"><span class="pre">set_tikhonov_matrices</span></code> method, which requires as input either the training coefficients or the training snapshots (in this case, the training coefficients will be computed internally).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">compute_errors</span></code> method of the class allows to specify the type of regularization and the corresponding parameters through the <code class="docutils literal notranslate"><span class="pre">regularization_params</span></code> dictionary: required entries are the <code class="docutils literal notranslate"><span class="pre">type</span></code> (currently only <code class="docutils literal notranslate"><span class="pre">tikhonov</span></code> is implemented) and the <code class="docutils literal notranslate"><span class="pre">lambda</span></code> parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># geim_online.set_tikhonov_matrices(train_beta_geim_coeffs)</span>
+<span class="n">geim_online</span><span class="o">.</span><span class="n">set_tikhonov_matrices</span><span class="p">(</span><span class="n">train_snaps</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="n">errors_geim_online_sensitivity_tikhonov</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">noise_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="n">noise_values</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computing errors with noise level with regularisation: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">res_geim_online</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">compute_errors</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">Mmax</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">regularization_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">noise</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+    <span class="n">errors_geim_online_sensitivity_tikhonov</span><span class="p">[</span><span class="n">noise</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_geim_online</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise_values</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">noise_values</span><span class="p">),</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">noise</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">noise_values</span><span class="p">):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">errors_geim_online_sensitivity_noise</span><span class="p">[</span><span class="n">noise</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;No regularization&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">Mplot</span><span class="p">,</span> <span class="n">errors_geim_online_sensitivity_tikhonov</span><span class="p">[</span><span class="n">noise</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Tikhonov&#39;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Noise std: </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of sensors&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mean relative error&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors with noise level with regularisation: 0.0
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:303: RuntimeWarning: divide by zero encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:303: RuntimeWarning: overflow encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:303: RuntimeWarning: invalid value encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:302: RuntimeWarning: divide by zero encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:302: RuntimeWarning: overflow encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:302: RuntimeWarning: invalid value encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Computing errors with noise level with regularisation: 0.001
+Computing errors with noise level with regularisation: 0.01
+Computing errors with noise level with regularisation: 0.025
+Computing errors with noise level with regularisation: 0.05
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_71_3.png" src="../_images/Tutorials_02_eim_methods_71_3.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noise_test</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">M_test</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">measures</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">get_measurements</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">noise_std</span><span class="o">=</span><span class="n">noise_test</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M_test</span><span class="p">)</span>
+<span class="n">recons_noise</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">measures</span><span class="p">)</span>
+<span class="n">recons_tikhonov</span> <span class="o">=</span> <span class="n">geim_online</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">measures</span><span class="p">,</span> <span class="n">regularization_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;tikhonov&#39;</span><span class="p">,</span> <span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">noise_test</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">cell_centers</span><span class="p">()</span><span class="o">.</span><span class="n">points</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">test_dataset</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recons_noise</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">recons_tikhonov</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">recons_noise</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tricontourf</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">recons_tikhonov</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">levels</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;True field&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Reconstruction with noise&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Reconstruction with Tikhonov regularization&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Residual with noise&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Residual with Tikhonov regularization&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:302: RuntimeWarning: divide by zero encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:302: RuntimeWarning: overflow encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:302: RuntimeWarning: invalid value encountered in matmul
+  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:303: RuntimeWarning: divide by zero encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:303: RuntimeWarning: overflow encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/geim.py:303: RuntimeWarning: invalid value encountered in matmul
+  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;Residual with Tikhonov regularization&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorials_02_eim_methods_72_2.png" src="../_images/Tutorials_02_eim_methods_72_2.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="01_svd_methods.html" class="btn btn-neutral float-left" title="Introduction to ROM methods: SVD based techniques" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="03_sensor_placement.html" class="btn btn-neutral float-right" title="Sensor Placement algorithms and the Parameterised Background Data-Weak (PBDW) approach" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Stefano Riva, Carolina Introini, Antonio Cammi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
