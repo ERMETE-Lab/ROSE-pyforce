@@ -1,6 +1,6 @@
 # Online Phase: Proper Orthogonal Decomposition
-# Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 07 October 2025
+# Author: Stefano Riva, NRG, Politecnico di Milano
+# Latest Code Update: 01 April 2026
 # Latest Doc  Update: 07 October 2025
 
 import numpy as np
@@ -75,8 +75,8 @@ class POD(OnlineDDROM):
             An instance of `FunctionsList` containing the estimated state.
         """
 
-        assert coeffs.shape[0] <= len(self.basis), "The number of coefficients must be less than or equal to the number of POD modes."
         coeffs = np.atleast_2d(coeffs)
+        assert coeffs.shape[0] <= len(self.basis), "The number of coefficients must be less than or equal to the number of POD modes."
 
         estimation = FunctionsList(self.basis.fun_shape)
 
@@ -224,22 +224,13 @@ class POD(OnlineDDROM):
         else:
             raise TypeError("Input must be a FunctionsList or a numpy ndarray.")
         
-        Nmax = len(coeff_model.models)
-
-        abs_err = np.zeros((Ns, Nmax))
-        rel_err = np.zeros((Ns, Nmax))
-
-        # Variables to store computational time
-        computational_time = dict()
-        computational_time['StateEstimation'] = np.zeros((Ns, Nmax))
-        computational_time['Errors']          = np.zeros((Ns, Nmax))
-
         timer = Timer()
 
         if verbose:
             print(f"Computing L2 norm of snapshot", end='\r')
 
         _snap_norm = list()
+        _comput_time_norms = list()
         for mu_i in range(Ns):
 
             timer.start()
@@ -247,12 +238,25 @@ class POD(OnlineDDROM):
                 self.calculator.L2_norm(snaps[:, mu_i])
             )
             
-            computational_time['Errors'][mu_i, :] = timer.stop()
+            _comput_time_norms.append(timer.stop())
         
+        # Predict the coefficients using the surrogate model
+        timer.start()
+        estimated_coeffs = coeff_model.predict(input_vector) # output shape (N, Ns)
+        Nmax = estimated_coeffs.shape[0]
+        comput_time_coeffs = timer.stop() / Ns # Average time per sample for coefficient prediction
+
+        # Initialize arrays to store errors
+        abs_err = np.zeros((Ns, Nmax))
+        rel_err = np.zeros((Ns, Nmax))
+
+        # Variables to store computational time
+        computational_time = dict()
+        computational_time['StateEstimation'] = np.zeros((Ns, Nmax)) + comput_time_coeffs
+        computational_time['Errors']          = np.zeros((Ns, Nmax)) + np.array(_comput_time_norms).reshape(-1, 1)
+
         if verbose: 
             progressBar = LoopProgress(msg = f"Computing errors (POD-I) - {self.varname}", final = Nmax)
-
-        estimated_coeffs = coeff_model.predict(input_vector)
 
         for nn in range(Nmax):
 

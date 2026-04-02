@@ -27,19 +27,6 @@ def test_standard_scaler_basic_fit(sample_data):
     assert np.allclose(scaler._mean, mat.mean(axis=1))
     assert np.allclose(scaler._std, mat.std(axis=1))
 
-# ---------------------------------------------------------------------
-# --- StandardScaler tests --------------------------------------------
-# ---------------------------------------------------------------------
-def test_standard_scaler_basic_fit(sample_data):
-    scaler = StandardScaler()
-    scaler.fit(sample_data)
-
-    # Expected means and stds (feature-wise)
-    mat = sample_data.return_matrix()
-    assert np.allclose(scaler._mean, mat.mean(axis=1))
-    assert np.allclose(scaler._std, mat.std(axis=1))
-
-
 def test_standard_scaler_transform_inverse(sample_data):
     scaler = StandardScaler()
     scaler.fit(sample_data)

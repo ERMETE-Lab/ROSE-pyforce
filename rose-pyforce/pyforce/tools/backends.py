@@ -1,6 +1,6 @@
 # Fundamental tools
-# Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 07 October 2025
+# Author: Stefano Riva, NRG, Politecnico di Milano
+# Latest Code Update: 01 April 2026
 # Latest Doc  Update: 07 October 2025
 
 import pyvista as pv
@@ -139,7 +139,6 @@ class IntegralCalculator():
         u = self.check_input(u)
 
         return self.integral(np.abs(u))
-
 
     def L2_inner_product(self, u, v):
         r"""

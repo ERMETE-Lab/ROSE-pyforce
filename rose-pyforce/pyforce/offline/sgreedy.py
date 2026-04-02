@@ -1,5 +1,5 @@
 # Offline Phase: sensors classes
-# Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
+# Author: Stefano Riva, NRG, Politecnico di Milano
 # Latest Code Update: 07 October 2025
 # Latest Doc  Update: 07 October 2025
 
@@ -16,7 +16,6 @@ from .sensors import GaussianSensorLibrary, ExponentialSensorLibrary, IndicatorF
 class SGREEDY():
     r"""
     A class to place sensors using the SGREEDY algorithm in order to maximize the information contained in the update space spanned by the Riesz representation of sensors.
-    
 
     The algorithm is described in the work of `Haik et al. (2023) <https://www.sciencedirect.com/science/article/pii/S0045782522008246>`_.
 
@@ -180,7 +179,7 @@ class SGREEDY():
             # Approximation loop
             _available_nodes = np.array(self.sensors_library.xm_list)
 
-            while mm <= Mmax:
+            while mm < Mmax:
 
                 min_xdofs = np.zeros((len(_available_nodes),))
                 for ii, _node in enumerate(_available_nodes):
