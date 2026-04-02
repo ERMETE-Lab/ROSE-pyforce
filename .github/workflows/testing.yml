@@ -25,28 +25,18 @@ jobs:
         auto-update-conda: true
         python-version: "3.10"
         channels: conda-forge
-        use-mamba: true  # Optional: to speed up the environment solving
+        use-mamba: true 
 
     - name: Create Conda environment
       run: |
-        conda env create -f pyforce/environment.yml
+        pip install rose-pyforce/
 
     - name: Activate Conda environment
       run: |
-        conda activate pyforce-env
-        python -m pip install pytest
-        python -m pip install pyforce/
+        pip install pytest
       shell: bash -l {0}
 
-    # - name: Lint with flake8
-    #   run: |
-    #     # stop the build if there are Python syntax errors or undefined names
-    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-    #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        conda init
-        conda activate pyforce-env
         pytest
       shell: bash -l {0}
