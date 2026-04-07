@@ -3,10 +3,6 @@
 # Latest Code Update: 24 March 2026
 # Latest Doc  Update: 24 March 2026
 
-# These two might be removed cause it would force user to have OpenFOAM installed
-import subprocess
-from pathlib import Path
-
 from typing import Union, List
 
 from .functions_list import FunctionsList
@@ -160,9 +156,12 @@ class ReadFromOF():
             List of time directories in the OpenFOAM case, sorted in time, and skipping zero time if needed.
         """
 
+        base_path = self.path if not self.decomposed_case else os.path.join(self.path, 'processor0')
+        
         file_list = [
-            f for f in os.listdir(self.path) 
-            if os.path.isdir(os.path.join(self.path, f)) and f.replace('.', '', 1).isdigit()
+            f for f in os.listdir(base_path)
+            if os.path.isdir(os.path.join(base_path, f))
+            and f.replace('.', '', 1).isdigit()
         ]
 
         # Sort numerically

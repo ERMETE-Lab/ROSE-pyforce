@@ -1,5 +1,5 @@
 # Online Phase: Failing sensors
-# Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
+# Author: Stefano Riva, NRG, Politecnico di Milano
 # Latest Code Update: 24 October 2025
 # Latest Doc  Update: 24 October 2025
 

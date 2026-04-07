@@ -1,5 +1,5 @@
 # Online Phase: Parameterised Background Data-Weak (PBDW) Method - including regularized version
-# Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
+# Author: Stefano Riva, NRG, Politecnico di Milano
 # Latest Code Update: 07 October 2025
 # Latest Doc  Update: 07 October 2025
 

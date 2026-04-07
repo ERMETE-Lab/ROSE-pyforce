@@ -58,7 +58,7 @@ python -m pip install rose-pyforce/
 Once the repository has been cloned, you can directly install the dependencies by creating a new conda environment using the provided `environment.yml` file:
 
 ```bash
-conda env create -f pyforce/environment.yml
+conda env create -f rose-pyforce/environment.yml
 conda activate pyforce-env
 ```
 

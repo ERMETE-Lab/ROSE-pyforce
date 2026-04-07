@@ -1,6 +1,6 @@
 # Scaling functions for the pyforce library.
-# Author: Stefano Riva, PhD Student, NRG, Politecnico di Milano
-# Latest Code Update: 07 October 2025
+# Author: Stefano Riva, NRG, Politecnico di Milano
+# Latest Code Update: 01 April 2026
 # Latest Doc  Update: 07 October 2025
 
 from .functions_list import FunctionsList
@@ -86,7 +86,7 @@ class StandardScaler(ScalerWrapper):
         else:
             self._mean = train_X.mean(axis=1)
             if self.with_std:
-                if train_X.return_matrix().std(axis=1).any() == 0:
+                if (train_X.return_matrix().std(axis=1) == 0).any():
                     raise ValueError("Standard deviation is zero for some features. Cannot scale to unit variance.")
                 else:
                     self._std = train_X.std(axis=1)
@@ -129,7 +129,7 @@ class StandardScaler(ScalerWrapper):
         
         for ii in range(len(X)):
             _new_X.append(
-                X(ii) * (self._std if self.with_std+1e-12 else 1) + self._mean
+                X(ii) * (self._std+1e-12 if self.with_std else 1) + self._mean
             )
 
         return _new_X

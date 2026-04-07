@@ -1,0 +1,57 @@
+name: Docs Deployment
+
+on:
+  push:
+    branches:
+      - main
+    # Only trigger if files in these directories change
+    paths:
+      - 'rose-pyforce/pyforce/**'
+      - 'docs/**'
+      - 'rose-pyforce/pyproject.toml'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install the local package
+          pip install ./rose-pyforce
+          # Install your specific Sphinx ecosystem
+          pip install sphinx myst-parser nbsphinx sphinx-proof \
+                      sphinxcontrib-bibtex==2.5.0 ipython \
+                      sphinx-rtd-theme pydata-sphinx-theme sphinx-book-theme
+
+      - name: Generate API Docs
+        run: |
+          cd docs/
+          # Run your exact script logic
+          sphinx-apidoc -force -o ./api/ ../rose-pyforce/pyforce
+          # Remove modules.rst as per your script
+          rm -f api/modules.rst
+          # Note: If you need to "Recall to change the maxdepth", 
+          # consider using a 'sed' command here to automate that edit.
+          # sed -i 's/:maxdepth: 4/:maxdepth: 2/g' api/pyforce.rst
+          
+      - name: Sphinx Build
+        run: |
+          cd docs/
+          make html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/_build/html
+          # This will automatically push to your gh-pages branch
+          force_orphan: false

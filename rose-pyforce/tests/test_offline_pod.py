@@ -376,7 +376,7 @@ def test_isvd_reconstruction_quality(grid, split_data):
     Relative error on batch 2 should be low after updating with batch 2.
     """
     model = IncrementalSVD(grid=grid, gdim=3)
-    rank = 3
+    rank = 2
     
     # 1. Fit on Batch 1
     model.fit(split_data["batch1"], rank=rank)
