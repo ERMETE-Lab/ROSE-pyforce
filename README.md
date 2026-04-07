@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://steriva.github.io/ROSE-pyforce/intro.html">
+  <a href="https://ermete-lab.github.io/ROSE-pyforce/intro.html">
     <img src="https://img.shields.io/badge/Docs-Read%20the%20Docs-green?style=flat&logo=readthedocs&logoColor=white" alt="Docs">
   </a>
   <a href="https://doi.org/10.5281/zenodo.19451328">
