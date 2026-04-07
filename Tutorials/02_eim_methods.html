@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>(Generalised) Empirical Interpolation Method - (G)EIM &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
   
@@ -359,7 +359,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.colorbar.Colorbar at 0x177a63b20&gt;
+&lt;matplotlib.colorbar.Colorbar at 0x330b530a0&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -441,7 +441,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Creating Gaussian Sensor Library: 100.000 / 100.00% - 0.000229 s/it
+Creating Gaussian Sensor Library: 100.000 / 100.00% - 0.000262 s/it
 GEIM Iteration 50/50 - MaxAbsErr: 2.3079e-04 - MaxRelErr: 1.1654e-03
 </pre></div></div>
 </div>
@@ -454,34 +454,13 @@ GEIM Iteration 50/50 - MaxAbsErr: 2.3079e-04 - MaxRelErr: 1.1654e-03
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Computing orthonormal basis: 50.000 / 50.00 - 0.002905 s/it
-Computing Lebesgue constant: 18.000 / 50.00 - 0.002856 s/it
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/offline/geim.py:478: RuntimeWarning: divide by zero encountered in matmul
-  _eigvals = np.linalg.eigvals(_A.T @ _A)
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/offline/geim.py:478: RuntimeWarning: overflow encountered in matmul
-  _eigvals = np.linalg.eigvals(_A.T @ _A)
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/offline/geim.py:478: RuntimeWarning: invalid value encountered in matmul
-  _eigvals = np.linalg.eigvals(_A.T @ _A)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Computing Lebesgue constant: 50.000 / 50.00 - 0.018374 s/it
+Computing orthonormal basis: 50.000 / 50.00 - 0.003218 s/it
+Computing Lebesgue constant: 50.000 / 50.00 - 0.022169 s/it
 </pre></div></div>
 </div>
 <p>Let us make a plot of the error decay and the Lebesgue constant.</p>
@@ -632,7 +611,7 @@ Computing Lebesgue constant: 50.000 / 50.00 - 0.018374 s/it
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.colorbar.Colorbar at 0x16b198c10&gt;
+&lt;matplotlib.colorbar.Colorbar at 0x335428d00&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -702,7 +681,7 @@ Computing Lebesgue constant: 50.000 / 50.00 - 0.018374 s/it
 </div>
 <p>Let us observe how the reconstruction error decays with the number of sensors, using the test set.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
@@ -753,7 +732,7 @@ Computing Lebesgue constant: 50.000 / 50.00 - 0.018374 s/it
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Computing errors - T: 50.000 / 50.00 - 0.007324 s/it
+Computing errors - T: 50.000 / 50.00 - 0.008388 s/it
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -765,7 +744,7 @@ Computing errors - T: 50.000 / 50.00 - 0.007324 s/it
 </div>
 <p>For real-world applications, the measurements are often corrupted by noise <span class="math notranslate nohighlight">\(y_m = u(x_m) + \epsilon_m\)</span>, where <span class="math notranslate nohighlight">\(\epsilon_m\)</span> is a random noise term. The class provides the possibility to add Gaussian noise to the measurements when estimating the fields: we will observe how the relative reconstruction error is affected by different levels of noise.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">errors_eim_online_sensitivity_noise</span> <span class="o">=</span> <span class="p">{}</span>
@@ -804,12 +783,12 @@ Computing errors with noise level: 0.05
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x3208c97b0&gt;
+&lt;matplotlib.legend.Legend at 0x3307a5720&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -826,7 +805,7 @@ Computing errors with noise level: 0.05
 <p>For uncostrained problems, the regularisation parameters <span class="math notranslate nohighlight">\(\lambda\)</span> has an optimal value at <span class="math notranslate nohighlight">\(\sigma^2\)</span>, where <span class="math notranslate nohighlight">\(\sigma^2\)</span> is the variance of the noise. The matrix <span class="math notranslate nohighlight">\(\mathbb{T}\)</span> and the mean of the coefficients can be computed using the <code class="docutils literal notranslate"><span class="pre">set_tikhonov_matrices</span></code> method, which requires as input either the training coefficients or the training snapshots (in this case, the training coefficients will be computed internally).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">compute_errors</span></code> method of the class allows to specify the type of regularization and the corresponding parameters through the <code class="docutils literal notranslate"><span class="pre">regularization_params</span></code> dictionary: required entries are the <code class="docutils literal notranslate"><span class="pre">type</span></code> (currently only <code class="docutils literal notranslate"><span class="pre">tikhonov</span></code> is implemented) and the <code class="docutils literal notranslate"><span class="pre">lambda</span></code> parameter.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># eim_online.set_tikhonov_matrices(train_beta_geim_coeffs)</span>
@@ -866,32 +845,6 @@ Computing errors with noise level: 0.05
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Computing errors with noise level with regularisation: 0.0
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:287: RuntimeWarning: divide by zero encountered in matmul
-  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:287: RuntimeWarning: overflow encountered in matmul
-  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:287: RuntimeWarning: invalid value encountered in matmul
-  rhs = _B.T @ measures[:_m] + lambda_reg * (_T.T @ _T @ _beta_mean[:, np.newaxis])
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:286: RuntimeWarning: divide by zero encountered in matmul
-  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:286: RuntimeWarning: overflow encountered in matmul
-  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
-/Users/sriva/miniconda3/envs/pyforce-env/lib/python3.10/site-packages/pyforce/online/eim.py:286: RuntimeWarning: invalid value encountered in matmul
-  A = _B.T @ _B + lambda_reg * (_T.T @ _T)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
 Computing errors with noise level with regularisation: 0.001
 Computing errors with noise level with regularisation: 0.01
 Computing errors with noise level with regularisation: 0.025
@@ -902,12 +855,12 @@ Computing errors with noise level with regularisation: 0.05
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Tutorials_02_eim_methods_57_3.png" src="../_images/Tutorials_02_eim_methods_57_3.png" />
+<img alt="../_images/Tutorials_02_eim_methods_57_1.png" src="../_images/Tutorials_02_eim_methods_57_1.png" />
 </div>
 </div>
 <p>Let us observe how the estimation is affected by the use of Tikhonov regularization.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noise_test</span> <span class="o">=</span> <span class="mf">0.02</span>
@@ -952,7 +905,7 @@ Computing errors with noise level with regularisation: 0.05
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -976,7 +929,7 @@ Text(0.5, 1.0, &#39;Residual with Tikhonov regularization&#39;)
 <p>in which the measurement vector <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is given by the linear functionals of the field at the sensor locations, i.e. <span class="math notranslate nohighlight">\(y_m = v_m(u)\)</span>. The class <code class="docutils literal notranslate"><span class="pre">GEIM</span></code> within the <code class="docutils literal notranslate"><span class="pre">online</span></code> module can be used: the initialization requires the grid and optionally the variable name.</p>
 <p>The same analysis performed for the EIM can be done for the GEIM.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.geim</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEIM</span> <span class="k">as</span> <span class="n">OnlineGEIM</span>
@@ -987,7 +940,7 @@ Text(0.5, 1.0, &#39;Residual with Tikhonov regularization&#39;)
 </div>
 <p>The class needs the user to provide the magic functions through the <code class="docutils literal notranslate"><span class="pre">set_basis</span></code> method, which can be either loaded directly or read from a folder where they have been stored. Similarly, the interpolation points can be provided using the <code class="docutils literal notranslate"><span class="pre">set_magic_points</span></code> method.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># geim_online.set_basis(path_folder=&#39;Results/02/OfflineGEIM/&#39;)</span>
@@ -1000,7 +953,7 @@ Text(0.5, 1.0, &#39;Residual with Tikhonov regularization&#39;)
 </div>
 <p>Once these information have been provided, the matrix <span class="math notranslate nohighlight">\(B\)</span> can be computed using the <code class="docutils literal notranslate"><span class="pre">compute_B_matrix</span></code> method.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geim_online</span><span class="o">.</span><span class="n">compute_B_matrix</span><span class="p">()</span>

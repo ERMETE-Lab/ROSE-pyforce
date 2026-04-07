@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Introduction to ROM methods: SVD based techniques &mdash; pyforce 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
   
@@ -221,7 +221,7 @@ Importing U using pyvista
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Computing vorticity field: 250.000 / 250.00 - 0.013860 s/it
+Computing vorticity field: 250.000 / 250.00 - 0.013480 s/it
 </pre></div></div>
 </div>
 <p>Let us make a plot of the snapshots</p>
@@ -350,9 +350,9 @@ spatial modes, while the second matrix <span class="math notranslate nohighlight
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-SVD of p snapshots calculated in 2.795507 seconds (cpu).
-SVD of U snapshots calculated in 7.653455 seconds (cpu).
-SVD of vorticity snapshots calculated in 9.196444 seconds (cpu).
+SVD of p snapshots calculated in 2.859367 seconds (cpu).
+SVD of U snapshots calculated in 8.171413 seconds (cpu).
+SVD of vorticity snapshots calculated in 10.719271 seconds (cpu).
 </pre></div></div>
 </div>
 <p>The class is provided with a method to plot the singular values, which can be used to assess the quality of the decomposition and to choose the number of modes to retain for the reduced basis.</p>
@@ -496,7 +496,7 @@ SVD of vorticity snapshots calculated in 9.196444 seconds (cpu).
 <p>The SVD identifies the most energetic modes in the data, in the form of <strong>coherent structures</strong>. For instance, the first mode identifies the mean flow, while the second and third ones identify the vortex shedding in the dominant frequencies. The SVD allows to decompose the flow field following the energy decay of turbulence associated to the importance of the mode (measured by the singular value).</p>
 <p>The modes describes the spatial structures, while the temporal coefficients (also called <em>latent space</em>) describe how these structures evolve in time. The temporal coefficients can be obtained by projecting the snapshots onto the spatial modes.These coefficients can be computed using the <code class="docutils literal notranslate"><span class="pre">reduce</span></code> method.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rsvd_coeffs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -541,7 +541,7 @@ SVD of vorticity snapshots calculated in 9.196444 seconds (cpu).
 </div>
 <p>The class also provides a method to store the results of the decomposition: the modes and the singular values. The method <code class="docutils literal notranslate"><span class="pre">save</span></code> can be used to save the results in a specified folder, exploiting the method <code class="docutils literal notranslate"><span class="pre">store</span></code> of <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -565,7 +565,7 @@ SVD of vorticity snapshots calculated in 9.196444 seconds (cpu).
 \end{equation*}</span></p>
 <p>This algorithm is implement in <em>pyforce</em> within the <code class="docutils literal notranslate"><span class="pre">POD</span></code> class. The initialisation of the class requires a <code class="docutils literal notranslate"><span class="pre">pv.UnstructuredGrid</span></code> object, optionally the variable of the field to compress and the dimension of the problem (2D or 3D) and the verbose flag.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.offline.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">POD</span>
@@ -580,7 +580,7 @@ SVD of vorticity snapshots calculated in 9.196444 seconds (cpu).
 </div>
 <p>Similar to the SVD, the method <code class="docutils literal notranslate"><span class="pre">fit</span></code> can be used to compute the modes and the singular values, providing the training snapshots as a <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object and the rank of the decomposition (number of modes to compute). Optionally, the <code class="docutils literal notranslate"><span class="pre">verbose</span></code> flag can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to print information about the computational times.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
@@ -595,17 +595,17 @@ SVD of vorticity snapshots calculated in 9.196444 seconds (cpu).
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Computing p correlation matrix: 200.000 / 200.00 - 0.004850 s/it
-Eigenvalues calculated in 0.986307 seconds.
-Computing U correlation matrix: 200.000 / 200.00 - 0.022668 s/it
-Eigenvalues calculated in 4.555967 seconds.
-Computing vorticity correlation matrix: 200.000 / 200.00 - 0.022641 s/it
-Eigenvalues calculated in 4.552274 seconds.
+Computing p correlation matrix: 200.000 / 200.00 - 0.004309 s/it
+Eigenvalues calculated in 0.882044 seconds.
+Computing U correlation matrix: 200.000 / 200.00 - 0.021736 s/it
+Eigenvalues calculated in 4.371822 seconds.
+Computing vorticity correlation matrix: 200.000 / 200.00 - 0.021762 s/it
+Eigenvalues calculated in 4.379607 seconds.
 </pre></div></div>
 </div>
 <p>The class is provided with a method to plot the singular values, which can be used to assess the quality of the decomposition and to choose the number of modes to retain for the reduced basis.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
@@ -639,7 +639,7 @@ Eigenvalues calculated in 4.552274 seconds.
 \psi_m(\mathbf{x}) = \frac{1}{\sqrt{\lambda_m}}\sum_{n=1}^{N_s} \eta_{m,n}\cdot u_n(\mathbf{x})
 \end{equation*}</span></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
@@ -649,7 +649,7 @@ Eigenvalues calculated in 4.552274 seconds.
 </div>
 <p>Let us now plot the spatial modes to observe what they look like using <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> (alternately, we can exploit the <code class="docutils literal notranslate"><span class="pre">plot</span></code> method of the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> class for the SVD modes), but we will stick to <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> for now to have a visualiation using subplots and show another way to plot the modes.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
@@ -693,7 +693,7 @@ Eigenvalues calculated in 4.552274 seconds.
 </div>
 <p>Apart from the different scales, the modes are very similar to the SVD ones, as expected. Let us now observe the reduced coefficients (latent space) associated to the POD modes, which can be computed using the <code class="docutils literal notranslate"><span class="pre">reduce</span></code> method.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pod_coeffs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -738,7 +738,7 @@ Eigenvalues calculated in 4.552274 seconds.
 </div>
 <p>Similar to the SVD, the class also provides a method to store the results of the decomposition: the modes and the eigenvalues. The method <code class="docutils literal notranslate"><span class="pre">save</span></code> can be used to save the results in a specified folder, exploiting the method <code class="docutils literal notranslate"><span class="pre">store</span></code> of <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -756,7 +756,7 @@ Eigenvalues calculated in 4.552274 seconds.
 <p>Let us now compare the projection error of the two techniques on the test set, by projecting the snapshots onto the reduced basis and computing the relative error with respect to the original snapshots adopting as metrics the absolute and relative <span class="math notranslate nohighlight">\(L^2\)</span> norm.</p>
 <p>This can be done using the <code class="docutils literal notranslate"><span class="pre">compute_errors</span></code> method of the <code class="docutils literal notranslate"><span class="pre">POD</span></code> and <code class="docutils literal notranslate"><span class="pre">rSVD</span></code> classes, which returns a <code class="docutils literal notranslate"><span class="pre">NamedTuple</span></code> containing the absolute and relative errors for each field and the computational costs.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">projection_res</span> <span class="o">=</span> <span class="p">{</span>
@@ -777,17 +777,17 @@ Eigenvalues calculated in 4.552274 seconds.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Computing errors (SVD-projection) - p: 40.000 / 40.00 - 0.179587 s/it
-Computing errors (POD-projection) - p: 40.000 / 40.00 - 0.057290 s/it
-Computing errors (SVD-projection) - U: 40.000 / 40.00 - 0.782281 s/it
-Computing errors (POD-projection) - U: 40.000 / 40.00 - 0.285877 s/it
-Computing errors (SVD-projection) - vorticity: 40.000 / 40.00 - 0.748365 s/it
-Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
+Computing errors (SVD-projection) - p: 40.000 / 40.00 - 0.173926 s/it
+Computing errors (POD-projection) - p: 40.000 / 40.00 - 0.053978 s/it
+Computing errors (SVD-projection) - U: 40.000 / 40.00 - 0.814304 s/it
+Computing errors (POD-projection) - U: 40.000 / 40.00 - 0.279926 s/it
+Computing errors (SVD-projection) - vorticity: 40.000 / 40.00 - 0.782674 s/it
+Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.282775 s/it
 </pre></div></div>
 </div>
 <p>Let us make a plot of the errors and the computational times.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)))</span>
@@ -850,7 +850,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 </ul>
 <p>The online classes of POD and SVD requires this model to be wrapped in a template class, called <code class="docutils literal notranslate"><span class="pre">SurrogateModelWrapper</span></code>, which requires a method predict able to return the latent coefficients in the form of a 2D array of shape <code class="docutils literal notranslate"><span class="pre">(n_modes,</span> <span class="pre">n_samples)</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.online_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SurrogateModelWrapper</span>
@@ -869,7 +869,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 </div>
 <p><strong>Linear Interpolation</strong>: in the following cell we define a linear interpolation model for the latent space, using the <code class="docutils literal notranslate"><span class="pre">interp1d</span></code> class from <code class="docutils literal notranslate"><span class="pre">scipy.interpolate</span></code>. The model is then wrapped in the <code class="docutils literal notranslate"><span class="pre">SurrogateModelWrapper</span></code> class.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
@@ -879,10 +879,10 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
         <span class="k">pass</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_times</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">train_times</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_times</span><span class="p">):</span>
         <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">model</span><span class="p">(</span><span class="n">test_times</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">])</span>
@@ -896,7 +896,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 </div>
 <p><strong>Radial Basis Function (RBF) Interpolation</strong>: in the following cell we define a RBF interpolation model for the latent space, using the <code class="docutils literal notranslate"><span class="pre">RBFInterpolator</span></code> class from <code class="docutils literal notranslate"><span class="pre">scipy.interpolate</span></code>. The model is then wrapped in the <code class="docutils literal notranslate"><span class="pre">SurrogateModelWrapper</span></code> class.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBFInterpolator</span>
@@ -908,10 +908,10 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 
         <span class="n">train_times</span> <span class="o">=</span> <span class="n">train_times</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">RBFInterpolator</span><span class="p">(</span><span class="n">train_times</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_times</span><span class="p">):</span>
         <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">model</span><span class="p">(</span><span class="n">test_times</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">])</span>
@@ -925,7 +925,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 </div>
 <p><strong>Gaussian Process Regression (GPR)</strong>: in the following cell we define a GPR model for the latent space, using the <code class="docutils literal notranslate"><span class="pre">GaussianProcessRegressor</span></code> class from <code class="docutils literal notranslate"><span class="pre">sklearn.gaussian_process</span></code>. The model is then wrapped in the <code class="docutils literal notranslate"><span class="pre">SurrogateModelWrapper</span></code> class.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.gaussian_process</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianProcessRegressor</span>
@@ -952,7 +952,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
             <span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="n">kernel</span> <span class="o">=</span> <span class="n">C</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">))</span> <span class="o">*</span> <span class="n">RBF</span><span class="p">(</span><span class="n">length_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">length_scale_bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">))</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">GaussianProcessRegressor</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">,</span> <span class="n">n_restarts_optimizer</span><span class="o">=</span><span class="n">n_restarts_optimizer</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
@@ -961,7 +961,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
                 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_times</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_scalers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_times</span><span class="p">,</span> <span class="n">train_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_times</span><span class="p">):</span>
 
@@ -997,7 +997,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 </div>
 <p>Let us compare the performance of the different surrogate models on the test set on the latent dynamics.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ncols</span> <span class="o">=</span> <span class="mi">6</span>
@@ -1063,7 +1063,7 @@ Computing errors (POD-projection) - vorticity: 40.000 / 40.00 - 0.286050 s/it
 techniques: based on the linear combination of the basis functions and the coefficients from the surrogate model.</p>
 <p>The class is initialisation with the grid (<code class="docutils literal notranslate"><span class="pre">pv.UnstructuredGrid</span></code>) and optionally the variable name and the dimension of the problem (2D or 3D).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyforce.online.pod</span><span class="w"> </span><span class="kn">import</span> <span class="n">POD</span> <span class="k">as</span> <span class="n">OnlinePOD</span>
@@ -1076,7 +1076,7 @@ techniques: based on the linear combination of the basis functions and the coeff
 </div>
 <p>The basis can be loaded using the <code class="docutils literal notranslate"><span class="pre">load_basis</span></code> method: two possibilities are available, either loading the basis from a folder where the results of the offline phase were saved using the <code class="docutils literal notranslate"><span class="pre">save</span></code> method, or providing directly the <code class="docutils literal notranslate"><span class="pre">FunctionsList</span></code> object containing the modes.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
@@ -1088,7 +1088,7 @@ techniques: based on the linear combination of the basis functions and the coeff
 </div>
 <p>The state of the system can be reconstructed using the <code class="docutils literal notranslate"><span class="pre">estimate</span></code> method, providing the surrogate model for the latent space and the new parameter values (time instances in this case).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state_estimate</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -1103,7 +1103,7 @@ techniques: based on the linear combination of the basis functions and the coeff
 </div>
 <p>Let us compare the reconstructed fields with the original ones for a given time instance in the test set.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">levels</span> <span class="o">=</span> <span class="p">{</span>
@@ -1178,7 +1178,7 @@ techniques: based on the linear combination of the basis functions and the coeff
 </div>
 <p>Similarly to the projection error, we can compute the reconstruction error for the test set using the <code class="docutils literal notranslate"><span class="pre">compute_errors</span></code> method of the <code class="docutils literal notranslate"><span class="pre">POD</span></code> class, which returns a <code class="docutils literal notranslate"><span class="pre">NamedTuple</span></code> containing the absolute and relative errors for each field and the computational costs.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_res</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -1196,7 +1196,7 @@ techniques: based on the linear combination of the basis functions and the coeff
 </div>
 <p>Let’s make a plot of the errors and the computational times.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)))</span>
