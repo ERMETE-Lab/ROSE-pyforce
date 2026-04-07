@@ -20,7 +20,7 @@
   <a href="https://steriva.github.io/ROSE-pyforce/intro.html">
     <img src="https://img.shields.io/badge/Docs-Read%20the%20Docs-green?style=flat&logo=readthedocs&logoColor=white" alt="Docs">
   </a>
-  <a href="https://zenodo.org/records/15705990">
+  <a href="https://doi.org/10.5281/zenodo.19451328">
     <img src="https://img.shields.io/badge/Datasets-Zenodo-purple?style=flat&logo=zenodo&logoColor=white" alt="Zenodo">
   </a>
   <a href="https://github.com/Steriva/ROSE-pyforce/actions/workflows/testing.yml">
@@ -184,7 +184,7 @@ The *pyforce* package is tested on some tutorials available in the `docs/Tutoria
 
 In addition to these basic tutorials, additional advanced tutorials are also available at `docs/Tutorials/Advanced` folder.
 
-The snapshots can be downloaded at the following link ... or contact Stefano Riva for further information.
+The snapshots can be downloaded at the following [link](https://doi.org/10.5281/zenodo.19451328) or contact Stefano Riva for further information.
 
 ### Basic Demo
 
