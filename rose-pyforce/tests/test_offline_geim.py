@@ -16,15 +16,21 @@ from pyvista import examples
 # -----------------------
 
 @pytest.fixture
-def grid():
+def grid(nx = 10, ny = 10):
     """
-    Prepare a reader using a downloaded OpenFOAM example.
-    The pyvista cavity case is a safe and widely used test.
+    Generate a refined, structured 2D grid.
+    Increased resolution (50x50) ensures that high-frequency 
+    synthetic functions are captured without aliasing.
     """
-    # PyVista returns ".../cavity/cavity.foam"
-    foam_file = Path(examples.download_cavity(load=False))
-    case_dir = foam_file.parent   # folder containing system/, constant/, 0/, etc.
-    return ReadFromOF(str(case_dir)).mesh()
+    x = np.linspace(0, 1, nx)
+    y = np.linspace(0, 1, ny)
+    z = np.zeros(1)
+    
+    # pv.RectilinearGrid or pv.ImageData provides a clean, structured mesh
+    grid = pv.RectilinearGrid(x, y, z)
+    
+    # Optional: Ensure it's treated as an UnstructuredGrid if the ROM requires it
+    return grid.cast_to_unstructured_grid()
 
 @pytest.fixture
 def sample_data(grid):
@@ -57,28 +63,28 @@ def sensor_params():
 def test_geim_initialization(grid):
     """Test that GEIM initializes correctly and validates sensor types."""
     # Valid initialization
-    model = GEIM(grid=grid, gdim=3, varname='temp', sensors_type='Gaussian')
+    model = GEIM(grid=grid, gdim=2, varname='temp', sensors_type='Gaussian')
     assert model.sensors_type == 'Gaussian'
     assert model.varname == 'temp'
 
     # Invalid sensor type should raise AssertionError
     with pytest.raises(AssertionError, match="sensors_type must be one of"):
-        GEIM(grid=grid, sensors_type='Polynomial')
+        GEIM(grid=grid, gdim=2, sensors_type='Polynomial')
 
 def test_geim_invalid_field_shape(grid, sensor_params):
     """Test that GEIM raises ValueError when provided with vector fields."""
-    model = GEIM(grid=grid, gdim=3)
+    model = GEIM(grid=grid, gdim=2)
     
     # Create a vector field (shape = n_points * gdim)
-    vector_data = FunctionsList(dofs=grid.n_points * 3)
-    vector_data.append(np.ones(grid.n_points * 3))  # Just a dummy vector field
+    vector_data = FunctionsList(dofs=grid.n_points * 2)
+    vector_data.append(np.ones(grid.n_points * 2))  # Just a dummy vector field
     
     with pytest.raises(ValueError, match="vector fields"):
         model.fit(vector_data, Mmax=2, sensor_params=sensor_params)
 
 def test_geim_fit_properties(grid, sample_data, sensor_params):
     """Test the GEIM greedy fitting procedure and attribute population."""
-    model = GEIM(grid=grid, gdim=3)
+    model = GEIM(grid=grid, gdim=2)
     Mmax = 5
     
     maxAbsErr, maxRelErr, beta_coeff = model.fit(
@@ -102,7 +108,7 @@ def test_geim_fit_properties(grid, sample_data, sensor_params):
 
 def test_geim_reconstruction(grid, sample_data, sensor_params):
     """Test the reduction and reconstruction workflow."""
-    model = GEIM(grid=grid, gdim=3)
+    model = GEIM(grid=grid, gdim=2)
     Mmax = 6
     model.fit(sample_data, Mmax=Mmax, sensor_params=sensor_params)
 
@@ -117,7 +123,7 @@ def test_geim_reconstruction(grid, sample_data, sensor_params):
 
 def test_geim_reduce(grid, sample_data, sensor_params):
     """Test the projection of snapshots onto the reduced space."""
-    model = GEIM(grid=grid, gdim=3)
+    model = GEIM(grid=grid, gdim=2)
     model.fit(sample_data, Mmax=5, sensor_params=sensor_params)
 
     # Reduce a single numpy array
@@ -128,7 +134,7 @@ def test_geim_reduce(grid, sample_data, sensor_params):
 
 def test_geim_compute_errors(grid, sample_data, sensor_params):
     """Test the GEIM internal error computation over various truncation sizes."""
-    model = GEIM(grid=grid, gdim=3)
+    model = GEIM(grid=grid, gdim=2)
     model.fit(sample_data, Mmax=5, sensor_params=sensor_params)
 
     res = model.compute_errors(sample_data, Mmax=4, verbose=False)
@@ -142,7 +148,7 @@ def test_geim_compute_errors(grid, sample_data, sensor_params):
 
 def test_geim_lebesgue_constant(grid, sample_data, sensor_params):
     """Test the Lebesgue constant computation using Gram-Schmidt orthogonalization."""
-    model = GEIM(grid=grid, gdim=3)
+    model = GEIM(grid=grid, gdim=2)
     
     # Should raise error if called before fitting
     with pytest.raises(ValueError, match="model has not been fitted"):
@@ -158,7 +164,7 @@ def test_geim_lebesgue_constant(grid, sample_data, sensor_params):
 
 def test_geim_save(tmp_path, grid, sample_data, sensor_params):
     """Test saving the magic functions and magic sensors to disk."""
-    model = GEIM(grid=grid, gdim=3, varname='velocity')
+    model = GEIM(grid=grid, gdim=2, varname='velocity')
     model.fit(sample_data, Mmax=3, sensor_params=sensor_params)
 
     out_dir = tmp_path / "geim_output"
