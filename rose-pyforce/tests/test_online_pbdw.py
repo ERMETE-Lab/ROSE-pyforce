@@ -1,0 +1,159 @@
+import numpy as np
+import pytest
+import os
+import pyvista as pv
+
+from pyforce.offline.pod import POD as OfflinePOD
+from pyforce.offline.sgreedy import SGREEDY as OfflineSGREEDY
+from pyforce.online.pbdw import PBDW as OnlinePBDW
+from pyforce.tools.functions_list import FunctionsList
+
+# -----------------------
+# Fixtures
+# -----------------------
+
+
+@pytest.fixture
+def grid(nx = 10, ny = 10):
+    """
+    Generate a refined, structured 2D grid.
+    Increased resolution (50x50) ensures that high-frequency 
+    synthetic functions are captured without aliasing.
+    """
+    x = np.linspace(0, 1, nx)
+    y = np.linspace(0, 1, ny)
+    z = np.zeros(1)
+    
+    # pv.RectilinearGrid or pv.ImageData provides a clean, structured mesh
+    grid = pv.RectilinearGrid(x, y, z)
+    
+    # Optional: Ensure it's treated as an UnstructuredGrid if the ROM requires it
+    return grid.cast_to_unstructured_grid()
+
+@pytest.fixture
+def sample_data(grid):
+    nodes = grid.points
+    func = lambda x, mu: np.sin(mu * x[:, 0]) * np.cos(mu * x[:, 1])
+    fun_list = FunctionsList(dofs=nodes.shape[0])
+    mu_params = np.linspace(0.1, 10, 15)
+    for mu in mu_params:
+        fun_list.append(func(nodes, mu))
+    return fun_list
+
+@pytest.fixture
+def trained_pod_basis(grid, sample_data):
+    """Produces POD modes to serve as the background space Z_N."""
+    model = OfflinePOD(grid=grid, gdim=2, varname="u")
+    model.fit(sample_data)
+    model.compute_basis(sample_data, rank=5) # N = 5
+    return model.pod_modes
+
+@pytest.fixture
+def trained_sgreedy_sensors(grid, trained_pod_basis):
+    """
+    Uses the SGREEDY offline algorithm to place sensors based 
+    on the POD background basis.
+    """
+    # Mmax must be >= Nmax (5)
+    model = OfflineSGREEDY(grid=grid, gdim=2, varname='u', sensors_type='Gaussian')
+    sensor_params = {'s': 0.05}
+    
+    # Place 8 sensors (M=8) to satisfy M >= N
+    model.fit(trained_pod_basis, Mmax=8, sensor_params=sensor_params, tol=0.1, verbose=False)
+    return model
+
+# -----------------------
+# Online PBDW Tests
+# -----------------------
+
+def test_pbdw_full_integration(grid, sample_data, trained_pod_basis, trained_sgreedy_sensors):
+    """
+    Test PBDW initialization using direct basis/sensor objects 
+    from POD and SGREEDY.
+    """
+    model = OnlinePBDW(grid=grid, gdim=2, varname='u')
+    
+    # 1. Set Background Basis (from POD)
+    model.set_basis(basis=trained_pod_basis)
+    
+    # 2. Set Sensors (from SGREEDY)
+    model.set_basis_sensors(sensors=trained_sgreedy_sensors.sensors.library)
+    
+    assert model.N == 5
+    assert len(model.sensors) == 8
+    
+    # 3. Compute Matrices and Estimate
+    model.compute_matrices()
+    measures = model.get_measurements(sample_data[0])
+    estimation = model.estimate(measures)
+    
+    assert len(estimation) == 1
+    assert estimation.fun_shape == grid.n_points
+
+def test_pbdw_loading_from_sgreedy_disk(tmp_path, grid, trained_pod_basis, trained_sgreedy_sensors):
+    """
+    Tests if Online PBDW can load files exactly as saved by 
+    POD.save() and SGREEDY.save().
+    """
+    out_dir = tmp_path / "pbdw_combined"
+    os.makedirs(out_dir, exist_ok=True)
+    
+    # POD saves as 'PODmode_u.npy' (standard POD) or 'mf_u.npy' (manual)
+    # Based on your previous Offline POD code:
+    trained_pod_basis.store('mf_u', filename=os.path.join(out_dir, 'mf_u'))
+    
+    # SGREEDY saves specifically as 'sgreedy_sens_u.npy'
+    trained_sgreedy_sensors.save(str(out_dir))
+    
+    model = OnlinePBDW(grid=grid, gdim=2, varname='u')
+    
+    # Load Basis
+    model.set_basis(path_folder=str(out_dir))
+    
+    # Load Sensors (Manually point to the SGREEDY file name if different from default)
+    sensor_file = os.path.join(out_dir, 'sgreedy_sens_u')
+    from pyforce.tools.write_read import ImportFunctionsList
+    model.set_basis_sensors(sensors=ImportFunctionsList(sensor_file))
+    
+    assert model.N == 5
+    assert len(model.sensors) == 8
+
+def test_pbdw_error_convergence(grid, sample_data, trained_pod_basis, trained_sgreedy_sensors):
+    """
+    Verify that PBDW error logic works with the SGREEDY sensor set.
+    """
+    model = OnlinePBDW(grid=grid, gdim=2, varname='u')
+    model.set_basis(basis=trained_pod_basis)
+    model.set_basis_sensors(sensors=trained_sgreedy_sensors.sensors.library)
+    
+    # Mmax in compute_errors is the upper bound of sensors to check
+    # It starts from mm = N (5) up to Mmax (8)
+    res = model.compute_errors(
+        snaps=sample_data, 
+        Mmax=8, 
+        xi=1e-8,
+        verbose=False
+    )
+    
+    # mm = [5, 6, 7, 8] -> 4 entries
+    assert len(res.mean_abs_err) == 4
+    # Typically, error should decrease or stay stable as more sensors are added
+    assert res.mean_rel_err[-1] <= res.mean_rel_err[0]
+
+def test_pbdw_regularization_impact(grid, sample_data, trained_pod_basis, trained_sgreedy_sensors):
+    """
+    Ensures regularization (xi) properly handles the system 
+    generated by SGREEDY sensors.
+    """
+    model = OnlinePBDW(grid=grid, gdim=2, varname='u')
+    model.set_basis(basis=trained_pod_basis)
+    model.set_basis_sensors(sensors=trained_sgreedy_sensors.sensors.library)
+    
+    measures = model.get_measurements(sample_data[5], noise_std=0.05)
+    
+    # High xi should "smoothen" the θ coefficients
+    _, theta_no_reg = model._solve_pbdw_linear_system(measures, xi=0.0)
+    _, theta_reg = model._solve_pbdw_linear_system(measures, xi=1.0)
+    
+    # The norms of the update coefficients should differ
+    assert np.linalg.norm(theta_no_reg) != np.linalg.norm(theta_reg)
