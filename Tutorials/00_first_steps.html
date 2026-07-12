@@ -248,7 +248,7 @@ F(\mathbf{x}) = \sum_{i=1}^{N_s} \alpha_i f_i(\mathbf{x})
 </div>
 </div>
 <p>Once the data, these can be loaded with the <code class="docutils literal notranslate"><span class="pre">ImportFunctionsList</span></code> function.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
@@ -264,6 +264,15 @@ F(\mathbf{x}) = \sum_{i=1}^{N_s} \alpha_i f_i(\mathbf{x})
 <span class="o">!</span><span class="w"> </span>rm<span class="w"> </span>example_snaps.*
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/pty.py:95: DeprecationWarning: This process (pid=9254) is multi-threaded, use of forkpty() may lead to deadlocks in the child.
+  pid, fd = os.forkpty()
+</pre></div></div>
 </div>
 <p>The <em>pyforce</em> package provides also a class to import snapshots from an OpenFOAM simulation through the <code class="docutils literal notranslate"><span class="pre">ReadFromOF</span></code> class: this class will be explained in details in future tutorials since it will be extended used.</p>
 </section>
@@ -286,11 +295,180 @@ F(\mathbf{x}) = \sum_{i=1}^{N_s} \alpha_i f_i(\mathbf{x})
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Tutorials_00_first_steps_16_0.png" src="../_images/Tutorials_00_first_steps_16_0.png" />
+<img alt="../_images/Tutorials_00_first_steps_16_1.png" src="../_images/Tutorials_00_first_steps_16_1.png" />
 </div>
 </div>
 <p>Let us consider two functions: <span class="math">\begin{equation*}
@@ -327,11 +505,21 @@ v(x,y) &= x^3 + y
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Tutorials_00_first_steps_18_0.png" src="../_images/Tutorials_00_first_steps_18_0.png" />
+<img alt="../_images/Tutorials_00_first_steps_18_1.png" src="../_images/Tutorials_00_first_steps_18_1.png" />
 </div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">IntegralCalculator</span></code> class can be initialized by providing the grid. There are different integrals that can be computed, such as (<span class="math notranslate nohighlight">\(\Omega\)</span> is the spatial domain, which is <span class="math notranslate nohighlight">\([0,1/10]\times[0,1/10]\times[0,1/100]\)</span> in this case):</p>
@@ -365,7 +553,7 @@ L^2\text{-norm:} \quad & \|u\|_{L^2(\Omega)}=\sqrt{\int_\Omega u(x,y)^2 \, d\Ome
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -375,6 +563,82 @@ average : 6.67500024e-03
 L1_norm : 5.02506261e-06
 L2_inner: -4.19379194e-08
 L2_norm : 7.89163352e-05
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
 </pre></div></div>
 </div>
 <section id="Trick-to-handle-1D-datasets">
@@ -406,21 +670,31 @@ L2_norm : 7.89163352e-05
 <span class="n">calcu</span><span class="o">.</span><span class="n">cell_sizes</span> <span class="o">=</span> <span class="n">calcu</span><span class="o">.</span><span class="n">cell_sizes</span> <span class="o">/</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exact integral value                   = &#39;</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Numpy Integration with trapezoid rule  = &#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Numpy Integration with trapezoid rule  = &#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Numpy Integration with reactangle rule = &#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Pyforce Integration with 3D trick      = &#39;</span><span class="p">,</span> <span class="n">calcu</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">fun</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Exact integral value                   =  2.1
-Numpy Integration with trapezoid rule  =  2.1000001800360044
-Numpy Integration with reactangle rule =  2.1009901800180018
+Numpy Integration with trapezoid rule  =  2.100000180036005
+Numpy Integration with reactangle rule =  2.1009901800180013
 Pyforce Integration with 3D trick      =  2.1009901800180018
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linum/miniconda3/envs/pyforce/lib/python3.12/site-packages/vtkmodules/util/numpy_support.py:244: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+  result.shape = shape
 </pre></div></div>
 </div>
 </section>
